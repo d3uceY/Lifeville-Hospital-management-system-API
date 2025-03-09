@@ -1,4 +1,12 @@
+// import query connection
 import { query } from "../db.js";
+
+export const getPatients = async () => {
+  const { rows } = await query("SELECT * FROM patients");
+  return rows;
+};
+
+
 
 export const createPatient = async (patientData) => {
   const {
