@@ -16,7 +16,7 @@ export const createPatients = async (req, res) => {
   try {
     const patientData = req.body;
     const newPatient = await patientServices.createPatient(patientData);
-    res.status(200).json(newPatient);
+    res.status(200).json({ newPatient, message: "Submitted Successfully" });
   } catch (err) {
     console.error("error fetching Patients:", err);
     res.status(500).json({
@@ -24,4 +24,16 @@ export const createPatients = async (req, res) => {
     });
   }
 };
-    ``
+
+export const viewPatient = async (req, res) => {
+  try {
+    const patientId = req.params.id;
+    const patient = await patientServices.viewPatient(patientId);
+    res.status(200).json(patient);
+  } catch (err) {
+    console.error("error fetching patient:", err);
+    res.status(500).json({
+      message: "internal server error",
+    });
+  }
+};

@@ -6,7 +6,7 @@ const router = express.Router();
 
 router.get("/patients", patientController.getPatients);
 
-// router.get("/patients/id", patientController.viewPatients);
+router.get("/patients/:id", patientController.viewPatient);
 
 // router.get("/patients/search", patientController.searchPatients);
 

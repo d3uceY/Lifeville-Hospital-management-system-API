@@ -6,36 +6,34 @@ export const getPatients = async () => {
   return rows;
 };
 
-
-
 export const createPatient = async (patientData) => {
   const {
     date,
-    hospitalNumber,       // corresponds to hospital_number
-    surname, 
-    firstName,            // corresponds to first_name
-    otherNames,           // corresponds to other_names
+    hospitalNumber, // corresponds to hospital_number
+    surname,
+    firstName, // corresponds to first_name
+    otherNames, // corresponds to other_names
     sex,
-    maritalStatus,        // corresponds to marital_status
-    dateOfBirth,          // corresponds to date_of_birth
-    phoneNumber,          // corresponds to phone_number
+    maritalStatus, // corresponds to marital_status
+    dateOfBirth, // corresponds to date_of_birth
+    phoneNumber, // corresponds to phone_number
     address,
     occupation,
-    placeOfWorkAddress,   // corresponds to place_of_work_address
+    placeOfWorkAddress, // corresponds to place_of_work_address
     religion,
     nationality,
-    nextOfKin,            // corresponds to next_of_kin
+    nextOfKin, // corresponds to next_of_kin
     relationship,
     nextOfKinPhoneNumber, // corresponds to next_of_kin_phone
-    addressOfNextOfKin,   // corresponds to next_of_kin_address
-    pastMedicalHistory,   // corresponds to past_medical_history
-    pastSurgicalHistory,  // corresponds to past_surgical_history
-    familyHistory,        // corresponds to family_history
-    socialHistory,        // corresponds to social_history
-    drugHistory,          // corresponds to drug_history
+    addressOfNextOfKin, // corresponds to next_of_kin_address
+    pastMedicalHistory, // corresponds to past_medical_history
+    pastSurgicalHistory, // corresponds to past_surgical_history
+    familyHistory, // corresponds to family_history
+    socialHistory, // corresponds to social_history
+    drugHistory, // corresponds to drug_history
     allergies,
-    dietaryRestrictions,  // corresponds to dietary_restrictions
-    dietAllergies         // corresponds to diet_allergies_to_drugs
+    dietaryRestrictions, // corresponds to dietary_restrictions
+    dietAllergies, // corresponds to diet_allergies_to_drugs
   } = patientData;
 
   const { rows } = await query(
@@ -88,8 +86,8 @@ export const createPatient = async (patientData) => {
       nationality,
       nextOfKin,
       relationship,
-      nextOfKinPhoneNumber, 
-      addressOfNextOfKin,   
+      nextOfKinPhoneNumber,
+      addressOfNextOfKin,
       pastMedicalHistory,
       pastSurgicalHistory,
       familyHistory,
@@ -97,9 +95,18 @@ export const createPatient = async (patientData) => {
       drugHistory,
       allergies,
       dietaryRestrictions,
-      dietAllergies        
+      dietAllergies,
     ]
   );
 
   return rows[0];
 };
+
+export const viewPatient = async (patientId) => {
+  const { rows } = await query(`SELECT * FROM patients WHERE patient_id = $1`, [
+    patientId,
+  ]);
+  return rows[0];
+};
+
+
