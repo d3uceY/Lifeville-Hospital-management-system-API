@@ -30,10 +30,17 @@ export const viewAppointment = async (req, res) => {
 export const createAppointment = async (req, res) => {
   try {
     const appointmentData = req.body;
-    const newAppointment = await appointmentService.createAppointment(appointmentData);
-    res.status(201).json(newAppointment);
+    console.log("this is appointment data", appointmentData);
+    const newAppointment = await appointmentService.createAppointment(
+      appointmentData
+    );
+    res
+      .status(201)
+      .json({ newAppointment, message: "Appointment created successfully" });
   } catch (error) {
-    res.status(500).json({ error: "Failed to create appointment" });
+    res
+      .status(500)  
+      .json({ message: "Failed to create appointment", error: error.message });
   }
 };
 
@@ -42,7 +49,10 @@ export const updateAppointment = async (req, res) => {
   try {
     const { appointmentId } = req.params;
     const updateData = req.body;
-    const updatedAppointment = await appointmentService.updateAppointment(appointmentId, updateData);
+    const updatedAppointment = await appointmentService.updateAppointment(
+      appointmentId,
+      updateData
+    );
 
     if (!updatedAppointment) {
       return res.status(404).json({ error: "Appointment not found" });

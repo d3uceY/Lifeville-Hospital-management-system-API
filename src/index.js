@@ -3,6 +3,7 @@ import cors from "cors";
 import patientRoutes from "./routes/patientRoutes.js";
 import vitalSignsRoutes from "./routes/vitalSignsRoutes.js";
 import doctorRoutes from "./routes/doctorRoutes.js";
+import appointmentRoutes from "./routes/appointmentRoutes.js";
 
 const app = express();
 
@@ -15,6 +16,7 @@ app.use(express.json()); // Middleware to parse JSON requests
 app.use("/api", patientRoutes);
 app.use("/api", vitalSignsRoutes);
 app.use("/api", doctorRoutes);
+app.use("/api", appointmentRoutes);
 
 // prints out html in the host http://localhost:3000/
 app.get("/", (req, res) => {

@@ -19,7 +19,7 @@ export const viewAppointment = async (appointmentId) => {
 // Create a new appointment
 export const createAppointment = async (appointmentData) => {
   const { patientId, doctorId, appointmentDate, notes } = appointmentData;
-
+  
   const { rows } = await query(
     `INSERT INTO appointments (
        patient_id, doctor_id, appointment_date, notes, status
