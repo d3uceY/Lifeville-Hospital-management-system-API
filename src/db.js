@@ -13,7 +13,7 @@ const db = new pg.Client({
 });
 
 //connect db
-db.connect();
+db.connect(); 
 
 //error handling
 db.on("error", (err) => {

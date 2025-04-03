@@ -21,7 +21,7 @@ export const getDoctors = async (req, res) => {
 export const deleteDoctor = async (req, res) => {
   try {
     const doctor = await doctorServices.deleteDoctor(req.params.id);
-    res.status(200).json(doctor, "Doctor deleted successfully");
+    res.status(200).json({ doctor, message: "Doctor Deleted Successfully" });
   } catch (error) {
     res.status(500).json({ message: `internal server error ${error.message}` });
   }
