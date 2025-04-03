@@ -3,7 +3,7 @@ import * as doctorServices from "../services/doctorServices.js";
 export const createDoctor = async (req, res) => {
   try {
     const doctor = await doctorServices.createDoctor(req.body);
-    res.status(201).json(doctor);
+    res.status(201).json({ doctor, message: "Submitted Successfully" });
   } catch (error) {
     res.status(500).json({ message: `internal server error ${error.message}` });
   }
@@ -30,7 +30,7 @@ export const deleteDoctor = async (req, res) => {
 export const updateDoctor = async (req, res) => {
   try {
     const doctor = await doctorServices.updateDoctor(req.body);
-    res.status(200).json(doctor);
+    res.status(200).json({ doctor, message: "Updated Successfully" });
   } catch (error) {
     res.status(500).json({ message: `internal server error ${error.message}` });
   }

@@ -21,29 +21,29 @@ export const deleteDoctor = async (doctorId) => {
 };
 
 export const createDoctor = async (doctorData) => {
-  const { first_name, last_name, speciality } = doctorData;
+  const { firstName, lastName, specialty } = doctorData;
 
   const { rows } = await query(
     `INSERT INTO doctors (
-       first_name, last_name, speciality
+       first_name, last_name, specialty
      ) VALUES ($1, $2, $3)
      RETURNING *;`,
-    [first_name, last_name, speciality]
+    [firstName, lastName, specialty]
   );
 
   return rows[0];
 };
 
 export const updateDoctor = async (doctorData) => {
-  const { first_name, last_name, speciality, doctorId } = doctorData;
+  const { firstName, lastName, specialty, doctorId } = doctorData;
 
   const { rows } = await query(
     `UPDATE doctors SET (
-       first_name, last_name, speciality
+       first_name, last_name, specialty
      ) VALUES ($1, $2, $3)
      WHERE doctor_id = $4
      RETURNING *;`,
-    [first_name, last_name, speciality, doctorId]
+    [firstName, lastName, specialty, doctorId]
   );
 
   return rows[0];

@@ -109,4 +109,101 @@ export const viewPatient = async (patientId) => {
   return rows[0];
 };
 
+export const updatePatient = async (patientId, patientData) => {
+  const {
+    date,
+    hospitalNumber,
+    surname,
+    firstName,
+    otherNames,
+    sex,
+    maritalStatus,
+    dateOfBirth,
+    phoneNumber,
+    address,
+    occupation,
+    placeOfWorkAddress,
+    religion,
+    nationality,
+    nextOfKin,
+    relationship,
+    nextOfKinPhoneNumber,
+    addressOfNextOfKin,
+    pastMedicalHistory,
+    pastSurgicalHistory,
+    familyHistory,
+    socialHistory,
+    drugHistory,
+    allergies,
+    dietaryRestrictions,
+    dietAllergies,
+  } = patientData;
 
+  const { rows } = await query(
+    `UPDATE patients SET 
+        date = $1,
+        hospital_number = $2,
+        surname = $3,
+        first_name = $4,
+        other_names = $5,
+        sex = $6,
+        marital_status = $7,
+        date_of_birth = $8,
+        phone_number = $9,
+        address = $10,
+        occupation = $11,
+        place_of_work_address = $12,
+        religion = $13,
+        nationality = $14,
+        next_of_kin = $15,
+        relationship = $16,
+        next_of_kin_phone = $17,
+        next_of_kin_address = $18,
+        past_medical_history = $19,
+        past_surgical_history = $20,
+        family_history = $21,
+        social_history = $22,
+        drug_history = $23,
+        allergies = $24,
+        dietary_restrictions = $25,
+        diet_allergies = $26
+    WHERE patient_id = $27 RETURNING *`,
+    [
+      date,
+      hospitalNumber,
+      surname,
+      firstName,
+      otherNames,
+      sex,
+      maritalStatus,
+      dateOfBirth,
+      phoneNumber,
+      address,
+      occupation,
+      placeOfWorkAddress,
+      religion,
+      nationality,
+      nextOfKin,
+      relationship,
+      nextOfKinPhoneNumber,
+      addressOfNextOfKin,
+      pastMedicalHistory,
+      pastSurgicalHistory,
+      familyHistory,
+      socialHistory,
+      drugHistory,
+      allergies,
+      dietaryRestrictions,
+      dietAllergies,
+      patientId,
+    ]
+  );
+  return rows[0];
+};
+
+export const deletePatient = async (patientId) => {
+  const { rows } = await query(`DELETE FROM patients WHERE patient_id = $1`, [
+    patientId,
+  ]);
+  return rows[0];
+};
