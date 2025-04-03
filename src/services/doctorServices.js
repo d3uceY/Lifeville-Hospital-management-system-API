@@ -38,11 +38,10 @@ export const updateDoctor = async (doctorData) => {
   const { firstName, lastName, specialty, doctorId } = doctorData;
 
   const { rows } = await query(
-    `UPDATE doctors SET (
-       first_name, last_name, specialty
-     ) VALUES ($1, $2, $3)
-     WHERE doctor_id = $4
-     RETURNING *;`,
+    `UPDATE doctors 
+       SET first_name = $1, last_name = $2, specialty = $3
+       WHERE doctor_id = $4
+       RETURNING *;`,
     [firstName, lastName, specialty, doctorId]
   );
 
