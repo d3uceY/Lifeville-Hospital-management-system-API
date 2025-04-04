@@ -20,7 +20,7 @@ db.on("error", (err) => {
   console.error("unexpected idle client", err);
   process.exit(-1);
 });
-
+  
    
 export const query = (text, params) => db.query(text, params);
    

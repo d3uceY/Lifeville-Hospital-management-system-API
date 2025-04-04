@@ -3,7 +3,20 @@ import { query } from "../db.js";
 
 // Get all appointments
 export const getAppointments = async () => {
-  const { rows } = await query("SELECT * FROM appointments");
+  const { rows } = await query(`
+    SELECT 
+      a.*,
+      p.first_name AS patient_first_name,
+      p.surname AS patient_surname,
+      p.hospital_number,
+      p.phone_number AS patient_phone_number,
+      d.first_name AS doctor_first_name,
+      d.last_name AS doctor_last_name,
+      d.specialty AS doctor_specialty
+    FROM appointments a
+    JOIN patients p ON a.patient_id = p.patient_id
+    JOIN doctors d ON a.doctor_id = d.doctor_id;
+  `);
   return rows;
 };
 
@@ -19,7 +32,7 @@ export const viewAppointment = async (appointmentId) => {
 // Create a new appointment
 export const createAppointment = async (appointmentData) => {
   const { patientId, doctorId, appointmentDate, notes } = appointmentData;
-  
+
   const { rows } = await query(
     `INSERT INTO appointments (
        patient_id, doctor_id, appointment_date, notes, status
