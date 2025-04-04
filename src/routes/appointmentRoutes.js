@@ -6,7 +6,7 @@ const routes = express.Router();
 
 routes.get("/appointments", appointmentController.getAppointments);
 routes.get("/appointments/:id", appointmentController.viewAppointment);
-routes.post("/appointments", appointmentController.createAppointment);
+routes.post("/appointments", appointmentController.createAppointment);  
 routes.put("/appointments/:id", appointmentController.updateAppointment);
 routes.delete("/appointments/:id", appointmentController.deleteAppointment);
 

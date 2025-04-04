@@ -45,8 +45,8 @@ export const createAppointment = async (appointmentData) => {
 };
 
 // Update an existing appointment
-export const updateAppointment = async (appointmentData) => {
-  const { appointmentId, patientId, doctorId, appointmentDate, notes, status } =
+export const updateAppointment = async (appointment_id, appointmentData) => {
+  const { patientId, doctorId, appointmentDate, notes, status } =
     appointmentData;
 
   const { rows } = await query(
@@ -54,7 +54,7 @@ export const updateAppointment = async (appointmentData) => {
        SET patient_id = $1, doctor_id = $2, appointment_date = $3, notes = $4, status = $5, updated_at = NOW()
        WHERE appointment_id = $6
        RETURNING *;`,
-    [patientId, doctorId, appointmentDate, notes, status, appointmentId]
+    [patientId, doctorId, appointmentDate, notes, status, appointment_id]
   );
 
   return rows[0];

@@ -47,10 +47,10 @@ export const createAppointment = async (req, res) => {
 // Update an appointment
 export const updateAppointment = async (req, res) => {
   try {
-    const { appointmentId } = req.params;
+    const { id } = req.params;
     const updateData = req.body;
     const updatedAppointment = await appointmentService.updateAppointment(
-      appointmentId,
+      id,
       updateData
     );
 
@@ -58,7 +58,7 @@ export const updateAppointment = async (req, res) => {
       return res.status(404).json({ error: "Appointment not found" });
     }
 
-    res.status(200).json(updatedAppointment);
+    res.status(200).json({ updatedAppointment, message: "Appointment updated successfully" });
   } catch (error) {
     res.status(500).json({ error: "Failed to update appointment" });
   }
