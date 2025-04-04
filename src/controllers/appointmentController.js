@@ -39,7 +39,7 @@ export const createAppointment = async (req, res) => {
       .json({ newAppointment, message: "Appointment created successfully" });
   } catch (error) {
     res
-      .status(500)  
+      .status(500)
       .json({ message: "Failed to create appointment", error: error.message });
   }
 };
@@ -58,17 +58,44 @@ export const updateAppointment = async (req, res) => {
       return res.status(404).json({ error: "Appointment not found" });
     }
 
-    res.status(200).json({ updatedAppointment, message: "Appointment updated successfully" });
+    res.status(200).json({
+      updatedAppointment,
+      message: "Appointment updated successfully",
+    });
   } catch (error) {
     res.status(500).json({ error: "Failed to update appointment" });
+  }
+};
+
+export const updateAppointmentStatusController = async (req, res) => {
+  try {
+    const { appointment_id } = req.params;
+    const { status } = req.body;
+
+    const updatedAppointment = await appointmentService.updateAppointmentStatus(
+      appointment_id,
+      status
+    );
+
+    if (!updatedAppointment) {
+      return res.status(404).json({ error: "Appointment not found" });
+    }
+
+    res.status(200).json(updatedAppointment);
+  } catch (error) {
+    console.error("Error updating appointment status:", error);
+    res.status(500).json({
+      error: "Failed to update appointment status",
+      message: error.message,
+    });
   }
 };
 
 // Delete an appointment
 export const deleteAppointment = async (req, res) => {
   try {
-    const { appointmentId } = req.params;
-    const isDeleted = await appointmentService.deleteAppointment(appointmentId);
+    const { id } = req.params;
+    const isDeleted = await appointmentService.deleteAppointment(id);
 
     if (!isDeleted) {
       return res.status(404).json({ error: "Appointment not found" });

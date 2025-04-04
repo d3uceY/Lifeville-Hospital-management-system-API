@@ -60,6 +60,19 @@ export const updateAppointment = async (appointment_id, appointmentData) => {
   return rows[0];
 };
 
+export const updateAppointmentStatus = async (appointmentId, status) => {
+  const { rows } = await query(
+    `UPDATE appointments
+     SET status = $1,
+         updated_at = NOW()
+     WHERE appointment_id = $2
+     RETURNING *;`,
+    [status, appointmentId]
+  );
+  return rows[0];
+};
+
+
 // Delete an appointment
 export const deleteAppointment = async (appointmentId) => {
   const { rowCount } = await query(
