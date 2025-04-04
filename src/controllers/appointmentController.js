@@ -81,7 +81,10 @@ export const updateAppointmentStatusController = async (req, res) => {
       return res.status(404).json({ error: "Appointment not found" });
     }
 
-    res.status(200).json(updatedAppointment);
+    res.status(200).json({
+      updatedAppointment,
+      message: "Appointment status updated successfully",
+    });
   } catch (error) {
     console.error("Error updating appointment status:", error);
     res.status(500).json({
