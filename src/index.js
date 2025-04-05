@@ -33,7 +33,6 @@ app.use("/api", vitalSignsRoutes);
 app.use("/api", doctorRoutes);
 app.use("/api", appointmentRoutes);
 
-
 // 4) Start listening on the HTTP server (not app.listen)
 httpServer.listen(port, () =>
   console.log(`Server + Socket.IO running on port ${port}`)

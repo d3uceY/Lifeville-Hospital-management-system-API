@@ -33,6 +33,11 @@ export const createAppointment = async (req, res) => {
     const newAppointment = await appointmentService.createAppointment(
       appointmentData
     );
+
+    // Grab the io instance and broadcast
+    const io = req.app.get("socketio");
+    io.emit("newAppointment", newAppointment);
+
     res
       .status(201)
       .json({ newAppointment, message: "Appointment created successfully" });
