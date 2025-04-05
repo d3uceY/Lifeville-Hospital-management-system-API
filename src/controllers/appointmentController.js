@@ -30,7 +30,6 @@ export const viewAppointment = async (req, res) => {
 export const createAppointment = async (req, res) => {
   try {
     const appointmentData = req.body;
-    console.log("this is appointment data", appointmentData);
     const newAppointment = await appointmentService.createAppointment(
       appointmentData
     );
