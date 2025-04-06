@@ -7,6 +7,7 @@ export const getPatients = async () => {
 };
 
 export const createPatient = async (patientData) => {
+  //  destructure from patientData
   const {
     date,
     hospitalNumber, // corresponds to hospital_number
@@ -35,6 +36,20 @@ export const createPatient = async (patientData) => {
     dietaryRestrictions, // corresponds to dietary_restrictions
     dietAllergies, // corresponds to diet_allergies_to_drugs
   } = patientData;
+
+  // 1) Check for existing hospital number
+  const { rows: existing } = await query(
+    `SELECT 1
+       FROM patients
+      WHERE hospital_number = $1`,
+    [hospitalNumber]
+  );
+
+  if (existing.length > 0) {
+    const err = new Error("Hospital number already exists");
+    err.code = "DUPLICATE_HOSPITAL_NUMBER";
+    throw err;
+  }
 
   const { rows } = await query(
     `INSERT INTO patients (

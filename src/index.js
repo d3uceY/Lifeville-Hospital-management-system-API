@@ -25,8 +25,7 @@ const httpServer = createServer(app);
 const io = new IOServer(httpServer, { cors: { origin: "*" } });
 
 // 3) Store the io instance on your app for later retrieval
-app.set("socketio", io); // ← lets any controller do req.app.get("socketio") :contentReference[oaicite:1]{index=1}
-
+app.set("socketio", io); // ← lets any controller do req.app.get("socketio") 
 // Mount your routes
 app.use("/api", patientRoutes);
 app.use("/api", vitalSignsRoutes);

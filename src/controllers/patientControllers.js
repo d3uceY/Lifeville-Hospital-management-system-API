@@ -19,6 +19,14 @@ export const createPatients = async (req, res) => {
     res.status(200).json({ newPatient, message: "Submitted Successfully" });
   } catch (err) {
     console.error("error fetching Patients:", err);
+
+    // Check if the error is related to duplicate hospital number
+    if (err.code === "DUPLICATE_HOSPITAL_NUMBER") {
+      return res.status(400).json({
+        message: err.message, // Send custom error message to the frontend
+      });
+    }
+    
     res.status(500).json({
       message: "internal server error",
     });
@@ -34,6 +42,7 @@ export const viewPatient = async (req, res) => {
     console.error("error fetching patient:", err);
     res.status(500).json({
       message: "internal server error",
+      err,
     });
   }
 };
