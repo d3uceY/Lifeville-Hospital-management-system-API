@@ -65,10 +65,24 @@ export const updatePatient = async (req, res) => {
 
     if (err?.code === "23505") {
       return res.status(404).json({
-        message: err.detail,  
+        message: err.detail,
       });
     }
 
+    res.status(500).json({
+      message: "internal server error",
+      err,
+    });
+  }
+};
+
+export const deletePatient = async (req, res) => {
+  try {
+    const patientId = req.params.id;
+    const deletedPatient = await patientServices.deletePatient(patientId);
+    res.status(200).json({ deletedPatient, message: "Deleted Successfully" });
+  } catch (err) {
+    console.error("error deleting patient:", err);
     res.status(500).json({
       message: "internal server error",
       err,
