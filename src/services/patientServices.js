@@ -194,7 +194,7 @@ export const updatePatient = async (patientId, patientData) => {
         drug_history = $23,
         allergies = $24,
         dietary_restrictions = $25,
-        diet_allergies = $26
+        diet_allergies_to_drugs = $26
     WHERE patient_id = $27 RETURNING *`,
     [
       date,

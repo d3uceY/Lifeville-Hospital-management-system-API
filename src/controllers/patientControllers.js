@@ -18,7 +18,6 @@ export const createPatients = async (req, res) => {
     const newPatient = await patientServices.createPatient(patientData);
     res.status(200).json({ newPatient, message: "Submitted Successfully" });
   } catch (err) {
-
     // Check if the error is related to duplicate hospital number
     if (err.code === "DUPLICATE_HOSPITAL_NUMBER") {
       return res.status(400).json({
@@ -56,6 +55,7 @@ export const updatePatient = async (req, res) => {
     );
     res.status(200).json({ updatedPatient, message: "Updated Successfully" });
   } catch (err) {
+    console.error("this is za error", err.code);
     // Check if the error is related to duplicate id
     if (err.code === "PATIENT_NOT_FOUND") {
       return res.status(404).json({
@@ -63,8 +63,15 @@ export const updatePatient = async (req, res) => {
       });
     }
 
+    if (err?.code === "23505") {
+      return res.status(404).json({
+        message: err.detail,  
+      });
+    }
+
     res.status(500).json({
       message: "internal server error",
+      err,
     });
   }
 };
