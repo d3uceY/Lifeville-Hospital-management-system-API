@@ -18,7 +18,6 @@ export const createPatients = async (req, res) => {
     const newPatient = await patientServices.createPatient(patientData);
     res.status(200).json({ newPatient, message: "Submitted Successfully" });
   } catch (err) {
-    console.error("error fetching Patients:", err);
 
     // Check if the error is related to duplicate hospital number
     if (err.code === "DUPLICATE_HOSPITAL_NUMBER") {
@@ -26,7 +25,7 @@ export const createPatients = async (req, res) => {
         message: err.message, // Send custom error message to the frontend
       });
     }
-    
+
     res.status(500).json({
       message: "internal server error",
     });
@@ -43,6 +42,29 @@ export const viewPatient = async (req, res) => {
     res.status(500).json({
       message: "internal server error",
       err,
+    });
+  }
+};
+
+export const updatePatient = async (req, res) => {
+  try {
+    const patientId = req.params.id;
+    const patientData = req.body;
+    const updatedPatient = await patientServices.updatePatient(
+      patientId,
+      patientData
+    );
+    res.status(200).json({ updatedPatient, message: "Updated Successfully" });
+  } catch (err) {
+    // Check if the error is related to duplicate id
+    if (err.code === "PATIENT_NOT_FOUND") {
+      return res.status(404).json({
+        message: err.message, // Send custom error message to the frontend
+      });
+    }
+
+    res.status(500).json({
+      message: "internal server error",
     });
   }
 };

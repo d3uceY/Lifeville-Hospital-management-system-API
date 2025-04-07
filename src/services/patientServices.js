@@ -154,6 +154,19 @@ export const updatePatient = async (patientId, patientData) => {
     dietAllergies,
   } = patientData;
 
+  // 1) Check for existing hospital number
+  const { rows: existingId } = await query(
+    `SELECT * FROM patients
+      WHERE patient_id = $1`,
+    [patientId]
+  );
+
+  if (!existingId.length > 0) {
+    const err = new Error("Patient not found");
+    err.code = "PATIENT_NOT_FOUND";
+    throw err;
+  }
+
   const { rows } = await query(
     `UPDATE patients SET 
         date = $1,
