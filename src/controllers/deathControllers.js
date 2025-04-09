@@ -10,3 +10,17 @@ export const getDeathRecords = async (req, res) => {
   }
 };
 
+export const createDeathRecord = async (req, res) => {
+  try {
+    const deathRecord = await deathServices.createDeathRecord(req.body);
+    res.status(201).json({ deathRecord, message: "Submitted Successfully" });
+  } catch (err) {
+    if (err.code === "DUPLICATE_DEATH_RECORD") {
+      return res.status(400).json({
+        message: err.message, // Send custom error message to the frontend
+      });
+    }
+    console.log(err);
+    res.status(500).json({ message: err.message });
+  }
+};

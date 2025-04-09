@@ -18,15 +18,25 @@ export const getDeathRecords = async () => {
 };
 
 export const createDeathRecord = async (deathData) => {
-  const { rows } = await query(`
-    INSERT INTO death_records (patient_id, date_of_death, cause_of_death)
-    VALUES ($1, $2, $3)
+  const { patientId, deathDate, guardian, report } = deathData;
+  const { rows: existing } = await query(
+    `SELECT 1 from death_records where patient_id = $1`,
+    [patientId]
+  );
+
+  if (existing.length > 0) {
+    const err = new Error("This Death record already exists");
+    err.code = "DUPLICATE_DEATH_RECORD";
+    throw err;
+  }
+
+  const { rows } = await query(
+    `
+    INSERT INTO death_records (patient_id, death_date, guardian, report)
+    VALUES ($1, $2, $3, $4)
     RETURNING *
-  `, [
-    deathData.patient_id,
-    deathData.date_of_death,
-    deathData.cause_of_death
-  ]);
+  `,
+    [patientId, deathDate, guardian, report]
+  );
   return rows[0];
 };
-
