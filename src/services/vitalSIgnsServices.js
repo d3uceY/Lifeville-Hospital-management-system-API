@@ -17,7 +17,7 @@ export const createVitalSign = async (vitalSignData) => {
        patient_id, recorded_at, temperature, 
        blood_pressure_systolic, blood_pressure_diastolic, 
        weight, pulse_rate, spo2
-     ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+     ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8) 
      RETURNING *;`,
     [patientId, date, temperature, systolicBloodPressure, diastolicBloodPressure, weight, heartRate, spo2]
   );

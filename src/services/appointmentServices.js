@@ -12,7 +12,7 @@ export const getAppointments = async () => {
       p.phone_number AS patient_phone_number,
       d.first_name AS doctor_first_name,
       d.last_name AS doctor_last_name,
-      d.specialty AS doctor_specialty
+      d.specialty AS doctor_specialty    
     FROM appointments a
     JOIN patients p ON a.patient_id = p.patient_id
     JOIN doctors d ON a.doctor_id = d.doctor_id;

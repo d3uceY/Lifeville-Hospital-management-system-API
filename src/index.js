@@ -9,6 +9,7 @@ import patientRoutes from "./routes/patientRoutes.js";
 import vitalSignsRoutes from "./routes/vitalSignsRoutes.js";
 import doctorRoutes from "./routes/doctorRoutes.js";
 import appointmentRoutes from "./routes/appointmentRoutes.js";
+import deathRoutes from "./routes/deathRoutes.js";
 
 const app = express();
 
@@ -25,12 +26,13 @@ const httpServer = createServer(app);
 const io = new IOServer(httpServer, { cors: { origin: "*" } });
 
 // 3) Store the io instance on your app for later retrieval
-app.set("socketio", io); // ← lets any controller do req.app.get("socketio") 
+app.set("socketio", io); // ← lets any controller do req.app.get("socketio")
 // Mount your routes
 app.use("/api", patientRoutes);
 app.use("/api", vitalSignsRoutes);
 app.use("/api", doctorRoutes);
 app.use("/api", appointmentRoutes);
+app.use("/api", deathRoutes);
 
 // 4) Start listening on the HTTP server (not app.listen)
 httpServer.listen(port, () =>
