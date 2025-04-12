@@ -42,3 +42,20 @@ export const deleteDeathRecord = async (req, res) => {
     res.status(500).json({ message: err.message });
   }
 };
+
+export const updateDeathRecord = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const deathData = req.body;
+    const updatedDeathRecord = await deathServices.updateDeathRecord(
+      id,
+      deathData
+    );
+    res
+      .status(200)
+      .json({ updatedDeathRecord, message: "Updated Successfully" });
+  } catch (err) {
+    console.log(err);
+    res.status(500).json({ message: err.message });
+  }
+};

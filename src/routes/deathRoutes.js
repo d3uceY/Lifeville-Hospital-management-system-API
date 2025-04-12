@@ -10,4 +10,6 @@ router.post("/deaths", deathControllers.createDeathRecord);
 // router.put("/deaths", deathControllers.updateDeath);
 router.delete("/deaths/:id", deathControllers.deleteDeathRecord);
 
+router.put("/deaths/:id", deathControllers.updateDeathRecord);
+
 export default router;

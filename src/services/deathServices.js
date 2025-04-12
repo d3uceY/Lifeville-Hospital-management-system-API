@@ -48,3 +48,17 @@ export const deleteDeathRecord = async (id) => {
   );
   return rows[0];
 };
+
+export const updateDeathRecord = async (id, deathData) => {
+  const { patientId, deathDate, guardian, report } = deathData;
+  const { rows } = await query(
+    `
+    UPDATE death_records
+    SET patient_id = $1, death_date = $2, guardian = $3, report = $4
+    WHERE id = $5
+    RETURNING *
+  `,
+    [patientId, deathDate, guardian, report, id]
+  );
+  return rows[0];
+};
