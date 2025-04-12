@@ -24,3 +24,21 @@ export const createDeathRecord = async (req, res) => {
     res.status(500).json({ message: err.message });
   }
 };
+
+export const deleteDeathRecord = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const deletedDeathRecord = await deathServices.deleteDeathRecord(id);
+    if (!deletedDeathRecord) {
+      return res.status(404).json({
+        message: "Death Record not found",
+      });
+    }
+    res
+      .status(200)
+      .json({ deletedDeathRecord, message: "Deleted Successfully" });
+  } catch (err) {
+    console.log(err);
+    res.status(500).json({ message: err.message });
+  }
+};

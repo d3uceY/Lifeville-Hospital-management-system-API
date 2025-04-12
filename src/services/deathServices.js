@@ -40,3 +40,11 @@ export const createDeathRecord = async (deathData) => {
   );
   return rows[0];
 };
+
+export const deleteDeathRecord = async (id) => {
+  const { rows } = await query(
+    `DELETE FROM death_records WHERE id = $1 RETURNING *`,
+    [id]
+  );
+  return rows[0];
+};

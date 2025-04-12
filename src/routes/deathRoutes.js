@@ -8,6 +8,6 @@ router.get("/deaths", deathControllers.getDeathRecords);
 // router.get("/deaths/:id", deathControllers.viewDeath);
 router.post("/deaths", deathControllers.createDeathRecord);
 // router.put("/deaths", deathControllers.updateDeath);
-// router.delete("/deaths/:id", deathControllers.deleteDeath);
+router.delete("/deaths/:id", deathControllers.deleteDeathRecord);
 
 export default router;
