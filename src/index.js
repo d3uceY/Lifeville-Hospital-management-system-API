@@ -10,6 +10,7 @@ import vitalSignsRoutes from "./routes/vitalSignsRoutes.js";
 import doctorRoutes from "./routes/doctorRoutes.js";
 import appointmentRoutes from "./routes/appointmentRoutes.js";
 import deathRoutes from "./routes/deathRoutes.js";
+import birthRoutes from "./routes/birthRoutes.js";
 
 const app = express();
 
@@ -21,7 +22,7 @@ app.use(express.json()); // Middleware to parse JSON requests
 
 // 1) Create an HTTP server from your Express app
 const httpServer = createServer(app);
-  
+
 // 2) Initialize Socket.IO on that server
 const io = new IOServer(httpServer, { cors: { origin: "*" } });
 
@@ -33,6 +34,7 @@ app.use("/api", vitalSignsRoutes);
 app.use("/api", doctorRoutes);
 app.use("/api", appointmentRoutes);
 app.use("/api", deathRoutes);
+app.use("/api", birthRoutes);
 
 // 4) Start listening on the HTTP server (not app.listen)
 httpServer.listen(port, () =>
