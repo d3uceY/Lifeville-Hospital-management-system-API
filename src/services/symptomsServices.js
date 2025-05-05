@@ -25,14 +25,14 @@ export const deleteSymptomType = async (symptomTypeId) => {
 };
 
 export const updateSymptomType = async (symptomTypeId, symptomTypeData) => {
-  const { symptom_text } = symptomTypeData;
+  const { symptomText } = symptomTypeData;
 
   const { rows } = await query(
     `UPDATE symptom_types 
         SET symptom_text = $1
         WHERE symptom_type_id = $2
         RETURNING *`,
-    [symptom_text, symptomTypeId]
+    [symptomText, symptomTypeId]
   );
   return rows[0];
 };
