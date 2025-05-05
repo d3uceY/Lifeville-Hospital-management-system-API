@@ -7,11 +7,11 @@ export const getSymptomTypes = async () => {
 };
 
 export const createSymptomType = async (symptomTypeData) => {
-  const { symptom_text } = symptomTypeData;
+  const { symptomText } = symptomTypeData;
 
   const { rows } = await query(
     `INSERT INTO symptom_types (symptom_text) VALUES ($1) RETURNING *`,
-    [symptom_text]
+    [symptomText]
   );
   return rows[0];
 };
