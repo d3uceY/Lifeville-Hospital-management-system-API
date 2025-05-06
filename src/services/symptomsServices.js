@@ -37,23 +37,27 @@ export const updateSymptomType = async (symptomTypeId, symptomTypeData) => {
   return rows[0];
 };
 
-
-
-
 export const getSymptomHeads = async () => {
-  const { rows } = await query(`SELECT * FROM symptom_heads`);
+  const { rows } = await query(`
+    SELECT 
+     sh.*, 
+     symptom_types.symptom_text as symptom_type,
+     symptom_types.symptom_type_id
+     FROM symptom_heads sh
+     JOIN symptom_types ON sh.symptom_type_id = symptom_types.symptom_type_id;
+    `);
   return rows;
 };
 
 export const createSymptomHead = async (symptomHeadData) => {
-  const { symptom_head_text, symptom_type_id, symptom_description } =
+  const { symptomHeadText, symptomTypeId, symptomDescription } =
     symptomHeadData;
 
   const { rows } = await query(
-    `INSERT INTO symptom_heads (symptom_head_text, symptom_type_id, symptom_description)
+    `INSERT INTO symptom_heads (symptom_head, symptom_type_id, symptom_description)
        VALUES ($1, $2, $3)
        RETURNING *`,
-    [symptom_head_text, symptom_type_id, symptom_description]
+    [symptomHeadText, symptomTypeId, symptomDescription]
   );
 
   return rows[0];
@@ -68,7 +72,7 @@ export const deleteSymptomHead = async (symptomHeadId) => {
 };
 
 export const updateSymptomHead = async (symptomHeadId, symptomHeadData) => {
-  const { symptom_head, symptom_type_id, symptom_description } =
+  const { symptomHeadText, symptomTypeId, symptomDescription } =
     symptomHeadData;
 
   const { rows } = await query(
@@ -76,7 +80,7 @@ export const updateSymptomHead = async (symptomHeadId, symptomHeadData) => {
         SET symptom_head = $1, symptom_type_id = $2, symptom_description = $3
         WHERE symptom_head_id = $4
         RETURNING *`,
-    [symptom_head, symptom_type_id, symptom_description, symptomHeadId]
+    [symptomHeadText, symptomTypeId, symptomDescription, symptomHeadId]
   );
   return rows[0];
 };
