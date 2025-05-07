@@ -47,7 +47,7 @@ export const getSymptomHeads = async () => {
      JOIN symptom_types ON sh.symptom_type_id = symptom_types.symptom_type_id;
     `);
   return rows;
-};
+}; 
 
 export const createSymptomHead = async (symptomHeadData) => {
   const { symptomHeadText, symptomTypeId, symptomDescription } =

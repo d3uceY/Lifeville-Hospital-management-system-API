@@ -12,6 +12,7 @@ import appointmentRoutes from "./routes/appointmentRoutes.js";
 import deathRoutes from "./routes/deathRoutes.js";
 import birthRoutes from "./routes/birthRoutes.js";
 import symptomsRoutes from "./routes/symptomsRoutes.js";
+import inpatientAdmissionsRoutes from "./routes/inpatientAdmissionsRoutes.js";
 
 const app = express();
 
@@ -37,6 +38,7 @@ app.use("/api", appointmentRoutes);
 app.use("/api", deathRoutes);
 app.use("/api", birthRoutes);
 app.use("/api", symptomsRoutes);
+app.use("/api", inpatientAdmissionsRoutes);
 
 // 4) Start listening on the HTTP server (not app.listen)
 httpServer.listen(port, () =>
