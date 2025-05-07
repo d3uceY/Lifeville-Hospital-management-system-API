@@ -1,4 +1,4 @@
-// controllers/inpatientAdmissionsController.js
+
 
 import * as inpatientServices from "../services/inpatientAdmissionsServices.js";
 

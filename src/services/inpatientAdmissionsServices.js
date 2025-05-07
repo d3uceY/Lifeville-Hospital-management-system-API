@@ -2,7 +2,7 @@
 import { query } from "../db.js";
 
 /**
- * Fetch all inpatient admission records
+ * Fetch all inpatient admission records (joined with patient data)
  */
 export const getInpatientAdmissions = async () => {
   const { rows } = await query(`
