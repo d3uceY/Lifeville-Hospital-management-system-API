@@ -82,6 +82,8 @@ export const getBedGroups = async () => {
   return rows;
 };
 
+
+
 /**
  * Create a new bed group
  */
@@ -205,7 +207,7 @@ export const createBed = async (bedData) => {
  * Update an existing bed
  */
 export const updateBed = async (bedId, bedData) => {
-  const { bedName, used, bedTypeId, bedGroupId } = bedData;
+  const { bedName, inUse, bedTypeId, bedGroupId } = bedData;
   const { rows } = await query(
     `
     UPDATE beds
@@ -217,7 +219,7 @@ export const updateBed = async (bedId, bedData) => {
      WHERE id = $5
      RETURNING id, bed_name, used, bed_type_id, bed_group_id, created_at, updated_at;
     `,
-    [bedName, used, bedTypeId, bedGroupId, bedId]
+    [bedName, inUse, bedTypeId, bedGroupId, bedId]
   );
   return rows[0] || null;
 };

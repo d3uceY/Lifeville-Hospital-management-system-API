@@ -32,7 +32,9 @@ export const updateBedType = async (req, res) => {
     if (!updatedType) {
       return res.status(404).json({ message: "Bed type not found" });
     }
-    res.status(200).json({ updatedType, message: "Bed type updated successfully" });
+    res
+      .status(200)
+      .json({ updatedType, message: "Bed type updated successfully" });
   } catch (err) {
     console.error("Error updating bed type:", err);
     res.status(500).json({ message: "Internal server error" });
@@ -41,10 +43,12 @@ export const updateBedType = async (req, res) => {
 
 export const deleteBedType = async (req, res) => {
   try {
-    const typeId = req.params.id;
+    const typeId = req.params.id; 
     const deleted = await bedServices.deleteBedType(typeId);
     if (!deleted) {
-      return res.status(404).json({ message: "Bed type not found or already deleted" });
+      return res
+        .status(404)
+        .json({ message: "Bed type not found or already deleted" });
     }
     res.status(200).json({ deleted, message: "Bed type deleted successfully" });
   } catch (err) {
@@ -69,7 +73,9 @@ export const createBedGroup = async (req, res) => {
   try {
     const groupData = req.body;
     const newGroup = await bedServices.createBedGroup(groupData);
-    res.status(200).json({ newGroup, message: "Bed group created successfully" });
+    res
+      .status(200)
+      .json({ newGroup, message: "Bed group created successfully" });
   } catch (err) {
     console.error("Error creating bed group:", err);
     res.status(500).json({ message: "Internal server error" });
@@ -84,7 +90,9 @@ export const updateBedGroup = async (req, res) => {
     if (!updatedGroup) {
       return res.status(404).json({ message: "Bed group not found" });
     }
-    res.status(200).json({ updatedGroup, message: "Bed group updated successfully" });
+    res
+      .status(200)
+      .json({ updatedGroup, message: "Bed group updated successfully" });
   } catch (err) {
     console.error("Error updating bed group:", err);
     res.status(500).json({ message: "Internal server error" });
@@ -96,9 +104,13 @@ export const deleteBedGroup = async (req, res) => {
     const groupId = req.params.id;
     const deleted = await bedServices.deleteBedGroup(groupId);
     if (!deleted) {
-      return res.status(404).json({ message: "Bed group not found or already deleted" });
+      return res
+        .status(404)
+        .json({ message: "Bed group not found or already deleted" });
     }
-    res.status(200).json({ deleted, message: "Bed group deleted successfully" });
+    res
+      .status(200)
+      .json({ deleted, message: "Bed group deleted successfully" });
   } catch (err) {
     console.error("Error deleting bed group:", err);
     res.status(500).json({ message: "Internal server error" });
@@ -162,7 +174,9 @@ export const deleteBed = async (req, res) => {
     const bedId = req.params.id;
     const deleted = await bedServices.deleteBed(bedId);
     if (!deleted) {
-      return res.status(404).json({ message: "Bed not found or already deleted" });
+      return res
+        .status(404)
+        .json({ message: "Bed not found or already deleted" });
     }
     res.status(200).json({ deleted, message: "Bed deleted successfully" });
   } catch (err) {

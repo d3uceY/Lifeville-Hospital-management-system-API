@@ -6,7 +6,7 @@ import * as bedControllers from "../controllers/bedControllers.js";
 const router = express.Router();
 
 // Bed Types
-router.get("/bed-types", bedControllers.getBedTypes);
+router.get("/bed-types", bedControllers.getBedTypes);   
 router.post("/bed-types", bedControllers.createBedType);
 router.put("/bed-types/:id", bedControllers.updateBedType);
 router.delete("/bed-types/:id", bedControllers.deleteBedType);

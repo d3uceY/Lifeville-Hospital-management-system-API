@@ -13,7 +13,7 @@ import deathRoutes from "./routes/deathRoutes.js";
 import birthRoutes from "./routes/birthRoutes.js";
 import symptomsRoutes from "./routes/symptomsRoutes.js";
 import inpatientAdmissionsRoutes from "./routes/inpatientAdmissionsRoutes.js";
-import bedRoutes from "./routes/bedRoutes.js";
+import bedRoutes from "./routes/bedRoutes.js"
 
 const app = express();
 
