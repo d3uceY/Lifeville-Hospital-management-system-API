@@ -82,8 +82,6 @@ export const getBedGroups = async () => {
   return rows;
 };
 
-
-
 /**
  * Create a new bed group
  */
