@@ -33,10 +33,15 @@ export const getInpatientAdmissions = async () => {
         p.allergies,
         p.dietary_restrictions,
         p.diet_allergies_to_drugs,
-        p.past_medical_history
+        p.past_medical_history,
+        d.first_name AS consultant_doctor_first_name,
+        d.last_name AS consultant_doctor_last_name,
+        d.specialty AS consultant_doctor_specialty
       FROM inpatient_admissions AS ia
       JOIN patients AS p
         ON ia.patient_id = p.patient_id
+      LEFT JOIN doctors AS d
+        ON ia.consultant_doctor_id = d.doctor_id
       ORDER BY ia.admission_date DESC;
     `);
   return rows;
@@ -75,10 +80,15 @@ export const viewInpatientAdmission = async (admissionId) => {
         p.allergies,
         p.dietary_restrictions,
         p.diet_allergies_to_drugs,
-        p.past_medical_history
+        p.past_medical_history,
+        d.first_name AS consultant_doctor_first_name,
+        d.last_name AS consultant_doctor_last_name,
+        d.specialty AS consultant_doctor_specialty
       FROM inpatient_admissions AS ia
       JOIN patients AS p
         ON ia.patient_id = p.patient_id
+      LEFT JOIN doctors AS d
+        ON ia.consultant_doctor_id = d.doctor_id
       WHERE ia.id = $1
       LIMIT 1;
       `,
