@@ -14,26 +14,7 @@ export const getInpatientAdmissions = async () => {
         p.other_names,
         p.surname,
         p.sex,
-        p.marital_status,
-        p.date_of_birth,
         p.phone_number,
-        p.address,
-        p.occupation,
-        p.place_of_work_address,
-        p.religion,
-        p.nationality,
-        p.next_of_kin,
-        p.relationship,
-        p.next_of_kin_phone,
-        p.next_of_kin_address,
-        p.past_surgical_history,
-        p.family_history,
-        p.social_history,
-        p.drug_history,
-        p.allergies,
-        p.dietary_restrictions,
-        p.diet_allergies_to_drugs,
-        p.past_medical_history,
         d.first_name AS consultant_doctor_first_name,
         d.last_name AS consultant_doctor_last_name,
         d.specialty AS consultant_doctor_specialty
@@ -106,7 +87,7 @@ export const createInpatientAdmission = async (admissionData) => {
   const {
     patientId,
     symptomTypes, // array of strings
-    symptomDescription,
+    symptomsDescription,
     note,
     previousMedicalIssue,
     admissionDate, // JS Date or ISO string
@@ -133,7 +114,7 @@ export const createInpatientAdmission = async (admissionData) => {
     [
       patientId,
       symptomTypes,
-      symptomDescription,
+      symptomsDescription,
       note,
       previousMedicalIssue,
       admissionDate,
@@ -153,7 +134,7 @@ export const updateInpatientAdmission = async (admissionId, admissionData) => {
   const {
     patientId,
     symptomTypes,
-    symptomDescription,
+    symptomsDescription,
     note,
     previousMedicalIssue,
     admissionDate,
@@ -180,7 +161,7 @@ export const updateInpatientAdmission = async (admissionId, admissionData) => {
     [
       patientId,
       symptomTypes,
-      symptomDescription,
+      symptomsDescription,
       note,
       previousMedicalIssue,
       admissionDate,
