@@ -13,7 +13,9 @@ import deathRoutes from "./routes/deathRoutes.js";
 import birthRoutes from "./routes/birthRoutes.js";
 import symptomsRoutes from "./routes/symptomsRoutes.js";
 import inpatientAdmissionsRoutes from "./routes/inpatientAdmissionsRoutes.js";
-import bedRoutes from "./routes/bedRoutes.js"
+import bedRoutes from "./routes/bedRoutes.js";
+
+import { specs, swaggerUiOptions as swaggerUi } from "./swagger/swagger.js";
 
 const app = express();
 
@@ -42,6 +44,16 @@ app.use("/api", birthRoutes);
 app.use("/api", symptomsRoutes);
 app.use("/api", inpatientAdmissionsRoutes);
 app.use("/api", bedRoutes);
+
+// Swagger UI
+app.use(
+  "/api-docs",
+  swaggerUi.serve,
+  swaggerUi.setup(specs, {
+    explorer: true,
+    swaggerOptions: { persistAuthorization: true },
+  })
+);
 
 // 4) Start listening on the HTTP server (not app.listen)
 httpServer.listen(port, () =>
