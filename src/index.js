@@ -3,6 +3,8 @@ import cors from "cors";
 import env from "dotenv";
 import { seedSuperAdmin } from "./controllers/userControllers.js";
 
+import cookieParser from 'cookie-parser';
+
 //SOCKETS
 import { createServer } from "http";
 import { Server as IOServer } from "socket.io";
@@ -26,8 +28,9 @@ const app = express();
 
 const port = 3000;
 
-const FRONTEND = process.env.FRONTEND;
+app.use(cookieParser());
 
+const FRONTEND = process.env.FRONTEND;
 app.use(
   cors({
     origin: FRONTEND,

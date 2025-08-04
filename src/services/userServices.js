@@ -73,7 +73,14 @@ export async function refreshAccess(oldRefresh) {
         throw err;
     }
 
-    const rows = await query(`SELECT refresh_token FROM users WHERE id = $1`, [payload.sub]);
+    const { rows } = await query(`SELECT refresh_token FROM users WHERE id = $1`, [payload.sub]);
+    
+    if (!rows[0]) {
+        const err = new Error('User not found');
+        err.status = 404;
+        throw err;
+    }
+
     const hashJti = crypto.createHash("sha256").update(payload.jti).digest("hex");
     if (!rows[0] || rows[0].refresh_token !== hashJti) {
         const err = new Error("Refresh token replay detected");

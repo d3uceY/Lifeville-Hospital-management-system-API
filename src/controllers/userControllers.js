@@ -59,6 +59,7 @@ export async function refreshController(req, res) {
             })
             .json({ access_token: accessToken });
     } catch (err) {
+        console.error(err)
         res.clearCookie("refresh_token").status(err.status || 500).json({ error: err.message });
     }
 }
