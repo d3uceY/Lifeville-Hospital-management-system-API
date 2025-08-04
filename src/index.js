@@ -1,5 +1,6 @@
 import express from "express";
 import cors from "cors";
+import { seedSuperAdmin } from "./controllers/userControllers.js";
 
 //SOCKETS
 import { createServer } from "http";
@@ -55,10 +56,16 @@ app.use(
   })
 );
 
-// 4) Start listening on the HTTP server (not app.listen)
-httpServer.listen(port, () =>
-  console.log(`Server + Socket.IO running on port ${port}`)
-);
+// 4) seed superadmin then start listening on the HTTP server (not app.listen)
+seedSuperAdmin().then(() => {
+  httpServer.listen(port, () =>
+    console.log(`Server + Socket.IO running on port ${port}`)
+  );
+})
+  .catch((err) => {
+    console.error("Error seeding superadmin:", err);
+    process.exit(1);
+  });
 
 // prints out html in the host http://localhost:3000/
 app.get("/", (req, res) => {
