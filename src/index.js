@@ -22,8 +22,16 @@ const app = express();
 
 const port = 3000;
 
-app.use(cors()); // Enable CORS
+const FRONTEND = process.env.FRONTEND;
 
+app.use(
+  cors({
+    origin: FRONTEND,
+    credentials: true,
+    methods: ["GET", "POST", "PUT", "DELETE"],
+    allowedHeaders: ["Content-Type", "Authorization"],
+  })
+);
 app.use(express.json()); // Middleware to parse JSON requests
 
 // 1) Create an HTTP server from your Express app
