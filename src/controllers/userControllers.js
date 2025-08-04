@@ -38,6 +38,7 @@ export async function loginController(req, res) {
             })
             .json({ access_token: accessToken, user });
     } catch (err) {
+        
         res.status(err.status || 500).json({ error: err.message });
     }
 }

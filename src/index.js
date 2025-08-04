@@ -1,5 +1,6 @@
 import express from "express";
 import cors from "cors";
+import env from "dotenv";
 import { seedSuperAdmin } from "./controllers/userControllers.js";
 
 //SOCKETS
@@ -15,8 +16,11 @@ import birthRoutes from "./routes/birthRoutes.js";
 import symptomsRoutes from "./routes/symptomsRoutes.js";
 import inpatientAdmissionsRoutes from "./routes/inpatientAdmissionsRoutes.js";
 import bedRoutes from "./routes/bedRoutes.js";
+import userRoutes from './routes/userRoutes.js'
 
 import { specs, swaggerUiOptions as swaggerUi } from "./swagger/swagger.js";
+
+env.config();
 
 const app = express();
 
@@ -32,6 +36,7 @@ app.use(
     allowedHeaders: ["Content-Type", "Authorization"],
   })
 );
+
 app.use(express.json()); // Middleware to parse JSON requests
 
 // 1) Create an HTTP server from your Express app
@@ -53,6 +58,7 @@ app.use("/api", birthRoutes);
 app.use("/api", symptomsRoutes);
 app.use("/api", inpatientAdmissionsRoutes);
 app.use("/api", bedRoutes);
+app.use("/api", userRoutes);
 
 // Swagger UI
 app.use(

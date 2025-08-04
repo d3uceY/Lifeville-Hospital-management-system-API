@@ -6,7 +6,7 @@ import env from "dotenv";
 env.config();
 
 const ACCESS_EXPIRES = process.env.ACCESS_EXPIRES;
-const REFRESH_EXPIRES_MS = Number(process.env.REFRESH_EXPIRES_MS);
+const REFRESH_EXPIRES = process.env.REFRESH_EXPIRES
 const SALT_ROUNDS = Number(process.env.SALT_ROUNDS);
 
 
@@ -38,7 +38,7 @@ function signRefresh(userId, jti) {
     return jwt.sign(
         { sub: userId, jti },
         process.env.JWT_REFRESH_KEY,
-        { expiresIn: REFRESH_EXPIRES_MS / 1000 + "s" }
+        { expiresIn: REFRESH_EXPIRES }
     );
 }
 
