@@ -1,4 +1,3 @@
-import * as userServices from "../services/userServices.js";
 import * as userService from "../services/userServices.js";
 
 import bcrypt from "bcrypt";
@@ -8,10 +7,10 @@ env.config();
 
 export const seedSuperAdmin = async (req, res) => {
     try {
-        const superAdmin = await userServices.seedSuperAdmin();
+        const superAdmin = await userService.seedSuperAdmin();
         if (!superAdmin) {
             const hash = await bcrypt.hash(process.env.SUPERADMIN_PASSWORD, 12);
-            await userServices.insertSeedSuperAdmin(process.env.SUPERADMIN_EMAIL, hash);
+            await userService.insertSeedSuperAdmin(process.env.SUPERADMIN_EMAIL, hash);
             res.status(200).json({
                 message: "Superadmin seeded successfully",
             });
