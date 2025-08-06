@@ -5,7 +5,6 @@ export const getDeathRecords = async (req, res) => {
     const deaths = await deathServices.getDeathRecords();
     res.status(200).json(deaths);
   } catch (err) {
-    console.log(err);
     res.status(500).json({ message: err.message });
   }
 };
@@ -20,7 +19,6 @@ export const createDeathRecord = async (req, res) => {
         message: err.message, // Send custom error message to the frontend
       });
     }
-    console.log(err);
     res.status(500).json({ message: err.message });
   }
 };
@@ -38,7 +36,6 @@ export const deleteDeathRecord = async (req, res) => {
       .status(200)
       .json({ deletedDeathRecord, message: "Deleted Successfully" });
   } catch (err) {
-    console.log(err);
     res.status(500).json({ message: err.message });
   }
 };
@@ -55,7 +52,6 @@ export const updateDeathRecord = async (req, res) => {
       .status(200)
       .json({ updatedDeathRecord, message: "Updated Successfully" });
   } catch (err) {
-    console.log(err);
     res.status(500).json({ message: err.message });
   }
 };

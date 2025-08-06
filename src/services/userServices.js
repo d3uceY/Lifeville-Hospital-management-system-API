@@ -18,10 +18,9 @@ export async function seedSuperAdmin() {
 
 export const insertSeedSuperAdmin = async (email, hash) => {
     const result = await query(
-        "INSERT INTO users (email, password_hash, role) VALUES ($1, $2, 'superadmin') RETURNING *",
+        "INSERT INTO users (name, email, password_hash, role) VALUES ('Super Admin', $1, $2, 'superadmin') RETURNING *",
         [email, hash]
     );
-    console.log(`Superadmin ${email} created.`);
     return result.rows[0];
 }
 
@@ -43,7 +42,7 @@ function signRefresh(userId, jti) {
 }
 
 export async function login({ email, password }) {
-    const { rows } = await query(`SELECT id, password_hash, role FROM users WHERE email = $1`, [email.toLowerCase()]);
+    const { rows } = await query(`SELECT name, id, password_hash, role FROM users WHERE email = $1`, [email.toLowerCase()]);
     const u = rows[0];
     if (!u || !(await bcrypt.compare(password, u.password_hash))) {
         const err = new Error("Invalid credentials");
@@ -59,7 +58,7 @@ export async function login({ email, password }) {
     return {
         accessToken: signAccess({ id: u.id, role: u.role }),
         refreshToken: rtoken,
-        user: { id: u.id, email, role: u.role },
+        user: { id: u.id, name: u.name, email, role: u.role },
     };
 }
 
@@ -73,8 +72,8 @@ export async function refreshAccess(oldRefresh) {
         throw err;
     }
 
-    const { rows } = await query(`SELECT refresh_token FROM users WHERE id = $1`, [payload.sub]);
-    
+    const { rows } = await query(`SELECT refresh_token, role, email, name FROM users WHERE id = $1`, [payload.sub]);
+
     if (!rows[0]) {
         const err = new Error('User not found');
         err.status = 404;
@@ -96,6 +95,7 @@ export async function refreshAccess(oldRefresh) {
     return {
         accessToken: signAccess({ id: payload.sub, role: rows[0].role }),
         refreshToken: newRefresh,
+        user: { id: payload.sub, name: rows[0].name, email: rows[0].email, role: rows[0].role },
     };
 }
 
@@ -116,6 +116,6 @@ export async function createStaff({ email, password, role }, creatorId) {
 
 // Optionally, for Admin panel
 export async function listUsers() {
-    const { rows } = await query(`SELECT id, email, role, created_by, created_at FROM users`);
+    const { rows } = await query(`SELECT id, name, email, role, created_by, created_at FROM users`);
     return rows;
 }

@@ -5,7 +5,6 @@ export const getBirthRecords = async (req, res) => {
     const birthRecords = await birthServices.getBirthRecords();
     res.status(200).json(birthRecords);
   } catch (err) {
-    console.log(err);
     res.status(500).json({ message: err.message });
   }
 };

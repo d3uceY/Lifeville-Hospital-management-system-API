@@ -49,7 +49,7 @@ export async function refreshController(req, res) {
         if (!token) {
             return res.status(401).json({ error: "No refresh token" });
         }
-        const { accessToken, refreshToken } = await userService.refreshAccess(token);
+        const { accessToken, refreshToken, user } = await userService.refreshAccess(token);
         res
             .cookie("refresh_token", refreshToken, {
                 httpOnly: true,
@@ -57,7 +57,7 @@ export async function refreshController(req, res) {
                 sameSite: "Strict",
                 maxAge: 30 * 24 * 60 * 60 * 1000,
             })
-            .json({ access_token: accessToken });
+            .json({ access_token: accessToken, user });
     } catch (err) {
         console.error(err)
         res.clearCookie("refresh_token").status(err.status || 500).json({ error: err.message });
