@@ -22,6 +22,7 @@ export const createBill = async (billData) => {
         billItems,
         notes
     } = billData;
+    
 
     const { rows } = await query(
         `INSERT INTO bills (patient_id, bill_number, issued_by, bill_date, subtotal, status, discount, tax, total_amount, payment_method, amount_paid, payment_date, notes)

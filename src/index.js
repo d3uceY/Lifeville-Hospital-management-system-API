@@ -19,6 +19,7 @@ import symptomsRoutes from "./routes/symptomsRoutes.js";
 import inpatientAdmissionsRoutes from "./routes/inpatientAdmissionsRoutes.js";
 import bedRoutes from "./routes/bedRoutes.js";
 import userRoutes from './routes/userRoutes.js'
+import billRoutes from './routes/billRoutes.js'
 
 import { specs, swaggerUiOptions as swaggerUi } from "./swagger/swagger.js";
 
@@ -62,6 +63,7 @@ app.use("/api", symptomsRoutes);
 app.use("/api", inpatientAdmissionsRoutes);
 app.use("/api", bedRoutes);
 app.use("/api", userRoutes);
+app.use("/api", billRoutes);
 
 // Swagger UI
 app.use(
