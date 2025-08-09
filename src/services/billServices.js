@@ -1,10 +1,41 @@
 import { query } from "../db.js";
 
-export const getPaginatedBills = async (page = 1, pageSize = 10) => {
+export const getPaginatedBills = async (
+    page = 1,
+    pageSize = 10,
+    { billNumber, status, issuedBy, patientId } = {}
+) => {
     const offset = (page - 1) * pageSize;
 
+    // Dynamic WHERE clause parts
+    const whereClauses = [];
+    const values = [];
+    let paramIndex = 1;
+
+    if (billNumber) {
+        whereClauses.push(`b.bill_number ILIKE $${paramIndex++}`);
+        values.push(`%${billNumber}%`);
+    }
+    if (status) {
+        whereClauses.push(`b.status ILIKE $${paramIndex++}`);
+        values.push(`%${status}%`);
+    }
+    if (issuedBy) {
+        whereClauses.push(`b.issued_by ILIKE $${paramIndex++}`);
+        values.push(`%${issuedBy}%`);
+    }
+    if (patientId) {
+        whereClauses.push(`b.patient_id = $${paramIndex++}`);
+        values.push(patientId);
+    }
+
+    const whereSQL = whereClauses.length > 0 ? `WHERE ${whereClauses.join(" AND ")}` : "";
+
     // 1️⃣ Get total count (for totalPages)
-    const countResult = await query(`SELECT COUNT(*) AS total FROM bills`);
+    const countResult = await query(
+        `SELECT COUNT(*) AS total FROM bills b ${whereSQL}`,
+        values
+    );
     const totalItems = parseInt(countResult.rows[0].total, 10);
     const totalPages = Math.ceil(totalItems / pageSize);
 
@@ -29,13 +60,19 @@ export const getPaginatedBills = async (page = 1, pageSize = 10) => {
             bi.id AS bill_item_id,
             bi.description,
             bi.unit_price,
-            bi.quantity
+            bi.quantity,
+            p.surname,
+            p.first_name,
+            p.other_names,
+            p.hospital_number
         FROM bills b
         LEFT JOIN bill_items bi ON b.id = bi.bill_id
+        LEFT JOIN patients p ON b.patient_id = p.patient_id
+        ${whereSQL}
         ORDER BY b.bill_date DESC
-        LIMIT $1 OFFSET $2
+        LIMIT $${paramIndex++} OFFSET $${paramIndex++}
         `,
-        [pageSize, offset]
+        [...values, pageSize, offset]
     );
 
     // 3️⃣ Group rows into bills with items
@@ -46,6 +83,8 @@ export const getPaginatedBills = async (page = 1, pageSize = 10) => {
             billsMap.set(row.bill_id, {
                 id: row.bill_id,
                 patientId: row.patient_id,
+                patientName: `${row.first_name} ${row.other_names} ${row.surname}`,
+                hospitalNumber: row.hospital_number,
                 billNumber: row.bill_number,
                 issuedBy: row.issued_by,
                 billDate: row.bill_date,
@@ -203,7 +242,7 @@ export const updateBillPayment = async (billId, {
     paymentDate,
     notes
 }) => {
-    
+
     const { rows } = await query(
         `
         UPDATE bills
