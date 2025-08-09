@@ -14,8 +14,8 @@ export const createBill = async (req, res) => {
 
 export const getPaginatedBills = async (req, res) => {
     try {
-        const { page, pageSize } = req.query;
-        const bills = await billService.getPaginatedBills(page, pageSize);
+        const { page, pageSize, billNumber, status, issuedBy, patientId } = req.query;
+        const bills = await billService.getPaginatedBills(page, pageSize, { billNumber, status, issuedBy, patientId });
         res.status(200).json(bills);
     } catch (err) {
         console.log(err)

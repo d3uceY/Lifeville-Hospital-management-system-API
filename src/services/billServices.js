@@ -47,6 +47,8 @@ export const getPaginatedBills = async (
             b.patient_id,
             b.bill_number,
             b.issued_by,
+            b.updated_by,
+            b.updated_at,
             b.bill_date,
             b.subtotal,
             b.discount,
@@ -87,6 +89,8 @@ export const getPaginatedBills = async (
                 hospitalNumber: row.hospital_number,
                 billNumber: row.bill_number,
                 issuedBy: row.issued_by,
+                updatedBy: row.updated_by,
+                updatedAt: row.updated_at,
                 billDate: row.bill_date,
                 subtotal: row.subtotal,
                 discount: row.discount,
@@ -192,6 +196,8 @@ export const getBillById = async (billId) => {
             b.amount_paid,
             b.payment_date,
             b.notes,
+            b.updated_by,
+            b.updated_at,
             bi.id AS bill_item_id,
             bi.description,
             bi.unit_price,
@@ -211,6 +217,8 @@ export const getBillById = async (billId) => {
         patientId: rows[0].patient_id,
         billNumber: rows[0].bill_number,
         issuedBy: rows[0].issued_by,
+        updatedBy: rows[0].updated_by,
+        updatedAt: rows[0].updated_at,
         billDate: rows[0].bill_date,
         subtotal: rows[0].subtotal,
         discount: rows[0].discount,
@@ -240,6 +248,7 @@ export const updateBillPayment = async (billId, {
     amountPaid,
     paymentMethod,
     paymentDate,
+    updatedBy,
     notes
 }) => {
 
@@ -251,11 +260,13 @@ export const updateBillPayment = async (billId, {
             amount_paid = COALESCE($2, amount_paid),
             payment_method = COALESCE($3, payment_method),
             payment_date = COALESCE($4, payment_date),
-            notes = COALESCE($5, notes)
-        WHERE id = $6
+            updated_by = COALESCE($5, updated_by),
+            notes = COALESCE($6, notes),
+            updated_at = NOW()
+        WHERE id = $7
         RETURNING *
         `,
-        [status, amountPaid, paymentMethod, paymentDate, notes, billId]
+        [status, amountPaid, paymentMethod, paymentDate, updatedBy, notes, billId]
     );
 
     if (rows.length === 0) {
