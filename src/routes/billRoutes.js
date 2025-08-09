@@ -1,15 +1,14 @@
-// routes/bedRoutes.js
+// routes/billRoutes.js
 
 import express from "express";
 import * as billControllers from "../controllers/billController.js";
 
 const router = express.Router();
 
-// Bed Types
-// router.get("/bills", bedControllers.getBedTypes);   
 router.post("/bills", billControllers.createBill);
-// router.put("/bills/:id", bedControllers.updateBedType);
-// router.delete("/bills/:id", bedControllers.deleteBedType);
-
+router.get("/bills", billControllers.getPaginatedBills);
+router.get("/bills/:id", billControllers.getBillById);
+router.put("/bills/:id", billControllers.updateBillPayment);
+router.delete("/bills/:id", billControllers.deleteBill);
 
 export default router;

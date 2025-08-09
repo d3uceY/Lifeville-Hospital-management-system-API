@@ -1,11 +1,56 @@
 import * as billService from "../services/billServices.js";
 
 
-export async function createBill(req, res) {
+export const createBill = async (req, res) => {
     try {
         const billData = req.body;
         const newBill = await billService.createBill(billData);
         res.status(201).json({ newBill, message: "Bill created" });
+    } catch (err) {
+        console.log(err)
+        res.status(500).json({ error: err.message });
+    }
+}
+
+export const getPaginatedBills = async (req, res) => {
+    try {
+        const { page, pageSize } = req.query;
+        const bills = await billService.getPaginatedBills(page, pageSize);
+        res.status(200).json(bills);
+    } catch (err) {
+        console.log(err)
+        res.status(500).json({ error: err.message });
+    }
+}
+
+export const deleteBill = async (req, res) => {
+    try {
+        const billId = req.params.id;
+        const deletedBill = await billService.deleteBill(billId);
+        res.status(200).json({ deletedBill, message: "Bill deleted" });
+    } catch (err) {
+        console.log(err)
+        res.status(500).json({ error: err.message });
+    }
+}
+
+
+export const getBillById = async (req, res) => {
+    try {
+        const billId = req.params.id;
+        const bill = await billService.getBillById(billId);
+        res.status(200).json(bill);
+    } catch (err) {
+        console.log(err)
+        res.status(500).json({ error: err.message });
+    }
+}
+
+export const updateBillPayment = async (req, res) => {
+    try {
+        const billId = req.params.id;
+        const updatedBill = await billService.updateBillPayment(billId, req.body);
+        res.status(200).json({ updatedBill, message: "Bill updated" });
     } catch (err) {
         console.log(err)
         res.status(500).json({ error: err.message });

@@ -1,9 +1,87 @@
 import { query } from "../db.js";
 
-// export const getBills = async () => {
-//     const { rows } = await query(`SELECT * FROM bills`);
-//     return rows;
-// };
+export const getPaginatedBills = async (page = 1, pageSize = 10) => {
+    const offset = (page - 1) * pageSize;
+
+    // 1️⃣ Get total count (for totalPages)
+    const countResult = await query(`SELECT COUNT(*) AS total FROM bills`);
+    const totalItems = parseInt(countResult.rows[0].total, 10);
+    const totalPages = Math.ceil(totalItems / pageSize);
+
+    // 2️⃣ Get paginated bills with their items
+    const { rows } = await query(
+        `
+        SELECT 
+            b.id AS bill_id,
+            b.patient_id,
+            b.bill_number,
+            b.issued_by,
+            b.bill_date,
+            b.subtotal,
+            b.discount,
+            b.tax,
+            b.total_amount,
+            b.status,
+            b.payment_method,
+            b.amount_paid,
+            b.payment_date,
+            b.notes,
+            bi.id AS bill_item_id,
+            bi.description,
+            bi.unit_price,
+            bi.quantity
+        FROM bills b
+        LEFT JOIN bill_items bi ON b.id = bi.bill_id
+        ORDER BY b.bill_date DESC
+        LIMIT $1 OFFSET $2
+        `,
+        [pageSize, offset]
+    );
+
+    // 3️⃣ Group rows into bills with items
+    const billsMap = new Map();
+
+    rows.forEach(row => {
+        if (!billsMap.has(row.bill_id)) {
+            billsMap.set(row.bill_id, {
+                id: row.bill_id,
+                patientId: row.patient_id,
+                billNumber: row.bill_number,
+                issuedBy: row.issued_by,
+                billDate: row.bill_date,
+                subtotal: row.subtotal,
+                discount: row.discount,
+                tax: row.tax,
+                totalAmount: row.total_amount,
+                status: row.status,
+                paymentMethod: row.payment_method,
+                amountPaid: row.amount_paid,
+                paymentDate: row.payment_date,
+                notes: row.notes,
+                items: []
+            });
+        }
+
+        if (row.bill_item_id) {
+            billsMap.get(row.bill_id).items.push({
+                id: row.bill_item_id,
+                description: row.description,
+                unitPrice: row.unit_price,
+                quantity: row.quantity
+            });
+        }
+    });
+
+    return {
+        totalItems,
+        totalPages,
+        currentPage: page,
+        pageSize,
+        skipped: offset,
+        data: Array.from(billsMap.values())
+    };
+};
+
 
 export const createBill = async (billData) => {
     const {
@@ -22,7 +100,7 @@ export const createBill = async (billData) => {
         billItems,
         notes
     } = billData;
-    
+
 
     const { rows } = await query(
         `INSERT INTO bills (patient_id, bill_number, issued_by, bill_date, subtotal, status, discount, tax, total_amount, payment_method, amount_paid, payment_date, notes)
@@ -48,4 +126,102 @@ export const createBill = async (billData) => {
     );
 
     return rows;
+};
+
+
+export async function deleteBill(billId) {
+    const { rows } = await query(`DELETE FROM bills WHERE id = $1 RETURNING *`, [billId]);
+    return rows.length > 0;
+}
+
+
+export const getBillById = async (billId) => {
+    const { rows } = await query(
+        `
+        SELECT 
+            b.id AS bill_id,
+            b.patient_id,
+            b.bill_number,
+            b.issued_by,
+            b.bill_date,
+            b.subtotal,
+            b.discount,
+            b.tax,
+            b.total_amount,
+            b.status,
+            b.payment_method,
+            b.amount_paid,
+            b.payment_date,
+            b.notes,
+            bi.id AS bill_item_id,
+            bi.description,
+            bi.unit_price,
+            bi.quantity
+        FROM bills b
+        LEFT JOIN bill_items bi ON b.id = bi.bill_id
+        WHERE b.id = $1
+        `,
+        [billId]
+    );
+
+    if (rows.length === 0) return null; // No bill found
+
+    // Transform rows into a single bill object with an array of items
+    const bill = {
+        id: rows[0].bill_id,
+        patientId: rows[0].patient_id,
+        billNumber: rows[0].bill_number,
+        issuedBy: rows[0].issued_by,
+        billDate: rows[0].bill_date,
+        subtotal: rows[0].subtotal,
+        discount: rows[0].discount,
+        tax: rows[0].tax,
+        totalAmount: rows[0].total_amount,
+        status: rows[0].status,
+        paymentMethod: rows[0].payment_method,
+        amountPaid: rows[0].amount_paid,
+        paymentDate: rows[0].payment_date,
+        notes: rows[0].notes,
+        items: rows
+            .filter(row => row.bill_item_id) // Avoid null if no items
+            .map(row => ({
+                id: row.bill_item_id,
+                description: row.description,
+                unitPrice: row.unit_price,
+                quantity: row.quantity
+            }))
+    };
+
+    return bill;
+};
+
+
+export const updateBillPayment = async (billId, {
+    status,
+    amountPaid,
+    paymentMethod,
+    paymentDate,
+    notes
+}) => {
+    
+    const { rows } = await query(
+        `
+        UPDATE bills
+        SET 
+            status = COALESCE($1, status),
+            amount_paid = COALESCE($2, amount_paid),
+            payment_method = COALESCE($3, payment_method),
+            payment_date = COALESCE($4, payment_date),
+            notes = COALESCE($5, notes)
+        WHERE id = $6
+        RETURNING *
+        `,
+        [status, amountPaid, paymentMethod, paymentDate, notes, billId]
+    );
+
+    if (rows.length === 0) {
+        return null; // No bill found with that ID
+    }
+
+    return rows[0];
 };
