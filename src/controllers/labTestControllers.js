@@ -10,6 +10,16 @@ export async function getLabTests(req, res) {
     }
 }
 
+export async function getLabTestsByPatientId(req, res) {
+    try {
+        const labTests = await labTestServices.getLabTestsByPatientId(req.params.patientId);
+        res.json(labTests);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: "Failed to retrieve lab tests" });
+    }
+}
+
 export async function createLabTest(req, res) {
     try {
         const labTest = await labTestServices.createLabTest(req.body);

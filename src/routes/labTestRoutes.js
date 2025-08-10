@@ -13,6 +13,7 @@ router.delete("/lab-tests/lab-test-type/:id", labTestControllers.deleteLabTestTy
 router.get("/lab-tests", labTestControllers.getLabTests);
 router.post("/lab-tests", labTestControllers.createLabTest);
 router.get("/lab-tests/:id", labTestControllers.getLabTestById);
+router.get("/lab-tests/patient/:patientId", labTestControllers.getLabTestsByPatientId);
 
 
 export default router;
