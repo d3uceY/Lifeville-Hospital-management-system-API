@@ -5,6 +5,11 @@ export const getLabTests = async () => {
     return rows;
 };
 
+export const createLabTest = async (labTest) => {
+    const { rows } = await query("INSERT INTO lab_tests (test_type, comments, patient_id, prescribed_by, created_at, status ) VALUES ($1, $2, $3, $4, NOW(), 'to_do') RETURNING *", [labTest.testType, labTest.comments, labTest.patientId, labTest.prescribedBy]);
+    return rows[0];
+};
+
 
 export const getLabTestById = async (id) => {
     const { rows } = await query("SELECT * FROM lab_tests WHERE id = $1", [id]);

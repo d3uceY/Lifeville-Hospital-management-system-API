@@ -10,6 +10,16 @@ export async function getLabTests(req, res) {
     }
 }
 
+export async function createLabTest(req, res) {
+    try {
+        const labTest = await labTestServices.createLabTest(req.body);
+        res.json(labTest);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: "Failed to create lab test" });
+    }
+}
+
 export async function getLabTestById(req, res) {
     try {
         const labTest = await labTestServices.getLabTestById(req.params.id);

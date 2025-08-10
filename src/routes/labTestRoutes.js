@@ -11,6 +11,7 @@ router.delete("/lab-tests/lab-test-type/:id", labTestControllers.deleteLabTestTy
 
 //Lab Tests
 router.get("/lab-tests", labTestControllers.getLabTests);
+router.post("/lab-tests", labTestControllers.createLabTest);
 router.get("/lab-tests/:id", labTestControllers.getLabTestById);
 
 
