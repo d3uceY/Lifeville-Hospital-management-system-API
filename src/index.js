@@ -9,6 +9,8 @@ import cookieParser from 'cookie-parser';
 import { createServer } from "http";
 import { Server as IOServer } from "socket.io";
 
+
+//ROUTES
 import patientRoutes from "./routes/patientRoutes.js";
 import vitalSignsRoutes from "./routes/vitalSignsRoutes.js";
 import doctorRoutes from "./routes/doctorRoutes.js";
@@ -20,6 +22,7 @@ import inpatientAdmissionsRoutes from "./routes/inpatientAdmissionsRoutes.js";
 import bedRoutes from "./routes/bedRoutes.js";
 import userRoutes from './routes/userRoutes.js'
 import billRoutes from './routes/billRoutes.js'
+import labTestRoutes from './routes/labTestRoutes.js'
 
 import { specs, swaggerUiOptions as swaggerUi } from "./swagger/swagger.js";
 
@@ -64,6 +67,7 @@ app.use("/api", inpatientAdmissionsRoutes);
 app.use("/api", bedRoutes);
 app.use("/api", userRoutes);
 app.use("/api", billRoutes);
+app.use("/api", labTestRoutes);
 
 // Swagger UI
 app.use(
