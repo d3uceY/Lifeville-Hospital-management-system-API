@@ -25,3 +25,12 @@ export const createVitalSign = async (vitalSignData) => {
 
   return result.rows[0];
 };
+
+export const getVitalSignsByPatientId = async (patientId) => {
+  const result = await query(
+    `SELECT * FROM vital_signs WHERE patient_id = $1;`,
+    [patientId]
+  );
+
+  return result.rows;
+};
