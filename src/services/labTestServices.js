@@ -78,6 +78,21 @@ export const getPaginatedLabTests = async (
 };
 
 
+export const updateLabTest = async (id, status, results) => {
+    const { rows } = await query(
+        `UPDATE lab_tests
+         SET 
+            status = $1,
+            results = $2,
+            updated_at = NOW()
+         WHERE id = $3
+         RETURNING *`,
+        [status, results, id]
+    );
+    return rows[0];
+};
+
+
 export const getLabTestsByPatientId = async (patientId) => {
     const { rows } = await query(
         `SELECT lt.*, p.surname, p.first_name
@@ -91,7 +106,7 @@ export const getLabTestsByPatientId = async (patientId) => {
 };
 
 export const createLabTest = async (labTest) => {
-    const { rows } = await query("INSERT INTO lab_tests (test_type, comments, patient_id, prescribed_by, created_at, status ) VALUES ($1, $2, $3, $4, NOW(), 'to_do') RETURNING *", [labTest.testType, labTest.comments, labTest.patientId, labTest.prescribedBy]);
+    const { rows } = await query("INSERT INTO lab_tests (test_type, comments, patient_id, prescribed_by, created_at, status ) VALUES ($1, $2, $3, $4, NOW(), 'to do') RETURNING *", [labTest.testType, labTest.comments, labTest.patientId, labTest.prescribedBy]);
     return rows[0];
 };
 

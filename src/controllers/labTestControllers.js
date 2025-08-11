@@ -21,6 +21,17 @@ export const getPaginatedLabTests = async (req, res) => {
     }
 }
 
+
+export const updateLabTest = async (req, res) => {
+    try {
+        const labTest = await labTestServices.updateLabTest(req.params.id, req.body.status, req.body.results);
+        res.json(labTest);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: "Failed to update lab test" });
+    }
+}
+
 export async function getLabTestsByPatientId(req, res) {
     try {
         const labTests = await labTestServices.getLabTestsByPatientId(req.params.patientId);

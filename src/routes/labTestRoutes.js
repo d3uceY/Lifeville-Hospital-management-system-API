@@ -14,7 +14,8 @@ router.get("/lab-tests", labTestControllers.getLabTests);
 router.post("/lab-tests", labTestControllers.createLabTest);
 router.get("/lab-tests/:id", labTestControllers.getLabTestById);
 router.get("/lab-tests/patient/:patientId", labTestControllers.getLabTestsByPatientId);
-router.get("/lab-tests/paginated", labTestControllers.getPaginatedLabTests);
+router.get("/lab-tests/laboratory/paginated", labTestControllers.getPaginatedLabTests);
+router.put("/lab-tests/:id", labTestControllers.updateLabTest);
 
 
 export default router;

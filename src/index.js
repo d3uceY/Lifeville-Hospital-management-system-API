@@ -23,6 +23,7 @@ import bedRoutes from "./routes/bedRoutes.js";
 import userRoutes from './routes/userRoutes.js'
 import billRoutes from './routes/billRoutes.js'
 import labTestRoutes from './routes/labTestRoutes.js'
+import complaintsRoutes from './routes/complaintsRouter.js'
 
 import { specs, swaggerUiOptions as swaggerUi } from "./swagger/swagger.js";
 
@@ -68,6 +69,7 @@ app.use("/api", bedRoutes);
 app.use("/api", userRoutes);
 app.use("/api", billRoutes);
 app.use("/api", labTestRoutes);
+app.use("/api", complaintsRoutes);
 
 // Swagger UI
 app.use(
