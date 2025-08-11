@@ -10,7 +10,8 @@ export const getLabTestsByPatientId = async (patientId) => {
         `SELECT lt.*, p.surname, p.first_name
          FROM lab_tests lt
          INNER JOIN patients p ON lt.patient_id = p.patient_id
-         WHERE lt.patient_id = $1`,
+         WHERE lt.patient_id = $1
+         ORDER BY lt.created_at DESC`, 
         [patientId]
     );
     return rows;
@@ -26,6 +27,13 @@ export const getLabTestById = async (id) => {
     const { rows } = await query("SELECT * FROM lab_tests WHERE id = $1", [id]);
     return rows[0];
 };
+
+
+
+
+
+
+
 
 
 export const getLabTestTypes = async () => {
