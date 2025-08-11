@@ -6,6 +6,11 @@ export const getPatients = async () => {
   return rows;
 };
 
+export const getPatientNameAndId = async () => {
+    const { rows } = await query("SELECT patient_id, first_name, surname, hospital_number FROM patients");
+    return rows;
+};
+
 export const createPatient = async (patientData) => {
   //  destructure from patientData
   const {
