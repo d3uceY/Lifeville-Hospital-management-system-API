@@ -27,3 +27,13 @@ export const deleteCondition = async (req, res) => {
         res.status(500).json({ error: error.message });
     }
 };
+
+export const updateCondition = async (req, res) => {
+    try {
+        const condition = await conditionServices.updateCondtion(req.params.id, req.body);
+        res.json(condition);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+};
+
