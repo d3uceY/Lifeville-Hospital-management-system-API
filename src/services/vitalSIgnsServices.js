@@ -28,7 +28,7 @@ export const createVitalSign = async (vitalSignData) => {
 
 export const getVitalSignsByPatientId = async (patientId) => {
   const result = await query(
-    `SELECT * FROM vital_signs WHERE patient_id = $1;`,
+    `SELECT * FROM vital_signs WHERE patient_id = $1 ORDER BY created_at DESC;`,
     [patientId]
   );
 

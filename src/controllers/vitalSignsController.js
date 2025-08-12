@@ -8,9 +8,7 @@ export const createVitalSign = async (req, res) => {
     );
     res
       .status(200)
-      .json({ createdVitalSign, message: "Submitted Successfully" });
-    console.table(createdVitalSign);
-  } catch (err) {
+      .json({ createdVitalSign, message: "Submitted Successfully" });  } catch (err) {
     console.error("error creating vital sign:", err);
     res.status(500).json({
       message: "internal server error",
