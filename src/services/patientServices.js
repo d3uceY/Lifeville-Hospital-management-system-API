@@ -2,7 +2,7 @@
 import { query } from "../db.js";
 
 export const getPatients = async () => {
-  const { rows } = await query("SELECT * FROM patients");
+  const { rows } = await query("SELECT surname, first_name, patient_id, hospital_number, sex, date_of_birth, phone_number FROM patients");
   return rows;
 };
 
