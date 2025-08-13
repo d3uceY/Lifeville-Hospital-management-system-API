@@ -56,7 +56,7 @@ export const getPrescriptions = async (patient_id) => {
             p.patient_id,
             p.prescribed_by,
             p.notes,
-            p.created_at,
+            p.prescription_date,
             json_agg(
                 json_build_object(
                     'drug_name', pi.drug_name,
@@ -71,7 +71,7 @@ export const getPrescriptions = async (patient_id) => {
             ON p.prescription_id = pi.prescription_id
         WHERE p.patient_id = $1
         GROUP BY p.prescription_id
-        ORDER BY p.created_at DESC`,
+        ORDER BY p.prescription_date DESC`,
         [patient_id]
     );
 

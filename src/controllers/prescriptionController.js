@@ -1,4 +1,4 @@
-import * as prescriptionServices from '../services/prescriptionServices'
+import * as prescriptionServices from '../services/prescriptionServices.js'
 
 export const createPrescriptionController = async (req, res) => {
     try {
@@ -14,6 +14,7 @@ export const getPrescriptionsController = async (req, res) => {
         const prescriptions = await prescriptionServices.getPrescriptions(req.params.patient_id);
         res.json(prescriptions);
     } catch (error) {
+        console.log(error)
         res.status(500).json({ error: error.message });
     }
 }
