@@ -28,6 +28,7 @@ import physicalExaminationsRoutes from './routes/physicalExaminationsRoutes.js'
 import conditionRoutes from './routes/conditionRoutes.js'
 import diagnosesRoutes from './routes/diagnosesRoutes.js'
 import prescriptionRoutes from './routes/prescriptionRoutes.js'
+import procedureRoutes from './routes/procedureRoutes.js'
 
 import { specs, swaggerUiOptions as swaggerUi } from "./swagger/swagger.js";
 
@@ -78,6 +79,7 @@ app.use("/api", physicalExaminationsRoutes);
 app.use("/api", conditionRoutes);
 app.use("/api", diagnosesRoutes);
 app.use("/api", prescriptionRoutes);
+app.use("/api", procedureRoutes);
 
 // Swagger UI
 app.use(
