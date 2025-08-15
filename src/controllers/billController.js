@@ -12,6 +12,17 @@ export const createBill = async (req, res) => {
     }
 }
 
+export const getBillByPatientId = async (req, res) => {
+    try {
+        const patientId = req.params.id;
+        const bills = await billService.getBillByPatientId(patientId);
+        res.status(200).json(bills);
+    } catch (err) {
+        console.log(err)
+        res.status(500).json({ error: err.message });
+    }
+}
+
 export const getPaginatedBills = async (req, res) => {
     try {
         const { page, pageSize, billNumber, status, issuedBy, patientId } = req.query;

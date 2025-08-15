@@ -10,5 +10,6 @@ router.get("/bills", billControllers.getPaginatedBills);
 router.get("/bills/:id", billControllers.getBillById);
 router.put("/bills/:id", billControllers.updateBillPayment);
 router.delete("/bills/:id", billControllers.deleteBill);
+router.get("/patient-bills/:id", billControllers.getBillByPatientId);
 
 export default router;

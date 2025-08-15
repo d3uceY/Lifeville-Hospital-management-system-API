@@ -125,6 +125,83 @@ export const getPaginatedBills = async (
     };
 };
 
+export const getBillByPatientId = async (patientId) => {
+    const { rows } = await query(
+        `
+        SELECT 
+            b.id AS bill_id,
+            b.patient_id,
+            b.bill_number,
+            b.issued_by,
+            b.updated_by,
+            b.updated_at,
+            b.bill_date,
+            b.subtotal,
+            b.discount,
+            b.tax,
+            b.total_amount,
+            b.status,
+            b.payment_method,
+            b.amount_paid,
+            b.payment_date,
+            b.notes,
+            bi.id AS bill_item_id,
+            bi.description,
+            bi.unit_price,
+            bi.quantity,
+            p.surname,
+            p.first_name,
+            p.other_names,
+            p.hospital_number
+        FROM bills b
+        LEFT JOIN bill_items bi ON b.id = bi.bill_id
+        LEFT JOIN patients p ON b.patient_id = p.patient_id
+        WHERE b.patient_id = $1
+        ORDER BY b.bill_date DESC
+        `,
+        [patientId]
+    );
+
+    // Group bills with their items
+    const billsMap = new Map();
+
+    rows.forEach(row => {
+        if (!billsMap.has(row.bill_id)) {
+            billsMap.set(row.bill_id, {
+                id: row.bill_id,
+                patient_id: row.patient_id,
+                patient_name: `${row.first_name} ${row.other_names ?? ''} ${row.surname}`.trim(),
+                hospital_number: row.hospital_number,
+                bill_number: row.bill_number,
+                issued_by: row.issued_by,
+                updated_by: row.updated_by,
+                updated_at: row.updated_at,
+                bill_date: row.bill_date,
+                subtotal: row.subtotal,
+                discount: row.discount,
+                tax: row.tax,
+                total_amount: row.total_amount,
+                status: row.status,
+                payment_method: row.payment_method,
+                amount_paid: row.amount_paid,
+                payment_date: row.payment_date,
+                notes: row.notes,
+                items: []
+            });
+        }
+
+        if (row.bill_item_id) {
+            billsMap.get(row.bill_id).items.push({
+                id: row.bill_item_id,
+                description: row.description,
+                unit_price: row.unit_price,
+                quantity: row.quantity
+            });
+        }
+    });
+
+    return Array.from(billsMap.values());
+};
 
 export const createBill = async (billData) => {
     const {
@@ -214,27 +291,27 @@ export const getBillById = async (billId) => {
     // Transform rows into a single bill object with an array of items
     const bill = {
         id: rows[0].bill_id,
-        patientId: rows[0].patient_id,
-        billNumber: rows[0].bill_number,
-        issuedBy: rows[0].issued_by,
-        updatedBy: rows[0].updated_by,
-        updatedAt: rows[0].updated_at,
-        billDate: rows[0].bill_date,
+        patient_id: rows[0].patient_id,
+        bill_number: rows[0].bill_number,
+        issued_by: rows[0].issued_by,
+        updated_by: rows[0].updated_by,
+        updated_at: rows[0].updated_at,
+        bill_date: rows[0].bill_date,
         subtotal: rows[0].subtotal,
         discount: rows[0].discount,
         tax: rows[0].tax,
-        totalAmount: rows[0].total_amount,
+        total_amount: rows[0].total_amount,
         status: rows[0].status,
-        paymentMethod: rows[0].payment_method,
-        amountPaid: rows[0].amount_paid,
-        paymentDate: rows[0].payment_date,
+        payment_method: rows[0].payment_method,
+        amount_paid: rows[0].amount_paid,
+        payment_date: rows[0].payment_date,
         notes: rows[0].notes,
         items: rows
             .filter(row => row.bill_item_id) // Avoid null if no items
             .map(row => ({
                 id: row.bill_item_id,
                 description: row.description,
-                unitPrice: row.unit_price,
+                unit_price: row.unit_price,
                 quantity: row.quantity
             }))
     };
