@@ -16,7 +16,6 @@ export const getPaginatedLabTests = async (
     let paramIndex = 1;
     let whereSQL = "";
 
-    // If search term is provided, search across multiple columns
     if (searchTerm) {
         whereSQL = `
             WHERE 
@@ -33,7 +32,6 @@ export const getPaginatedLabTests = async (
         paramIndex++;
     }
 
-    // 1️⃣ Get total count
     const countResult = await query(
         `SELECT COUNT(*) AS total
          FROM lab_tests lt
@@ -44,7 +42,6 @@ export const getPaginatedLabTests = async (
     const totalItems = parseInt(countResult.rows[0].total, 10);
     const totalPages = Math.ceil(totalItems / pageSize);
 
-    // 2️⃣ Get paginated results
     const { rows } = await query(
         `SELECT 
             lt.id AS lab_test_id,
