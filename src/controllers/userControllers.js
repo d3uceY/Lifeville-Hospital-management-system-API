@@ -38,7 +38,7 @@ export async function loginController(req, res) {
             })
             .json({ access_token: accessToken, user });
     } catch (err) {
-        
+
         res.status(err.status || 500).json({ error: err.message });
     }
 }
@@ -74,15 +74,30 @@ export async function createStaffController(req, res) {
         const newU = await userService.createStaff(req.body, req.userId);
         res.status(201).json({ user: newU, message: "Staff user created" });
     } catch (err) {
-        res.status(500).json({ error: err.message });
+        if (err.code === "23505") {
+            return res.status(400).json({ error: "User already exists" });
+        }
+        res.status(err.status || 500).json({ error: err.message });
     }
 }
 
 export async function listUsersController(req, res) {
     try {
         const users = await userService.listUsers();
-        res.json(users);
+        res.status(200).json(users);
     } catch (err) {
+        console.log(err)
+        res.status(500).json({ error: err.message });
+    }
+}
+
+
+export async function updateUserController(req, res) {
+    try {
+        const updatedUser = await userService.updateUser(req.body, req.params.id);
+        res.status(200).json(updatedUser);
+    } catch (err) {
+        console.log(err)
         res.status(500).json({ error: err.message });
     }
 }

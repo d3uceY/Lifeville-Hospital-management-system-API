@@ -13,5 +13,6 @@ router.post("/auth/logout", authenticate, userControllers.logoutController);
 // Super Admin only routes
 router.post("/users", authenticate, authorize(["superadmin"]), userControllers.createStaffController);
 router.get("/users", authenticate, authorize(["superadmin"]), userControllers.listUsersController);
+router.put("/users/:id", authenticate, authorize(["superadmin"]), userControllers.updateUserController);
 
 export default router;

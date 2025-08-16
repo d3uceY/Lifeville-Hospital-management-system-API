@@ -103,19 +103,36 @@ export async function logout(userId) {
     await query(`UPDATE users SET refresh_token = NULL WHERE id = $1`, [userId]);
 }
 
-export async function createStaff({ email, password, role }, creatorId) {
+export async function createStaff({ email, password, role, name }, creatorId) {
     const hashed = await bcrypt.hash(password, SALT_ROUNDS);
     const res = await query(
-        `INSERT INTO users(email, password_hash, role, created_by)
-       VALUES ($1, $2, $3, $4)
-       RETURNING id, email, role`,
-        [email.toLowerCase(), hashed, role || "staff", creatorId]
+        `INSERT INTO users(email, password_hash, role, created_by, name)
+       VALUES ($1, $2, $3, $4, $5)
+       RETURNING id, email, role, name`,
+        [email.toLowerCase(), hashed, role || "staff", creatorId, name]
     );
     return res.rows[0];
 }
 
 // Optionally, for Admin panel
 export async function listUsers() {
-    const { rows } = await query(`SELECT id, name, email, role, created_by, created_at FROM users`);
+    const { rows } = await query(`SELECT 
+  u.id,
+  u.name,
+  u.email,
+  u.role,
+  u.created_by,
+  cb.name AS created_by_name,
+  u.created_at
+FROM users u
+LEFT JOIN users cb ON u.created_by = cb.id;`);
     return rows;
+}
+
+export async function updateUser(userData, userId) {
+    const { rows } = await query(
+        `UPDATE users SET name = $1, email = $2, role = $3 WHERE id = $4 RETURNING *`,
+        [userData.name, userData.email, userData.role, userId]
+    );
+    return rows[0];
 }
