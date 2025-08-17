@@ -1,5 +1,5 @@
 import express from 'express';
-import { createPrescriptionController, getPrescriptionsController } from '../controllers/prescriptionController.js';
+import { createPrescriptionController, getPrescriptionsController, deletePrescriptionController, updatePrescriptionStatusController } from '../controllers/prescriptionController.js';
 
 const router = express.Router();
 
