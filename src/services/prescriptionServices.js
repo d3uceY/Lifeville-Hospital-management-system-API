@@ -77,3 +77,29 @@ export const getPrescriptions = async (patient_id) => {
 
     return rows;
 };
+
+export const deletePrescription = async (prescriptionId) => {
+    const result = await query(
+        `DELETE FROM prescriptions
+         WHERE id = $1
+         RETURNING *;`,
+        [prescriptionId]
+    );
+
+    return result.rows[0];
+};
+
+
+export const updatePrescriptionStatus = async (prescriptionId, newStatus, updatedBy) => {
+    const result = await query(
+        `UPDATE prescriptions
+         SET status = $1,
+             updated_by = $2,
+             updated_at = NOW()
+         WHERE id = $3
+         RETURNING *;`,
+        [newStatus, updatedBy, prescriptionId]
+    );
+
+    return result.rows[0];
+};

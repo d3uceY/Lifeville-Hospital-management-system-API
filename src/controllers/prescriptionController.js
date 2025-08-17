@@ -18,3 +18,23 @@ export const getPrescriptionsController = async (req, res) => {
         res.status(500).json({ error: error.message });
     }
 }
+
+export const deletePrescriptionController = async (req, res) => {
+    try {
+        const prescription = await prescriptionServices.deletePrescription(req.params.id);
+        res.json(prescription);
+    } catch (error) {
+        console.log(error)
+        res.status(500).json({ error: error.message });
+    }
+}
+
+export const updatePrescriptionStatusController = async (req, res) => {
+    try {
+        const prescription = await prescriptionServices.updatePrescriptionStatus(req.params.id, req.body.status, req.body.updatedBy);
+        res.json(prescription);
+    } catch (error) {
+        console.log(error)
+        res.status(500).json({ error: error.message });
+    }
+}
