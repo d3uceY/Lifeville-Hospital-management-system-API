@@ -14,8 +14,9 @@ export const createPrescription = async (prescriptionData) => {
         `INSERT INTO prescriptions (
             patient_id,
             prescribed_by,
-            notes
-        ) VALUES ($1, $2, $3)
+            notes,
+            status
+        ) VALUES ($1, $2, $3, 'Active')
         RETURNING *`,
         [patient_id, prescribed_by, notes]
     );
@@ -56,6 +57,9 @@ export const getPrescriptions = async (patient_id) => {
             p.patient_id,
             p.prescribed_by,
             p.notes,
+            p.status,
+            p.updated_by,
+            p.updated_at,
             p.prescription_date,
             json_agg(
                 json_build_object(
@@ -96,7 +100,7 @@ export const updatePrescriptionStatus = async (prescriptionId, newStatus, update
          SET status = $1,
              updated_by = $2,
              updated_at = NOW()
-         WHERE id = $3
+         WHERE prescription_id = $3
          RETURNING *;`,
         [newStatus, updatedBy, prescriptionId]
     );
