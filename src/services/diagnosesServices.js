@@ -50,15 +50,17 @@ export const getDiagnosisById = async (diagnosisId) => {
 
 // UPDATE diagnosis
 export const updateDiagnosis = async (diagnosisId, updateData) => {
-    const { condition, notes } = updateData;
+    const { condition, notes, updatedBy } = updateData;
 
     const { rows } = await query(
         `UPDATE diagnoses
          SET condition = $1,
-             notes = $2
-         WHERE diagnosis_id = $3
+             notes = $2,
+             updated_by = $3,
+             updated_at = NOW()
+         WHERE diagnosis_id = $4
          RETURNING *`,
-        [condition, notes, diagnosisId]
+        [condition, notes, updatedBy, diagnosisId]
     );
 
     return rows[0];
