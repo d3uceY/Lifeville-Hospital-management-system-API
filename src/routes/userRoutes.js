@@ -14,5 +14,6 @@ router.post("/auth/logout", authenticate, userControllers.logoutController);
 router.post("/users", authenticate, authorize(["superadmin"]), userControllers.createStaffController);
 router.get("/users", authenticate, authorize(["superadmin"]), userControllers.listUsersController);
 router.put("/users/:id", authenticate, authorize(["superadmin"]), userControllers.updateUserController);
+router.delete("/users/:id", authenticate, authorize(["superadmin"]), userControllers.deleteUserController);
 
 export default router;

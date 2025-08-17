@@ -101,3 +101,13 @@ export async function updateUserController(req, res) {
         res.status(500).json({ error: err.message });
     }
 }
+
+export async function deleteUserController(req, res) {
+    try {
+        const deletedUser = await userService.deleteUser(req.params.id);
+        res.status(200).json(deletedUser);
+    } catch (err) {
+        console.log(err)
+        res.status(500).json({ error: err.message });
+    }
+}
