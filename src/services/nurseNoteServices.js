@@ -3,12 +3,16 @@ import { query } from "../db.js";
 // Get all nurse's notes for a patient
 export const getNurseNotesByPatientId = async (patientId) => {
     const { rows } = await query(
-        `SELECT id, note, recorded_by, updated_by, created_at, updated_at
-     FROM nurses_notes
-     WHERE patient_id = $1
-     ORDER BY created_at DESC`,
+        `SELECT nn.id, nn.note, nn.recorded_by, nn.updated_by, 
+              nn.created_at, nn.updated_at,
+              p.surname, p.first_name
+       FROM nurses_notes nn
+       JOIN patients p ON nn.patient_id = p.patient_id
+       WHERE nn.patient_id = $1
+       ORDER BY nn.created_at DESC`,
         [patientId]
     );
+
     return rows;
 };
 

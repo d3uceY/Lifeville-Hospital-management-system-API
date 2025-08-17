@@ -3,15 +3,19 @@ import { query } from "../db.js";
 
 export const getDoctorNotesByPatientId = async (patientId) => {
     const { rows } = await query(
-        `SELECT id, note, recorded_by, updated_by, created_at, updated_at
-     FROM doctors_notes
-     WHERE patient_id = $1
-     ORDER BY created_at DESC`,
-        [patientId]
+      `SELECT dn.id, dn.note, dn.recorded_by, dn.updated_by, 
+              dn.created_at, dn.updated_at,
+              p.surname, p.first_name
+       FROM doctors_notes dn
+       JOIN patients p ON dn.patient_id = p.patient_id
+       WHERE dn.patient_id = $1
+       ORDER BY dn.created_at DESC`,
+      [patientId]
     );
+  
     return rows;
-};
-
+  };
+  
 export const createDoctorNote = async (noteData) => {
     const { patientId, note, recordedBy } = noteData;
 
@@ -20,6 +24,21 @@ export const createDoctorNote = async (noteData) => {
        VALUES ($1, $2, $3, NOW())
        RETURNING *;`,
         [patientId, note, recordedBy]
+    );
+
+    return result.rows[0];
+};
+
+export const updateDoctorNote = async (updatedNoteData, noteId) => {
+    const {note, updatedBy} = updatedNoteData;
+    const result = await query(
+        `UPDATE doctors_notes
+       SET note = $1,
+           updated_by = $2,
+           updated_at = NOW()
+       WHERE id = $3
+       RETURNING *;`,
+        [note, updatedBy, noteId]
     );
 
     return result.rows[0];

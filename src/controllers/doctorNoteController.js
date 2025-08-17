@@ -43,9 +43,7 @@ export const updateDoctorNote = async (req, res) => {
     const { updatedBy, note } = req.body;
 
     const updatedNote = await doctorNoteServices.updateDoctorNote(
-      id,
-      updatedBy,
-      note
+      { updatedBy, note }, id
     );
 
     res.json({
