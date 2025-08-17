@@ -7,8 +7,7 @@ const router = express.Router();
 
 router.get("/vital-signs/patient/:patientId", vitalSignsController.getVitalSignsByPatientId);
 router.post("/vital-signs", vitalSignsController.createVitalSign);
-
-// router.put("/vital-signs/:id", vitalSignsController.updateVitalSign);
+router.put("/vital-signs/:vitalSignId", vitalSignsController.updateVitalSign);
 
 // router.delete("/patients/:id", patientController.deletePatients);
 

@@ -8,7 +8,8 @@ export const createVitalSign = async (req, res) => {
     );
     res
       .status(200)
-      .json({ createdVitalSign, message: "Submitted Successfully" });  } catch (err) {
+      .json({ createdVitalSign, message: "Submitted Successfully" });
+  } catch (err) {
     console.error("error creating vital sign:", err);
     res.status(500).json({
       message: "internal server error",
@@ -30,3 +31,16 @@ export const getVitalSignsByPatientId = async (req, res) => {
     });
   }
 };
+
+export const updateVitalSign = async (req, res) => {
+  try {
+    const { vitalSignId } = req.params;
+    const response = await vitalSignsServices.updateVitalSign(req.body, vitalSignId)
+    res.status(200).json({ response })
+  } catch (err) {
+    console.error("error updating vital sign:", err);
+    res.status(500).json({
+      message: "internal server error",
+    });
+  }
+}
