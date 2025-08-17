@@ -13,7 +13,8 @@ export const createPhysicalExamination = async (examData) => {
         musculoskeletal,
         neurological,
         skin,
-        findings
+        findings,
+        genitourinary
     } = examData;
 
     const { rows } = await query(
@@ -30,9 +31,10 @@ export const createPhysicalExamination = async (examData) => {
             musculoskeletal,
             neurological,
             skin,
-            findings
+            findings,
+            genitourinary
         ) VALUES (
-            $1, $2, NOW(), $3, $4, $5, $6, $7, $8, $9, $10, $11, $12
+            $1, $2, NOW(), $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13
         ) RETURNING *`,
         [
             patient_id,
@@ -46,7 +48,8 @@ export const createPhysicalExamination = async (examData) => {
             musculoskeletal,
             neurological,
             skin,
-            findings
+            findings,
+            genitourinary
         ]
     );
 
