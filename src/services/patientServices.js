@@ -1,140 +1,37 @@
-// import query connection
-import { query } from "../db.js";
+// drizzlePatients.js
+import { eq } from "drizzle-orm";
+import { db } from "../../drizzle-db.js";
+import { patients } from "../../drizzle/migrations/schema.js";
 
 export const getPatients = async () => {
-  const { rows } = await query("SELECT surname, first_name, patient_id, hospital_number, sex, date_of_birth, phone_number FROM patients");
-  return rows;
+  return await db
+    .select({
+      surname: patients.surname,
+      first_name: patients.first_name,
+      patient_id: patients.patient_id,
+      hospital_number: patients.hospital_number,
+      sex: patients.sex,
+      date_of_birth: patients.date_of_birth,
+      phone_number: patients.phone_number,
+    })
+    .from(patients);
 };
 
 export const getPatientNameId = async () => {
-    const { rows } = await query("SELECT patient_id, first_name, surname, hospital_number FROM patients");
-    return rows;
+  return await db
+    .select({
+      patient_id: patients.patient_id,
+      first_name: patients.first_name,
+      surname: patients.surname,
+      hospital_number: patients.hospital_number,
+    })
+    .from(patients);
 };
 
-export const getPatientNameAndId = async () => {
-    const { rows } = await query("SELECT patient_id, first_name, surname, hospital_number FROM patients");
-    return rows;
-};
+// alias but same as above
+export const getPatientNameAndId = getPatientNameId;
 
 export const createPatient = async (patientData) => {
-  //  destructure from patientData
-  const {
-    date,
-    hospitalNumber, // corresponds to hospital_number
-    surname,
-    firstName, // corresponds to first_name
-    otherNames, // corresponds to other_names
-    sex,
-    maritalStatus, // corresponds to marital_status
-    dateOfBirth, // corresponds to date_of_birth
-    phoneNumber, // corresponds to phone_number
-    address,
-    occupation,
-    placeOfWorkAddress, // corresponds to place_of_work_address
-    religion,
-    nationality,
-    nextOfKin, // corresponds to next_of_kin
-    relationship,
-    nextOfKinPhoneNumber, // corresponds to next_of_kin_phone
-    addressOfNextOfKin, // corresponds to next_of_kin_address
-    pastMedicalHistory, // corresponds to past_medical_history
-    pastSurgicalHistory, // corresponds to past_surgical_history
-    familyHistory, // corresponds to family_history
-    socialHistory, // corresponds to social_history
-    drugHistory, // corresponds to drug_history
-    allergies,
-    dietaryRestrictions, // corresponds to dietary_restrictions
-    dietAllergies, // corresponds to diet_allergies_to_drugs
-  } = patientData;
-
-  // 1) Check for existing hospital number
-  const { rows: existing } = await query(
-    `SELECT 1
-       FROM patients
-      WHERE hospital_number = $1`,
-    [hospitalNumber]
-  );
-
-  if (existing.length > 0) {
-    const err = new Error("Hospital number already exists");
-    err.code = "DUPLICATE_HOSPITAL_NUMBER";
-    throw err;
-  }
-
-  const { rows } = await query(
-    `INSERT INTO patients (
-        date,
-        hospital_number,
-        surname,
-        first_name,
-        other_names,
-        sex,
-        marital_status,
-        date_of_birth,
-        phone_number,
-        address,
-        occupation,
-        place_of_work_address,
-        religion,
-        nationality,
-        next_of_kin,
-        relationship,
-        next_of_kin_phone,
-        next_of_kin_address,
-        past_medical_history,
-        past_surgical_history,
-        family_history,
-        social_history,
-        drug_history,
-        allergies,
-        dietary_restrictions,
-        diet_allergies_to_drugs
-    ) VALUES (
-        $1, $2, $3, $4, $5, $6, $7, $8, $9, $10,
-        $11, $12, $13, $14, $15, $16, $17, $18, $19,
-        $20, $21, $22, $23, $24, $25, $26
-    ) RETURNING *`,
-    [
-      date,
-      hospitalNumber,
-      surname,
-      firstName,
-      otherNames,
-      sex,
-      maritalStatus,
-      dateOfBirth,
-      phoneNumber,
-      address,
-      occupation,
-      placeOfWorkAddress,
-      religion,
-      nationality,
-      nextOfKin,
-      relationship,
-      nextOfKinPhoneNumber,
-      addressOfNextOfKin,
-      pastMedicalHistory,
-      pastSurgicalHistory,
-      familyHistory,
-      socialHistory,
-      drugHistory,
-      allergies,
-      dietaryRestrictions,
-      dietAllergies,
-    ]
-  );
-
-  return rows[0];
-};
-
-export const viewPatient = async (patientId) => {
-  const { rows } = await query(`SELECT * FROM patients WHERE patient_id = $1`, [
-    patientId,
-  ]);
-  return rows[0];
-};
-
-export const updatePatient = async (patientId, patientData) => {
   const {
     date,
     hospitalNumber,
@@ -164,84 +61,148 @@ export const updatePatient = async (patientId, patientData) => {
     dietAllergies,
   } = patientData;
 
-  // 1) Check for existing hospital number
-  const { rows: existingId } = await query(
-    `SELECT * FROM patients
-      WHERE patient_id = $1`,
-    [patientId]
-  );
+  const existing = await db
+    .select()
+    .from(patients)
+    .where(eq(patients.hospital_number, hospitalNumber));
 
-  if (!existingId.length > 0) {
+  if (existing.length > 0) {
+    const err = new Error("Hospital number already exists");
+    err.code = "DUPLICATE_HOSPITAL_NUMBER";
+    throw err;
+  }
+
+  const [newPatient] = await db
+    .insert(patients)
+    .values({
+      date,
+      hospital_number: hospitalNumber,
+      surname,
+      first_name: firstName,
+      other_names: otherNames,
+      sex,
+      marital_status: maritalStatus,
+      date_of_birth: dateOfBirth,
+      phone_number: phoneNumber,
+      address,
+      occupation,
+      place_of_work_address: placeOfWorkAddress,
+      religion,
+      nationality,
+      next_of_kin: nextOfKin,
+      relationship,
+      next_of_kin_phone: nextOfKinPhoneNumber,
+      next_of_kin_address: addressOfNextOfKin,
+      past_medical_history: pastMedicalHistory,
+      past_surgical_history: pastSurgicalHistory,
+      family_history: familyHistory,
+      social_history: socialHistory,
+      drug_history: drugHistory,
+      allergies,
+      dietary_restrictions: dietaryRestrictions,
+      diet_allergies_to_drugs: dietAllergies,
+    })
+    .returning();
+
+  return newPatient;
+};
+
+export const viewPatient = async (patientId) => {
+  const [patient] = await db
+    .select()
+    .from(patients)
+    .where(eq(patients.patient_id, patientId));
+
+  return patient;
+};
+
+export const updatePatient = async (patientId, patientData) => {
+  // Ensure patient exists
+  const [existing] = await db
+    .select()
+    .from(patients)
+    .where(eq(patients.patient_id, patientId));
+
+  if (!existing) {
     const err = new Error("Patient not found");
     err.code = "PATIENT_NOT_FOUND";
     throw err;
   }
 
-  const { rows } = await query(
-    `UPDATE patients SET 
-        date = $1,
-        hospital_number = $2,
-        surname = $3,
-        first_name = $4,
-        other_names = $5,
-        sex = $6,
-        marital_status = $7,
-        date_of_birth = $8,
-        phone_number = $9,
-        address = $10,
-        occupation = $11,
-        place_of_work_address = $12,
-        religion = $13,
-        nationality = $14,
-        next_of_kin = $15,
-        relationship = $16,
-        next_of_kin_phone = $17,
-        next_of_kin_address = $18,
-        past_medical_history = $19,
-        past_surgical_history = $20,
-        family_history = $21,
-        social_history = $22,
-        drug_history = $23,
-        allergies = $24,
-        dietary_restrictions = $25,
-        diet_allergies_to_drugs = $26
-    WHERE patient_id = $27 RETURNING *`,
-    [
-      date,
-      hospitalNumber,
-      surname,
-      firstName,
-      otherNames,
-      sex,
-      maritalStatus,
-      dateOfBirth,
-      phoneNumber,
-      address,
-      occupation,
-      placeOfWorkAddress,
-      religion,
-      nationality,
-      nextOfKin,
-      relationship,
-      nextOfKinPhoneNumber,
-      addressOfNextOfKin,
-      pastMedicalHistory,
-      pastSurgicalHistory,
-      familyHistory,
-      socialHistory,
-      drugHistory,
-      allergies,
-      dietaryRestrictions,
-      dietAllergies,
-      patientId,
-    ]
-  );
-  return rows[0];
+  // Destructure + map camelCase → snake_case
+  const {
+    date,
+    hospitalNumber,
+    surname,
+    firstName,
+    otherNames,
+    sex,
+    maritalStatus,
+    dateOfBirth,
+    phoneNumber,
+    address,
+    occupation,
+    placeOfWorkAddress,
+    religion,
+    nationality,
+    nextOfKin,
+    relationship,
+    nextOfKinPhoneNumber,
+    addressOfNextOfKin,
+    pastMedicalHistory,
+    pastSurgicalHistory,
+    familyHistory,
+    socialHistory,
+    drugHistory,
+    allergies,
+    dietaryRestrictions,
+    dietAllergies,
+  } = patientData;
+
+  const updateData = {
+    ...(date !== undefined && { date }),
+    ...(hospitalNumber !== undefined && { hospital_number: hospitalNumber }),
+    ...(surname !== undefined && { surname }),
+    ...(firstName !== undefined && { first_name: firstName }),
+    ...(otherNames !== undefined && { other_names: otherNames }),
+    ...(sex !== undefined && { sex }),
+    ...(maritalStatus !== undefined && { marital_status: maritalStatus }),
+    ...(dateOfBirth !== undefined && { date_of_birth: dateOfBirth }),
+    ...(phoneNumber !== undefined && { phone_number: phoneNumber }),
+    ...(address !== undefined && { address }),
+    ...(occupation !== undefined && { occupation }),
+    ...(placeOfWorkAddress !== undefined && { place_of_work_address: placeOfWorkAddress }),
+    ...(religion !== undefined && { religion }),
+    ...(nationality !== undefined && { nationality }),
+    ...(nextOfKin !== undefined && { next_of_kin: nextOfKin }),
+    ...(relationship !== undefined && { relationship }),
+    ...(nextOfKinPhoneNumber !== undefined && { next_of_kin_phone: nextOfKinPhoneNumber }),
+    ...(addressOfNextOfKin !== undefined && { next_of_kin_address: addressOfNextOfKin }),
+    ...(pastMedicalHistory !== undefined && { past_medical_history: pastMedicalHistory }),
+    ...(pastSurgicalHistory !== undefined && { past_surgical_history: pastSurgicalHistory }),
+    ...(familyHistory !== undefined && { family_history: familyHistory }),
+    ...(socialHistory !== undefined && { social_history: socialHistory }),
+    ...(drugHistory !== undefined && { drug_history: drugHistory }),
+    ...(allergies !== undefined && { allergies }),
+    ...(dietaryRestrictions !== undefined && { dietary_restrictions: dietaryRestrictions }),
+    ...(dietAllergies !== undefined && { diet_allergies_to_drugs: dietAllergies }),
+  };
+
+  // Update
+  const [updatedPatient] = await db
+    .update(patients)
+    .set(updateData)
+    .where(eq(patients.patient_id, patientId))
+    .returning();
+
+  return updatedPatient;
 };
 
 export const deletePatient = async (patientId) => {
-  const { rows } = await query(`DELETE FROM patients WHERE patient_id = $1`, [
-    patientId,
-  ]);
-  return rows[0];
+  const [deletedPatient] = await db
+    .delete(patients)
+    .where(eq(patients.patient_id, patientId))
+    .returning();
+
+  return deletedPatient;
 };
