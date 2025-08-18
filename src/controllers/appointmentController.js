@@ -42,6 +42,7 @@ export const createAppointment = async (req, res) => {
       .status(201)
       .json({ newAppointment, message: "Appointment created successfully" });
   } catch (error) {
+    console.log(error)
     res
       .status(500)
       .json({ message: "Failed to create appointment", error: error.message });
