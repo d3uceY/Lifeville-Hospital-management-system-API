@@ -2,12 +2,12 @@
 import { query } from "../db.js";
 
 export const getDoctors = async () => {
-  const { rows } = await query("SELECT * FROM doctors");
+  const { rows } = await query("SELECT id, role, name, email FROM users where role = 'doctor'");
   return rows;
 };
 
 export const viewDoctor = async (doctorId) => {
-  const { rows } = await query(`SELECT * FROM doctors WHERE doctor_id = $1`, [
+  const { rows } = await query(`SELECT id, role, name, email FROM users WHERE id = $1`, [
     doctorId,
   ]);
   return rows[0];

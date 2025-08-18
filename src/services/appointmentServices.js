@@ -10,12 +10,10 @@ export const getAppointments = async () => {
       p.surname AS patient_surname,
       p.hospital_number,
       p.phone_number AS patient_phone_number,
-      d.first_name AS doctor_first_name,
-      d.last_name AS doctor_last_name,
-      d.specialty AS doctor_specialty    
+      u.name AS doctor_name    
     FROM appointments a
     JOIN patients p ON a.patient_id = p.patient_id
-    JOIN doctors d ON a.doctor_id = d.doctor_id;
+    JOIN users u ON a.doctor_id = u.id;
   `);
   return rows;
 };
