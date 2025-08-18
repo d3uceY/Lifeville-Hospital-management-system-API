@@ -1,78 +1,93 @@
-import { query } from "../db.js";
+import { db } from "../../drizzle-db.js";
+import { diagnoses, patients } from "../../drizzle/migrations/schema.js";
+import { eq, desc } from "drizzle-orm";
 
 // CREATE diagnosis
-export const createDiagnosis = async (diagnosisData) => {
-    const {
-        patient_id,
-        recorded_by,
-        condition,
-        notes
-    } = diagnosisData;
+export async function createDiagnosis(diagnosisData) {
+  const { patient_id, recorded_by, condition, notes } = diagnosisData;
 
-    const { rows } = await query(
-        `INSERT INTO diagnoses (
-            patient_id,
-            recorded_by,
-            condition,
-            notes
-        ) VALUES ($1, $2, $3, $4)
-        RETURNING *`,
-        [patient_id, recorded_by, condition, notes]
-    );
+  const [newDiagnosis] = await db
+    .insert(diagnoses)
+    .values({
+      patient_id,
+      recorded_by,
+      condition,
+      notes,
+    })
+    .returning();
 
-    return rows[0];
-};
+  return newDiagnosis;
+}
 
 // GET all diagnoses for a patient (joined with patient info)
-export const getDiagnosesByPatientId = async (patientId) => {
-    const { rows } = await query(
-        `SELECT d.*, p.first_name, p.surname, p.hospital_number
-         FROM diagnoses d
-         INNER JOIN patients p ON d.patient_id = p.patient_id
-         WHERE d.patient_id = $1
-         ORDER BY d.diagnosis_date DESC`,
-        [patientId]
-    );
-    return rows;
-};
+export async function getDiagnosesByPatientId(patientId) {
+  return await db
+    .select({
+      diagnosis_id: diagnoses.diagnosis_id,
+      patient_id: diagnoses.patient_id,
+      recorded_by: diagnoses.recorded_by,
+      condition: diagnoses.condition,
+      notes: diagnoses.notes,
+      diagnosis_date: diagnoses.diagnosis_date,
+      updated_by: diagnoses.updated_by,
+      updated_at: diagnoses.updated_at,
+      first_name: patients.first_name,
+      surname: patients.surname,
+      hospital_number: patients.hospital_number,
+    })
+    .from(diagnoses)
+    .innerJoin(patients, eq(diagnoses.patient_id, patients.patient_id))
+    .where(eq(diagnoses.patient_id, patientId))
+    .orderBy(desc(diagnoses.diagnosis_date));
+}
 
 // GET single diagnosis by ID (joined with patient info)
-export const getDiagnosisById = async (diagnosisId) => {
-    const { rows } = await query(
-        `SELECT d.*, p.first_name, p.surname, p.hospital_number
-         FROM diagnoses d
-         INNER JOIN patients p ON d.patient_id = p.patient_id
-         WHERE d.diagnosis_id = $1`,
-        [diagnosisId]
-    );
-    return rows[0];
-};
+export async function getDiagnosisById(diagnosisId) {
+  const [result] = await db
+    .select({
+      diagnosis_id: diagnoses.diagnosis_id,
+      patient_id: diagnoses.patient_id,
+      recorded_by: diagnoses.recorded_by,
+      condition: diagnoses.condition,
+      notes: diagnoses.notes,
+      diagnosis_date: diagnoses.diagnosis_date,
+      updated_by: diagnoses.updated_by,
+      updated_at: diagnoses.updated_at,
+      first_name: patients.first_name,
+      surname: patients.surname,
+      hospital_number: patients.hospital_number,
+    })
+    .from(diagnoses)
+    .innerJoin(patients, eq(diagnoses.patient_id, patients.patient_id))
+    .where(eq(diagnoses.diagnosis_id, diagnosisId));
+
+  return result;
+}
 
 // UPDATE diagnosis
-export const updateDiagnosis = async (diagnosisId, updateData) => {
-    const { condition, notes, updatedBy } = updateData;
+export async function updateDiagnosis(diagnosisId, updateData) {
+  const { condition, notes, updatedBy } = updateData;
 
-    const { rows } = await query(
-        `UPDATE diagnoses
-         SET condition = $1,
-             notes = $2,
-             updated_by = $3,
-             updated_at = NOW()
-         WHERE diagnosis_id = $4
-         RETURNING *`,
-        [condition, notes, updatedBy, diagnosisId]
-    );
+  const [updated] = await db
+    .update(diagnoses)
+    .set({
+      condition,
+      notes,
+      updated_by: updatedBy,
+      updated_at: new Date(),
+    })
+    .where(eq(diagnoses.diagnosis_id, diagnosisId))
+    .returning();
 
-    return rows[0];
-};
+  return updated;
+}
 
 // DELETE diagnosis
-export const deleteDiagnosis = async (diagnosisId) => {
-    const { rows } = await query(
-        `DELETE FROM diagnoses
-         WHERE diagnosis_id = $1
-         RETURNING *`,
-        [diagnosisId]
-    );
-    return rows[0];
-};
+export async function deleteDiagnosis(diagnosisId) {
+  const [deleted] = await db
+    .delete(diagnoses)
+    .where(eq(diagnoses.diagnosis_id, diagnosisId))
+    .returning();
+
+  return deleted;
+}

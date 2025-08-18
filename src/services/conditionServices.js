@@ -1,29 +1,43 @@
-import { query } from "../db.js";
+import { db } from "../../drizzle-db.js";
+import { conditions } from "../../drizzle/migrations/schema.js";
+import { eq } from "drizzle-orm";
 
-
+// Create condition
 export async function createCondition(conditionData) {
-    const { name } = conditionData;
-    const { rows } = await query(
-        `INSERT INTO conditions (name)
-         VALUES ($1)
-         RETURNING *`,
-        [name]
-    );
-    return rows[0];
+  const [newCondition] = await db
+    .insert(conditions)
+    .values({
+      name: conditionData.name,
+    })
+    .returning();
+
+  return newCondition;
 }
 
+// Get all conditions
 export async function getConditions() {
-    const { rows } = await query("SELECT * FROM conditions");
-    return rows;
+  return await db.select().from(conditions);
 }
 
-
+// Delete condition
 export async function deleteCondition(conditionId) {
-    const { rows } = await query("DELETE FROM conditions WHERE condition_id = $1", [conditionId]);
-    return rows[0];
+  const [deleted] = await db
+    .delete(conditions)
+    .where(eq(conditions.condition_id, conditionId))
+    .returning();
+
+  return deleted;
 }
 
-export async function updateCondtion(conditionId, conditionData) {
-    const { rows } = await query('UPDATE conditions SET name = $1 WHERE condition_id = $2 RETURNING *', [conditionData.name, conditionId]);
-    return rows[0];
+// Update condition
+export async function updateCondition(conditionId, conditionData) {
+  const [updated] = await db
+    .update(conditions)
+    .set({
+      name: conditionData.name,
+    })
+    .where(eq(conditions.condition_id, conditionId))
+    .returning();
+
+  return updated;
 }

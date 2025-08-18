@@ -1,64 +1,80 @@
-// import query connection
-import { query } from "../db.js";
+import { db } from "../../drizzle-db.js";
+import { deathRecords, patients } from "../../drizzle/migrations/schema.js";
+import { eq } from "drizzle-orm";
 
-export const getDeathRecords = async () => {
-  const { rows } = await query(`
-    SELECT
-      d.*,
-      p.first_name AS patient_first_name,
-      p.surname AS patient_surname,
-      p.hospital_number,
-      p.next_of_kin,
-      p.relationship, 
-      p.sex
-    FROM death_records d
-    JOIN patients p ON d.patient_id = p.patient_id;
-  `);
-  return rows;
-};
+// Get all death records with patient info
+export async function getDeathRecords() {
+  return await db
+    .select({
+      id: deathRecords.id,
+      patient_id: deathRecords.patient_id,
+      death_date: deathRecords.death_date,
+      guardian: deathRecords.guardian,
+      report: deathRecords.report,
+      patient_first_name: patients.first_name,
+      patient_surname: patients.surname,
+      hospital_number: patients.hospital_number,
+      next_of_kin: patients.next_of_kin,
+      relationship: patients.relationship,
+      sex: patients.sex,
+    })
+    .from(deathRecords)
+    .innerJoin(patients, eq(deathRecords.patient_id, patients.patient_id));
+}
 
-export const createDeathRecord = async (deathData) => {
+// Create a new death record
+export async function createDeathRecord(deathData) {
   const { patientId, deathDate, guardian, report } = deathData;
-  const { rows: existing } = await query(
-    `SELECT 1 from death_records where patient_id = $1`,
-    [patientId]
-  );
+
+  // Check for existing record
+  const existing = await db
+    .select()
+    .from(deathRecords)
+    .where(eq(deathRecords.patient_id, patientId));
 
   if (existing.length > 0) {
-    const err = new Error("This Death record already exists");
+    const err = new Error("This death record already exists");
     err.code = "DUPLICATE_DEATH_RECORD";
     throw err;
   }
 
-  const { rows } = await query(
-    `
-    INSERT INTO death_records (patient_id, death_date, guardian, report)
-    VALUES ($1, $2, $3, $4)
-    RETURNING *
-  `,
-    [patientId, deathDate, guardian, report]
-  );
-  return rows[0];
-};
+  const [newRecord] = await db
+    .insert(deathRecords)
+    .values({
+      patient_id: patientId,
+      death_date: deathDate,
+      guardian,
+      report,
+    })
+    .returning();
 
-export const deleteDeathRecord = async (id) => {
-  const { rows } = await query(
-    `DELETE FROM death_records WHERE id = $1 RETURNING *`,
-    [id]
-  );
-  return rows[0];
-};
+  return newRecord;
+}
 
-export const updateDeathRecord = async (id, deathData) => {
+// Delete a death record
+export async function deleteDeathRecord(id) {
+  const [deleted] = await db
+    .delete(deathRecords)
+    .where(eq(deathRecords.id, id))
+    .returning();
+
+  return deleted;
+}
+
+// Update a death record
+export async function updateDeathRecord(id, deathData) {
   const { patientId, deathDate, guardian, report } = deathData;
-  const { rows } = await query(
-    `
-    UPDATE death_records
-    SET patient_id = $1, death_date = $2, guardian = $3, report = $4
-    WHERE id = $5
-    RETURNING *
-  `,
-    [patientId, deathDate, guardian, report, id]
-  );
-  return rows[0];
-};
+
+  const [updated] = await db
+    .update(deathRecords)
+    .set({
+      patient_id: patientId,
+      death_date: deathDate,
+      guardian,
+      report,
+    })
+    .where(eq(deathRecords.id, id))
+    .returning();
+
+  return updated;
+}

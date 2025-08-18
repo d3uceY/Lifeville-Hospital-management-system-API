@@ -1,142 +1,118 @@
-import { query } from "../db.js";
+import { db } from "../../drizzle-db.js";
+import { labTests, labTestTypes, patients } from "../../drizzle/migrations/schema.js";
+import { eq, ilike, desc } from "drizzle-orm";
 
 export const getLabTests = async () => {
-    const { rows } = await query("SELECT * FROM lab_tests");
-    return rows;
+  return db.select().from(labTests);
 };
-
-
-export const getPaginatedLabTests = async (
-    page = 1,
-    pageSize = 10,
-    searchTerm = ""
-) => {
-    const offset = (page - 1) * pageSize;
-    const values = [];
-    let paramIndex = 1;
-    let whereSQL = "";
-
-    if (searchTerm) {
-        whereSQL = `
-            WHERE 
-                p.first_name ILIKE $${paramIndex} OR
-                p.surname ILIKE $${paramIndex} OR
-                p.hospital_number ILIKE $${paramIndex} OR
-                lt.test_type ILIKE $${paramIndex} OR
-                lt.status ILIKE $${paramIndex} OR
-                lt.prescribed_by ILIKE $${paramIndex} OR
-                lt.comments ILIKE $${paramIndex} OR
-                lt.results ILIKE $${paramIndex}
-        `;
-        values.push(`%${searchTerm}%`);
-        paramIndex++;
-    }
-
-    const countResult = await query(
-        `SELECT COUNT(*) AS total
-         FROM lab_tests lt
-         INNER JOIN patients p ON lt.patient_id = p.patient_id
-         ${whereSQL}`,
-        values
-    );
-    const totalItems = parseInt(countResult.rows[0].total, 10);
-    const totalPages = Math.ceil(totalItems / pageSize);
-
-    const { rows } = await query(
-        `SELECT 
-            lt.id AS lab_test_id,
-            lt.patient_id,
-            lt.prescribed_by,
-            lt.test_type,
-            lt.status,
-            lt.comments,
-            lt.results,
-            lt.created_at,
-            lt.updated_at,
-            p.first_name,
-            p.surname,
-            p.hospital_number
-         FROM lab_tests lt
-         INNER JOIN patients p ON lt.patient_id = p.patient_id
-         ${whereSQL}
-         ORDER BY lt.created_at DESC
-         LIMIT $${paramIndex++} OFFSET $${paramIndex++}`,
-        [...values, pageSize, offset]
-    );
-
-    return {
-        totalItems,
-        totalPages,
-        currentPage: page,
-        pageSize,
-        skipped: offset,
-        data: rows
-    };
-};
-
-
-export const updateLabTest = async (id, status, results) => {
-    const { rows } = await query(
-        `UPDATE lab_tests
-         SET 
-            status = $1,
-            results = $2,
-            updated_at = NOW()
-         WHERE id = $3
-         RETURNING *`,
-        [status, results, id]
-    );
-    return rows[0];
-};
-
 
 export const getLabTestsByPatientId = async (patientId) => {
-    const { rows } = await query(
-        `SELECT lt.*, p.surname, p.first_name
-         FROM lab_tests lt
-         INNER JOIN patients p ON lt.patient_id = p.patient_id
-         WHERE lt.patient_id = $1
-         ORDER BY lt.created_at DESC`, 
-        [patientId]
-    );
-    return rows;
+  return db
+    .select({
+      ...labTests,
+      first_name: patients.first_name,
+      surname: patients.surname,
+    })
+    .from(labTests)
+    .innerJoin(patients, eq(patients.patient_id, labTests.patient_id))
+    .where(eq(labTests.patient_id, patientId))
+    .orderBy(desc(labTests.created_at));
+};
+
+export const getLabTestById = async (id) => {
+  return db
+    .select()
+    .from(labTests)
+    .where(eq(labTests.id, id))
+    .then(res => res[0]);
 };
 
 export const createLabTest = async (labTest) => {
-    const { rows } = await query("INSERT INTO lab_tests (test_type, comments, patient_id, prescribed_by, created_at, status ) VALUES ($1, $2, $3, $4, NOW(), 'to do') RETURNING *", [labTest.testType, labTest.comments, labTest.patientId, labTest.prescribedBy]);
-    return rows[0];
+  const [newTest] = await db.insert(labTests).values({
+    patient_id: labTest.patient_id,
+    test_type: labTest.test_type,
+    comments: labTest.comments,
+    prescribed_by: labTest.prescribed_by,
+    status: 'to_do',
+  }).returning();
+
+  return newTest;
 };
 
+export const updateLabTest = async (id, status, results) => {
+  const [updated] = await db.update(labTests)
+    .set({ status, results, updated_at: new Date() })
+    .where(eq(labTests.id, id))
+    .returning();
 
-export const getLabTestById = async (id) => {
-    const { rows } = await query("SELECT * FROM lab_tests WHERE id = $1", [id]);
-    return rows[0];
+  return updated;
 };
 
+export const getPaginatedLabTests = async (page = 1, pageSize = 10, searchTerm = "") => {
+  const offset = (page - 1) * pageSize;
 
+  let queryBuilder = db
+    .select({
+      ...labTests,
+      first_name: patients.first_name,
+      surname: patients.surname,
+      hospital_number: patients.hospital_number,
+    })
+    .from(labTests)
+    .innerJoin(patients, eq(patients.patient_id, labTests.patient_id))
+    .orderBy(desc(labTests.created_at))
+    .limit(pageSize)
+    .offset(offset);
 
+  if (searchTerm) {
+    queryBuilder = queryBuilder.where(
+      ilike(patients.first_name, `%${searchTerm}%`)
+      .or(ilike(patients.surname, `%${searchTerm}%`))
+      .or(ilike(patients.hospital_number, `%${searchTerm}%`))
+      .or(ilike(labTests.test_type, `%${searchTerm}%`))
+      .or(ilike(labTests.status, `%${searchTerm}%`))
+      .or(ilike(labTests.prescribed_by, `%${searchTerm}%`))
+      .or(ilike(labTests.comments, `%${searchTerm}%`))
+      .or(ilike(labTests.results, `%${searchTerm}%`))
+    );
+  }
 
+  const [data, totalResult] = await Promise.all([
+    queryBuilder,
+    db
+      .select({ total: db.raw('COUNT(*)') })
+      .from(labTests)
+      .innerJoin(patients, eq(patients.patient_id, labTests.patient_id))
+      .where(searchTerm ? ilike(patients.first_name, `%${searchTerm}%`) : undefined)
+  ]);
 
+  const totalItems = parseInt(totalResult[0]?.total || 0, 10);
+  const totalPages = Math.ceil(totalItems / pageSize);
 
-
-
-
-export const getLabTestTypes = async () => {
-    const { rows } = await query("SELECT * FROM lab_test_types");
-    return rows;
+  return { totalItems, totalPages, currentPage: page, pageSize, skipped: offset, data };
 };
 
-export const deleteLabTestType = async (id) => {
-    const { rows } = await query("DELETE FROM lab_test_types WHERE id = $1", [id]);
-    return rows[0];
-};
+// Lab Test Types
+export const getLabTestTypes = async () => db.select().from(labTestTypes);
 
 export const createLabTestType = async (labTestType) => {
-    const { rows } = await query("INSERT INTO lab_test_types (name, description) VALUES ($1, $2) RETURNING *", [labTestType.name, labTestType.description]);
-    return rows[0];
+  const [newType] = await db.insert(labTestTypes).values(labTestType).returning();
+  return newType;
 };
 
 export const updateLabTestType = async (id, labTestType) => {
-    const { rows } = await query("UPDATE lab_test_types SET name = $1, description = $2 WHERE id = $3 RETURNING *", [labTestType.name, labTestType.description, id]);
-    return rows[0];
+  const [updated] = await db.update(labTestTypes)
+    .set(labTestType)
+    .where(eq(labTestTypes.id, id))
+    .returning();
+
+  return updated;
+};
+
+export const deleteLabTestType = async (id) => {
+  const [deleted] = await db.delete(labTestTypes)
+    .where(eq(labTestTypes.id, id))
+    .returning();
+
+  return deleted;
 };
