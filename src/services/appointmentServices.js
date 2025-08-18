@@ -13,7 +13,8 @@ export const getAppointments = async () => {
       u.name AS doctor_name    
     FROM appointments a
     JOIN patients p ON a.patient_id = p.patient_id
-    JOIN users u ON a.doctor_id = u.id;
+    JOIN users u ON a.doctor_id = u.id
+    ORDER BY a.created_at DESC;
   `);
   return rows;
 };
