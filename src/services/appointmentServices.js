@@ -1,30 +1,33 @@
 // import query connection
 import { query } from "../db.js";
+import { appointments, patients } from "../../drizzle/migrations/schema.js";
+import { eq, ilike, desc, asc, count } from "drizzle-orm";
 
-// Get all appointments
+
 export const getAppointments = async () => {
-  const { rows } = await query(`
-    SELECT 
-      a.*,
-      p.first_name AS patient_first_name,
-      p.surname AS patient_surname,
-      p.hospital_number,
-      p.phone_number AS patient_phone_number,
-      u.name AS doctor_name    
-    FROM appointments a
-    JOIN patients p ON a.patient_id = p.patient_id
-    JOIN users u ON a.doctor_id = u.id
-    ORDER BY a.created_at DESC;
-  `);
+  const rows = await db
+    .select({
+      ...appointments, // selects all columns from appointments
+      patient_first_name: patients.first_name,
+      patient_surname: patients.surname,
+      hospital_number: patients.hospital_number,
+      patient_phone_number: patients.phone_number,
+      doctor_name: users.name,
+    })
+    .from(appointments)
+    .innerJoin(patients, eq(appointments.patient_id, patients.patient_id))
+    .innerJoin(users, eq(appointments.doctor_id, users.id))
+    .orderBy(desc(appointments.created_at));
+
   return rows;
 };
 
 // View a specific appointment
 export const viewAppointment = async (appointmentId) => {
-  const { rows } = await query(
-    "SELECT * FROM appointments WHERE appointment_id = $1",
-    [appointmentId]
-  );
+  const rows = await db
+    .select()
+    .from(appointments)
+    .where(eq(appointments.appointment_id, appointmentId));
   return rows[0];
 };
 

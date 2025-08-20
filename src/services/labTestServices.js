@@ -1,6 +1,6 @@
 import { db } from "../../drizzle-db.js";
 import { labTests, labTestTypes, patients } from "../../drizzle/migrations/schema.js";
-import { eq, ilike, desc } from "drizzle-orm";
+import { eq, ilike, desc, asc, count } from "drizzle-orm";
 
 export const getLabTests = async () => {
   return db.select().from(labTests);
@@ -33,13 +33,14 @@ export const createLabTest = async (labTest) => {
     test_type: labTest.test_type,
     comments: labTest.comments,
     prescribed_by: labTest.prescribed_by,
-    status: 'to_do',
+    status: 'to do',
   }).returning();
 
   return newTest;
 };
 
 export const updateLabTest = async (id, status, results) => {
+  console.log(id, status, results);
   const [updated] = await db.update(labTests)
     .set({ status, results, updated_at: new Date() })
     .where(eq(labTests.id, id))
@@ -54,6 +55,7 @@ export const getPaginatedLabTests = async (page = 1, pageSize = 10, searchTerm =
   let queryBuilder = db
     .select({
       ...labTests,
+      lab_test_id: labTests.id,
       first_name: patients.first_name,
       surname: patients.surname,
       hospital_number: patients.hospital_number,
@@ -67,20 +69,20 @@ export const getPaginatedLabTests = async (page = 1, pageSize = 10, searchTerm =
   if (searchTerm) {
     queryBuilder = queryBuilder.where(
       ilike(patients.first_name, `%${searchTerm}%`)
-      .or(ilike(patients.surname, `%${searchTerm}%`))
-      .or(ilike(patients.hospital_number, `%${searchTerm}%`))
-      .or(ilike(labTests.test_type, `%${searchTerm}%`))
-      .or(ilike(labTests.status, `%${searchTerm}%`))
-      .or(ilike(labTests.prescribed_by, `%${searchTerm}%`))
-      .or(ilike(labTests.comments, `%${searchTerm}%`))
-      .or(ilike(labTests.results, `%${searchTerm}%`))
+        .or(ilike(patients.surname, `%${searchTerm}%`))
+        .or(ilike(patients.hospital_number, `%${searchTerm}%`))
+        .or(ilike(labTests.test_type, `%${searchTerm}%`))
+        .or(ilike(labTests.status, `%${searchTerm}%`))
+        .or(ilike(labTests.prescribed_by, `%${searchTerm}%`))
+        .or(ilike(labTests.comments, `%${searchTerm}%`))
+        .or(ilike(labTests.results, `%${searchTerm}%`))
     );
   }
 
   const [data, totalResult] = await Promise.all([
     queryBuilder,
     db
-      .select({ total: db.raw('COUNT(*)') })
+      .select({ total: count() })
       .from(labTests)
       .innerJoin(patients, eq(patients.patient_id, labTests.patient_id))
       .where(searchTerm ? ilike(patients.first_name, `%${searchTerm}%`) : undefined)

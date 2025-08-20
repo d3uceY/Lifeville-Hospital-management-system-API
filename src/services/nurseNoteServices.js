@@ -1,59 +1,64 @@
-import { query } from "../db.js";
+import { db } from "../../drizzle-db.js";
+import { nursesNotes, patients } from "../../drizzle/migrations/schema.js";
+import { eq, desc } from "drizzle-orm";
 
 // Get all nurse's notes for a patient
 export const getNurseNotesByPatientId = async (patientId) => {
-    const { rows } = await query(
-        `SELECT nn.id, nn.note, nn.recorded_by, nn.updated_by, 
-              nn.created_at, nn.updated_at,
-              p.surname, p.first_name
-       FROM nurses_notes nn
-       JOIN patients p ON nn.patient_id = p.patient_id
-       WHERE nn.patient_id = $1
-       ORDER BY nn.created_at DESC`,
-        [patientId]
-    );
-
-    return rows;
+  return db
+    .select({
+      id: nursesNotes.id,
+      note: nursesNotes.note,
+      recorded_by: nursesNotes.recorded_by,
+      updated_by: nursesNotes.updated_by,
+      created_at: nursesNotes.created_at,
+      updated_at: nursesNotes.updated_at,
+      surname: patients.surname,
+      first_name: patients.first_name,
+    })
+    .from(nursesNotes)
+    .innerJoin(patients, eq(nursesNotes.patient_id, patients.patient_id))
+    .where(eq(nursesNotes.patient_id, patientId))
+    .orderBy(desc(nursesNotes.created_at));
 };
 
-
+// Create nurse note
 export const createNurseNote = async (noteData) => {
-    const { patientId, note, recordedBy } = noteData;
+  const { patientId, note, recordedBy } = noteData;
 
-    const result = await query(
-        `INSERT INTO nurses_notes (patient_id, note, recorded_by, created_at)
-       VALUES ($1, $2, $3, NOW())
-       RETURNING *;`,
-        [patientId, note, recordedBy]
-    );
+  const [newNote] = await db
+    .insert(nursesNotes)
+    .values({
+      patient_id: patientId,
+      note,
+      recorded_by: recordedBy,
+      created_at: new Date(), // if your schema uses default now(), you can omit
+    })
+    .returning();
 
-    return result.rows[0];
+  return newNote;
 };
 
-
-
+// Update nurse note
 export const updateNurseNote = async (noteId, updatedBy, newNote) => {
-    const result = await query(
-        `UPDATE nurses_notes
-       SET note = $1,
-           updated_by = $2,
-           updated_at = NOW()
-       WHERE id = $3
-       RETURNING *;`,
-        [newNote, updatedBy, noteId]
-    );
+  const [updated] = await db
+    .update(nursesNotes)
+    .set({
+      note: newNote,
+      updated_by: updatedBy,
+      updated_at: new Date(),
+    })
+    .where(eq(nursesNotes.id, noteId))
+    .returning();
 
-    return result.rows[0];
+  return updated;
 };
 
-
-
+// Delete nurse note
 export const deleteNurseNote = async (noteId) => {
-    const result = await query(
-        `DELETE FROM nurses_notes
-       WHERE id = $1
-       RETURNING *;`,
-        [noteId]
-    );
-    return result.rows[0]; // returns deleted note if you want confirmation
+  const [deleted] = await db
+    .delete(nursesNotes)
+    .where(eq(nursesNotes.id, noteId))
+    .returning();
+
+  return deleted; // will return deleted row if schema allows
 };

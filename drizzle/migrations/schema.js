@@ -80,53 +80,53 @@ export const conditions = pgTable("conditions", {
 
 
 export const patients = pgTable("patients", {
-  patient_id: integer("patient_id")
-    .primaryKey()
-    .generatedAlwaysAsIdentity({
-      name: "patients_patient_id_seq",
-      startWith: 1,
-      increment: 1,
-      minValue: 1,
-      maxValue: 2147483647,
-      cache: 1,
-    }),
+	patient_id: integer("patient_id")
+		.primaryKey()
+		.generatedAlwaysAsIdentity({
+			name: "patients_patient_id_seq",
+			startWith: 1,
+			increment: 1,
+			minValue: 1,
+			maxValue: 2147483647,
+			cache: 1,
+		}),
 
-  date: date().notNull(),
-  hospital_number: varchar("hospital_number", { length: 50 }).notNull(),
-  first_name: varchar("first_name", { length: 255 }).notNull(),
-  other_names: varchar("other_names", { length: 255 }),
+	date: date().notNull(),
+	hospital_number: varchar("hospital_number", { length: 50 }).notNull(),
+	first_name: varchar("first_name", { length: 255 }).notNull(),
+	other_names: varchar("other_names", { length: 255 }),
 
-  sex: varchar("sex", { length: 10 }).notNull(),
-  marital_status: varchar("marital_status", { length: 50 }),
-  date_of_birth: date("date_of_birth").notNull(),
-  phone_number: varchar("phone_number", { length: 20 }),
+	sex: varchar("sex", { length: 10 }).notNull(),
+	marital_status: varchar("marital_status", { length: 50 }),
+	date_of_birth: date("date_of_birth").notNull(),
+	phone_number: varchar("phone_number", { length: 20 }),
 
-  address: text("address"),
-  occupation: varchar("occupation", { length: 255 }),
-  place_of_work_address: text("place_of_work_address"),
-  religion: varchar("religion", { length: 255 }),
-  nationality: varchar("nationality", { length: 255 }),
+	address: text("address"),
+	occupation: varchar("occupation", { length: 255 }),
+	place_of_work_address: text("place_of_work_address"),
+	religion: varchar("religion", { length: 255 }),
+	nationality: varchar("nationality", { length: 255 }),
 
-  next_of_kin: varchar("next_of_kin", { length: 255 }),
-  relationship: varchar("relationship", { length: 255 }),
-  next_of_kin_phone: varchar("next_of_kin_phone", { length: 20 }),
-  next_of_kin_address: text("next_of_kin_address"),
+	next_of_kin: varchar("next_of_kin", { length: 255 }),
+	relationship: varchar("relationship", { length: 255 }),
+	next_of_kin_phone: varchar("next_of_kin_phone", { length: 20 }),
+	next_of_kin_address: text("next_of_kin_address"),
 
-  past_surgical_history: text("past_surgical_history"),
-  family_history: text("family_history"),
-  social_history: text("social_history"),
-  drug_history: text("drug_history"),
+	past_surgical_history: text("past_surgical_history"),
+	family_history: text("family_history"),
+	social_history: text("social_history"),
+	drug_history: text("drug_history"),
 
-  allergies: text("allergies"),
-  dietary_restrictions: text("dietary_restrictions"),
-  diet_allergies_to_drugs: text("diet_allergies_to_drugs"),
-  past_medical_history: text("past_medical_history"),
+	allergies: text("allergies"),
+	dietary_restrictions: text("dietary_restrictions"),
+	diet_allergies_to_drugs: text("diet_allergies_to_drugs"),
+	past_medical_history: text("past_medical_history"),
 
-  surname: varchar("surname", { length: 255 }),
-  patient_type: patientTypeEnum("patient_type"),
-  is_inpatient: boolean("is_inpatient").default(false).notNull(),
+	surname: varchar("surname", { length: 255 }),
+	patient_type: patientTypeEnum("patient_type"),
+	is_inpatient: boolean("is_inpatient").default(false).notNull(),
 }, (table) => [
-  unique("unique_hospital_number").on(table.hospital_number),
+	unique("unique_hospital_number").on(table.hospital_number),
 ]);
 
 export const physicalExaminations = pgTable("physical_examinations", {
@@ -462,4 +462,45 @@ export const history = pgTable("history", {
 	recorded_by: varchar("recorded_by", { length: 100 }).notNull(),
 	created_at: timestamp("created_at", { mode: 'string' }).defaultNow(),
 	description: text(),
+});
+
+
+export const inpatientJournal = pgTable("inpatient_journal", {
+	id: serial("id").primaryKey().notNull(),
+	patient_id: integer("patient_id").notNull(),
+	admission_id: integer("admission_id").notNull(),
+	recorded_by: text("recorded_by").notNull(),
+	updated_by: text("updated_by"),
+	comment: text("comment"),
+	comments: text("comments"),
+	created_at: timestamp("created_at", { mode: "string" }).defaultNow().notNull(),
+	updated_at: timestamp("updated_at", { mode: "string" }).defaultNow().notNull(),
+}, (table) => [
+	foreignKey({
+		columns: [table.patient_id],
+		foreignColumns: [patients.patient_id],
+		name: "inpatient_journal_patient_id_fkey"
+	}).onDelete("cascade"),
+	foreignKey({
+		columns: [table.admission_id],
+		foreignColumns: [inpatientAdmissions.id],
+		name: "inpatient_journal_admission_id_fkey"
+	}).onDelete("cascade"),
+]);
+
+
+export const discharge_summary = pgTable("discharge_summary", {
+	id: serial("id").primaryKey().notNull(),
+	final_diagnosis: text("final_diagnosis").notNull(),
+	diagnosis_details: text("diagnosis_details"),
+	treatment_given: text("treatment_given"),
+	outcome: text("outcome"),
+	condition: text("condition"),
+	discharge_date_time: timestamp("discharge_date_time", { mode: "date" }).notNull(),
+	follow_up: text("follow_up"),
+	patient_id: integer("patient_id").notNull(),
+	admission_id: integer("admission_id").notNull(),
+	doctor_id: integer("doctor_id").notNull(),
+	recorded_by: text("recorded_by").notNull(),
+	created_at: timestamp("created_at", { mode: "date" }).defaultNow().notNull(),
 });
