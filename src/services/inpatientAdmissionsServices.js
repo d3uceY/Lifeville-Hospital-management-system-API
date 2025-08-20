@@ -9,7 +9,7 @@ export const getInpatientAdmissions = async () => {
   return await db
     .select({
       // inpatient_admissions fields
-      id: inpatientAdmissions.id, 
+      id: inpatientAdmissions.id,
       patient_id: inpatientAdmissions.patient_id,
       symptom_types: inpatientAdmissions.symptom_types,
       symptom_description: inpatientAdmissions.symptom_description,
@@ -37,6 +37,45 @@ export const getInpatientAdmissions = async () => {
     .leftJoin(users, eq(inpatientAdmissions.consultant_doctor_id, users.id))
     .orderBy(desc(inpatientAdmissions.admission_date));
 };
+
+
+
+export const getInpatientAdmissionsByPatientId = async (patientId) => {
+  return await db
+    .select({
+      // inpatient_admissions fields
+      id: inpatientAdmissions.id,
+      patient_id: inpatientAdmissions.patient_id,
+      symptom_types: inpatientAdmissions.symptom_types,
+      symptom_description: inpatientAdmissions.symptom_description,
+      note: inpatientAdmissions.note,
+      previous_medical_issue: inpatientAdmissions.previous_medical_issue,
+      admission_date: inpatientAdmissions.admission_date,
+      consultant_doctor_id: inpatientAdmissions.consultant_doctor_id,
+      bed_group: inpatientAdmissions.bed_group,
+      bed_number: inpatientAdmissions.bed_number,
+      created_at: inpatientAdmissions.created_at,
+      updated_at: inpatientAdmissions.updated_at,
+      // patients fields
+      hospital_number: patients.hospital_number,
+      first_name: patients.first_name,
+      other_names: patients.other_names,
+      surname: patients.surname,
+      sex: patients.sex,
+      date_of_birth: patients.date_of_birth,
+      phone_number: patients.phone_number,
+      // users fields
+      consultant_doctor_name: users.name,
+    })
+    .from(inpatientAdmissions)
+    .innerJoin(patients, eq(inpatientAdmissions.patient_id, patients.patient_id))
+    .leftJoin(users, eq(inpatientAdmissions.consultant_doctor_id, users.id))
+    .where(eq(inpatientAdmissions.patient_id, patientId))
+    .orderBy(desc(inpatientAdmissions.admission_date));
+};
+
+
+
 
 /**
  * Fetch one inpatient admission by its ID (joined with patient data)

@@ -17,6 +17,21 @@ export const getInpatientAdmissions = async (req, res) => {
 };
 
 /**
+ * GET /inpatients/:patientId
+ * Fetch all inpatient admission records (joined with patient data)
+ */
+export const getInpatientAdmissionsByPatientId = async (req, res) => {
+  try {
+    const patientId = req.params.patientId;
+    const admissions = await inpatientServices.getInpatientAdmissionsByPatientId(patientId);
+    res.status(200).json(admissions);
+  } catch (err) {
+    console.error("error fetching inpatient admissions:", err);
+    res.status(500).json({ message: "internal server error" });
+  }
+};
+
+/**
  * POST /inpatients
  * Create a new inpatient admission
  */
