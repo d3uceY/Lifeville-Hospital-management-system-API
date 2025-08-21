@@ -50,6 +50,7 @@ export const getInpatientAdmissionsByPatientId = async (patientId) => {
       symptom_types: inpatientAdmissions.symptom_types,
       symptom_description: inpatientAdmissions.symptom_description,
       note: inpatientAdmissions.note,
+      end_date: inpatientAdmissions.end_date,
       previous_medical_issue: inpatientAdmissions.previous_medical_issue,
       admission_date: inpatientAdmissions.admission_date,
       consultant_doctor_id: inpatientAdmissions.consultant_doctor_id,
