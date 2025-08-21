@@ -253,9 +253,11 @@ export const deleteInpatientAdmission = async (admissionId) => {
     .where(eq(inpatientAdmissions.id, admissionId))
     .returning();
 
-  await db.update(patients).set({
-    patient_type: "OUTPATIENT",
-  }).where(eq(patients.patient_id, deletedAdmission.patient_id));
+  if (deletedAdmission.discharge_condition == "on admission") {
+    await db.update(patients).set({
+      patient_type: "OUTPATIENT",
+    }).where(eq(patients.patient_id, deletedAdmission.patient_id));
+  }
 
 
   return !!deletedAdmission;
@@ -281,6 +283,24 @@ export const dischargeInpatientAdmission = async (dischargeData) => {
     doctor_id } = dischargeData;
 
 
+  const [existing] = await db.select().from(inpatientAdmissions).where(eq(inpatientAdmissions.id, admission_id));
+
+  // check if inpatient admission exists
+  if (!existing) {
+    const err = new Error("Inpatient admission not found");
+    err.code = "ADMISSION_NOT_FOUND";
+    throw err;
+  }
+
+
+  // check if patient in admission has already been discharged
+  const [dischargeExist] = await db.select().from(discharge_summary).where(eq(discharge_summary.admission_id, admission_id))
+  if (dischargeExist) {
+    const err = new Error("Patient has already been discharged")
+    throw err;
+  }
+
+  // create new discharge summary
   const [newDischarge] = await db.insert(discharge_summary).values({
     patient_id,
     admission_id,
@@ -290,7 +310,7 @@ export const dischargeInpatientAdmission = async (dischargeData) => {
     treatment_given,
     outcome,
     condition,
-    discharge_date_time,
+    discharge_date_time: new Date(discharge_date_time),
     follow_up,
     doctor_id
   }).returning();
@@ -300,16 +320,17 @@ export const dischargeInpatientAdmission = async (dischargeData) => {
     err.code = "DISCHARGE_NOT_CREATED";
     throw err;
   }
-  
-    // update inpatient admission
-    try {
-      await db.update(inpatientAdmissions).set({
-        discharge_condition: condition,
-      }).where(eq(inpatientAdmissions.id, admission_id));
-    } catch (err) {
-      console.error("Error updating inpatient admission:", err);
-      throw err;
-    }
+
+
+  // update inpatient admission
+  try {
+    await db.update(inpatientAdmissions).set({
+      discharge_condition: condition,
+    }).where(eq(inpatientAdmissions.id, admission_id));
+  } catch (err) {
+    console.error("Error updating inpatient admission:", err);
+    throw err;
+  }
 
   // update patient type
   try {
@@ -321,4 +342,5 @@ export const dischargeInpatientAdmission = async (dischargeData) => {
     throw err;
   }
 
+  return true;
 }

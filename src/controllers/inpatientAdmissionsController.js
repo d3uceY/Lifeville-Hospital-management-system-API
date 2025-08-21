@@ -117,6 +117,6 @@ export const dischargeInpatientAdmission = async (req, res) => {
     res.status(200).json({ discharged, message: "Admission discharged successfully" });
   } catch (err) {
     console.error("error discharging inpatient admission:", err);
-    res.status(500).json({ message: "internal server error" });
+    res.status(500).json({ message: `${err}` });
   }
 };
