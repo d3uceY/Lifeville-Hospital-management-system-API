@@ -1,6 +1,6 @@
-import { eq, desc } from "drizzle-orm";
+import { eq, desc, and } from "drizzle-orm";
 import { db } from "../../drizzle-db.js";
-import { inpatientAdmissions, patients, users } from "../../drizzle/migrations/schema.js";
+import { inpatientAdmissions, patients, users, discharge_summary } from "../../drizzle/migrations/schema.js";
 
 /**
  * Fetch all inpatient admission records (joined with patient data)
@@ -21,6 +21,7 @@ export const getInpatientAdmissions = async () => {
       bed_number: inpatientAdmissions.bed_number,
       created_at: inpatientAdmissions.created_at,
       updated_at: inpatientAdmissions.updated_at,
+      discharge_condition: inpatientAdmissions.discharge_condition,
       // patients fields
       hospital_number: patients.hospital_number,
       first_name: patients.first_name,
@@ -56,6 +57,7 @@ export const getInpatientAdmissionsByPatientId = async (patientId) => {
       bed_number: inpatientAdmissions.bed_number,
       created_at: inpatientAdmissions.created_at,
       updated_at: inpatientAdmissions.updated_at,
+      discharge_condition: inpatientAdmissions.discharge_condition,
       // patients fields
       hospital_number: patients.hospital_number,
       first_name: patients.first_name,
@@ -122,6 +124,7 @@ export const viewInpatientAdmission = async (admissionId) => {
       dietary_restrictions: patients.dietary_restrictions,
       diet_allergies_to_drugs: patients.diet_allergies_to_drugs,
       past_medical_history: patients.past_medical_history,
+      patient_type: patients.patient_type,
       // users fields
       consultant_doctor_first_name: users.first_name,
       consultant_doctor_last_name: users.last_name,
@@ -150,6 +153,29 @@ export const createInpatientAdmission = async (admissionData) => {
     bedGroup,
     bedNumber,
   } = admissionData;
+
+  try {
+    const admitted = await db
+      .select()
+      .from(inpatientAdmissions)
+      .where(
+        and(
+          eq(inpatientAdmissions.patient_id, patientId),
+          eq(inpatientAdmissions.discharge_condition, "on admission")
+        )
+      );
+
+    if (admitted.length > 0) {
+      throw new Error("Patient is already admitted");
+    }
+  } catch (err) {
+    console.error("error fetching inpatient admissions:", err);
+    throw err;
+  }
+
+  await db.update(patients).set({
+    patient_type: "INPATIENT",
+  }).where(eq(patients.patient_id, patientId));
 
   const [newAdmission] = await db
     .insert(inpatientAdmissions)
@@ -227,5 +253,72 @@ export const deleteInpatientAdmission = async (admissionId) => {
     .where(eq(inpatientAdmissions.id, admissionId))
     .returning();
 
+  await db.update(patients).set({
+    patient_type: "OUTPATIENT",
+  }).where(eq(patients.patient_id, deletedAdmission.patient_id));
+
+
   return !!deletedAdmission;
 };
+
+
+/**
+ * Discharge an inpatient admission by its ID
+ */
+
+export const dischargeInpatientAdmission = async (dischargeData) => {
+  const {
+    patient_id,
+    admission_id,
+    recorded_by,
+    final_diagnosis,
+    diagnosis_details,
+    treatment_given,
+    outcome,
+    condition,
+    discharge_date_time,
+    follow_up,
+    doctor_id } = dischargeData;
+
+
+  const [newDischarge] = await db.insert(discharge_summary).values({
+    patient_id,
+    admission_id,
+    recorded_by,
+    final_diagnosis,
+    diagnosis_details,
+    treatment_given,
+    outcome,
+    condition,
+    discharge_date_time,
+    follow_up,
+    doctor_id
+  }).returning();
+
+  if (!newDischarge) {
+    const err = new Error("Discharge not created");
+    err.code = "DISCHARGE_NOT_CREATED";
+    throw err;
+  }
+  
+    // update inpatient admission
+    try {
+      await db.update(inpatientAdmissions).set({
+        discharge_condition: condition,
+      }).where(eq(inpatientAdmissions.id, admission_id));
+    } catch (err) {
+      console.error("Error updating inpatient admission:", err);
+      throw err;
+    }
+
+  // update patient type
+  try {
+    await db.update(patients).set({
+      patient_type: "OUTPATIENT",
+    }).where(eq(patients.patient_id, patient_id));
+  } catch (err) {
+    console.error("Error updating patient type:", err);
+    throw err;
+  }
+
+}

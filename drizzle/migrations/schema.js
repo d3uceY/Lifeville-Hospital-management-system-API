@@ -230,18 +230,20 @@ export const appointments = pgTable("appointments", {
 
 
 export const inpatientAdmissions = pgTable("inpatient_admissions", {
-	id: serial().primaryKey().notNull(),
+	id: serial("id").primaryKey().notNull(),
 	patient_id: integer("patient_id").notNull(),
 	symptom_types: text("symptom_types").array().notNull(),
 	symptom_description: text("symptom_description"),
-	note: text(),
+	note: text("note"),
 	previous_medical_issue: text("previous_medical_issue"),
-	admission_date: timestamp("admission_date", { mode: 'string' }).notNull(),
+	admission_date: timestamp("admission_date", { mode: "string" }).notNull(),
 	consultant_doctor_id: integer("consultant_doctor_id").notNull(),
 	bed_group: varchar("bed_group", { length: 50 }),
 	bed_number: varchar("bed_number", { length: 255 }),
-	created_at: timestamp("created_at", { mode: 'string' }).defaultNow().notNull(),
-	updated_at: timestamp("updated_at", { mode: 'string' }).defaultNow().notNull(),
+	discharge_condition: text("discharge_condition").default("on admission"), // ✅ new column
+	created_at: timestamp("created_at", { mode: "string" }).defaultNow().notNull(),
+	updated_at: timestamp("updated_at", { mode: "string" }).defaultNow().notNull(),
+	end_date: timestamp("end_date", { mode: "string" }),
 }, (table) => [
 	foreignKey({
 		columns: [table.patient_id],
