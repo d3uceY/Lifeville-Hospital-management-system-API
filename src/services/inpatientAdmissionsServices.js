@@ -326,6 +326,7 @@ export const dischargeInpatientAdmission = async (dischargeData) => {
   try {
     await db.update(inpatientAdmissions).set({
       discharge_condition: condition,
+      end_date: new Date(discharge_date_time)
     }).where(eq(inpatientAdmissions.id, admission_id));
   } catch (err) {
     console.error("Error updating inpatient admission:", err);
