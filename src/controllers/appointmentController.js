@@ -3,7 +3,8 @@ import * as appointmentService from "../services/appointmentServices.js";
 // Get all appointments
 export const getAppointments = async (req, res) => {
   try {
-    const appointments = await appointmentService.getAppointments();
+    const { page, pageSize, searchTerm } = req.query;
+    const appointments = await appointmentService.getPaginatedAppointments(page, pageSize, searchTerm);
     res.status(200).json(appointments);
   } catch (error) {
     res.status(500).json({ error: "Failed to retrieve appointments" });

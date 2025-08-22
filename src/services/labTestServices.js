@@ -1,6 +1,6 @@
 import { db } from "../../drizzle-db.js";
 import { labTests, labTestTypes, patients } from "../../drizzle/migrations/schema.js";
-import { eq, ilike, desc, asc, count } from "drizzle-orm";
+import { eq, ilike, desc, asc, count, or, sql } from "drizzle-orm";
 
 export const getLabTests = async () => {
   return db.select().from(labTests);
@@ -49,50 +49,80 @@ export const updateLabTest = async (id, status, results) => {
   return updated;
 };
 
-export const getPaginatedLabTests = async (page = 1, pageSize = 10, searchTerm = "") => {
-  const offset = (page - 1) * pageSize;
 
-  let queryBuilder = db
+
+
+
+
+export const getPaginatedLabTests = async (
+  page = 1,
+  pageSize = 10,
+  searchTerm = ""
+) => {
+  const offset = (page - 1) * pageSize;
+  const q = searchTerm.trim();
+  const term = `%${q}%`;
+
+  // 1. Build the base query for fetching the data
+  let dataQuery = db
     .select({
-      ...labTests,
       lab_test_id: labTests.id,
       first_name: patients.first_name,
       surname: patients.surname,
       hospital_number: patients.hospital_number,
+      ...labTests,
     })
     .from(labTests)
-    .innerJoin(patients, eq(patients.patient_id, labTests.patient_id))
-    .orderBy(desc(labTests.created_at))
-    .limit(pageSize)
-    .offset(offset);
+    .innerJoin(patients, eq(patients.patient_id, labTests.patient_id));
 
-  if (searchTerm) {
-    queryBuilder = queryBuilder.where(
-      ilike(patients.first_name, `%${searchTerm}%`)
-        .or(ilike(patients.surname, `%${searchTerm}%`))
-        .or(ilike(patients.hospital_number, `%${searchTerm}%`))
-        .or(ilike(labTests.test_type, `%${searchTerm}%`))
-        .or(ilike(labTests.status, `%${searchTerm}%`))
-        .or(ilike(labTests.prescribed_by, `%${searchTerm}%`))
-        .or(ilike(labTests.comments, `%${searchTerm}%`))
-        .or(ilike(labTests.results, `%${searchTerm}%`))
+  // 2. Build the base query for counting total items (must have the same joins and where clauses)
+  let countQuery = db
+    .select({ count: sql`count(*)` })
+    .from(labTests)
+    .innerJoin(patients, eq(patients.patient_id, labTests.patient_id));
+
+  // 3. Apply the search filter to BOTH queries if a search term exists
+  if (q) {
+    const whereClause = or(
+      ilike(patients.first_name, term),
+      ilike(patients.surname, term),
+      ilike(patients.hospital_number, term),
+      ilike(labTests.test_type, term),
+      ilike(labTests.status, term),
+      ilike(sql`${labTests.prescribed_by}::text`, term),
+      ilike(labTests.comments, term),
+      ilike(sql`${labTests.results}::text`, term)
     );
+    dataQuery.where(whereClause);
+    countQuery.where(whereClause);
   }
 
-  const [data, totalResult] = await Promise.all([
-    queryBuilder,
-    db
-      .select({ total: count() })
-      .from(labTests)
-      .innerJoin(patients, eq(patients.patient_id, labTests.patient_id))
-      .where(searchTerm ? ilike(patients.first_name, `%${searchTerm}%`) : undefined)
-  ]);
+  // 4. Execute both queries
+  const data = await dataQuery.limit(pageSize).offset(offset);
+  const totalCountResult = await countQuery;
+  
+  const totalItems = Number(totalCountResult[0].count);
 
-  const totalItems = parseInt(totalResult[0]?.total || 0, 10);
+  // 5. Calculate total pages
   const totalPages = Math.ceil(totalItems / pageSize);
 
-  return { totalItems, totalPages, currentPage: page, pageSize, skipped: offset, data };
+  // 6. Return the data in the specified format
+  return {
+    data,
+    totalItems,
+    totalPages,
+    currentPage: page,
+    pageSize,
+    skipped: offset,
+  };
 };
+
+
+
+
+
+
+
 
 // Lab Test Types
 export const getLabTestTypes = async () => db.select().from(labTestTypes);
