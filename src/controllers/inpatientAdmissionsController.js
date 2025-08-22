@@ -120,3 +120,17 @@ export const dischargeInpatientAdmission = async (req, res) => {
     res.status(500).json({ message: `${err}` });
   }
 };
+
+export const getDischargeSummaryByAdmissionId = async (req, res) => {
+  try {
+    const admissionId = req.params.id;
+    const dischargeSummary = await inpatientServices.getDischargeSummaryByAdmissionId(admissionId);
+    if (!dischargeSummary) {
+      return res.status(404).json({ message: "Discharge summary not found" });
+    }
+    res.status(200).json(dischargeSummary);
+  } catch (err) {
+    console.error("error fetching discharge summary:", err);
+    res.status(500).json({ message: "internal server error" });
+  }
+};

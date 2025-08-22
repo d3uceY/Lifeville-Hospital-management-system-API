@@ -66,14 +66,14 @@ export async function getDiagnosisById(diagnosisId) {
 
 // UPDATE diagnosis
 export async function updateDiagnosis(diagnosisId, updateData) {
-  const { condition, notes, updatedBy } = updateData;
+  const { condition, notes, updated_by } = updateData;
 
   const [updated] = await db
     .update(diagnoses)
     .set({
       condition,
       notes,
-      updated_by: updatedBy,
+      updated_by,
       updated_at: new Date(),
     })
     .where(eq(diagnoses.diagnosis_id, diagnosisId))

@@ -22,6 +22,7 @@ export const getAppointments = async () => {
   return rows;
 };
 
+
 // View a specific appointment
 export const viewAppointment = async (appointmentId) => {
   const rows = await db

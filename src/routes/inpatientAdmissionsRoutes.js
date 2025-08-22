@@ -19,5 +19,6 @@ router.put("/inpatients/:id", inpatientControllers.updateInpatientAdmission);
 router.delete("/inpatients/:id", inpatientControllers.deleteInpatientAdmission);
 router.get("/inpatients/:patientId/admissions", inpatientControllers.getInpatientAdmissionsByPatientId);
 router.post("/inpatients/:id/discharge", inpatientControllers.dischargeInpatientAdmission);
+router.get("/inpatients/:id/discharge-summary", inpatientControllers.getDischargeSummaryByAdmissionId);
 
 export default router;

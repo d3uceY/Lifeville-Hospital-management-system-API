@@ -36,6 +36,7 @@ export const getInpatientAdmissions = async () => {
     .from(inpatientAdmissions)
     .innerJoin(patients, eq(inpatientAdmissions.patient_id, patients.patient_id))
     .leftJoin(users, eq(inpatientAdmissions.consultant_doctor_id, users.id))
+    .where(eq(inpatientAdmissions.discharge_condition, "on admission"))
     .orderBy(desc(inpatientAdmissions.admission_date));
 };
 
@@ -260,6 +261,9 @@ export const deleteInpatientAdmission = async (admissionId) => {
     }).where(eq(patients.patient_id, deletedAdmission.patient_id));
   }
 
+  await db.delete(discharge_summary)
+    .where(eq(discharge_summary.admission_id, admissionId));
+
 
   return !!deletedAdmission;
 };
@@ -345,4 +349,16 @@ export const dischargeInpatientAdmission = async (dischargeData) => {
   }
 
   return true;
+}
+
+export const getDischargeSummaryByAdmissionId = async (admissionId) => {
+  return await db.select(
+    {
+      ...discharge_summary,
+      doctor_name: users.name
+    }
+  )
+    .from(discharge_summary)
+    .innerJoin(users, eq(discharge_summary.doctor_id, users.id))
+    .where(eq(discharge_summary.admission_id, admissionId));
 }
