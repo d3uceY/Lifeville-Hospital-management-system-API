@@ -29,10 +29,10 @@ export const getLabTestById = async (id) => {
 
 export const createLabTest = async (labTest) => {
   const [newTest] = await db.insert(labTests).values({
-    patient_id: labTest.patient_id,
-    test_type: labTest.test_type,
+    patient_id: labTest.patientId,
+    test_type: labTest.testType,
     comments: labTest.comments,
-    prescribed_by: labTest.prescribed_by,
+    prescribed_by: labTest.prescribedBy,
     status: 'to do',
   }).returning();
 
@@ -40,7 +40,6 @@ export const createLabTest = async (labTest) => {
 };
 
 export const updateLabTest = async (id, status, results) => {
-  console.log(id, status, results);
   const [updated] = await db.update(labTests)
     .set({ status, results, updated_at: new Date() })
     .where(eq(labTests.id, id))

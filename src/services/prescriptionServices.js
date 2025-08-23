@@ -86,14 +86,8 @@ export const getPrescriptions = async (patient_id) => {
 };
 
 export const deletePrescription = async (prescriptionId) => {
-    const result = await query(
-        `DELETE FROM prescriptions
-         WHERE id = $1
-         RETURNING *;`,
-        [prescriptionId]
-    );
-
-    return result.rows[0];
+    const deletedPrescription = db.delete(prescriptions).where(eq(prescriptions.prescription_id, prescriptionId)).returning();
+    return deletedPrescription; 
 };
 
 

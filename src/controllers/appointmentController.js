@@ -50,6 +50,16 @@ export const createAppointment = async (req, res) => {
   }
 };
 
+export const getAppointmentsByPatientId = async (req, res) => {
+  try {
+    const { patientId } = req.params;
+    const appointments = await appointmentService.getAppointmentsByPatientId(patientId);
+    res.status(200).json(appointments);
+  } catch (error) {
+    res.status(500).json({ error: "Failed to retrieve appointments" });
+  }
+};
+
 // Update an appointment
 export const updateAppointment = async (req, res) => {
   try {

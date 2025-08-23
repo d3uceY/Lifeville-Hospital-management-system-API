@@ -8,6 +8,8 @@ routes.get("/appointments", appointmentController.getAppointments);
 
 routes.get("/appointments/:id", appointmentController.viewAppointment);
 
+routes.get("/appointments/:patientId/patient", appointmentController.getAppointmentsByPatientId);
+
 routes.post("/appointments", appointmentController.createAppointment);
 
 routes.put("/appointments/:id", appointmentController.updateAppointment);
@@ -16,6 +18,7 @@ routes.put(
   "/appointments/:appointment_id/status",
   appointmentController.updateAppointmentStatusController
 );
+
 
 routes.delete("/appointments/:id", appointmentController.deleteAppointment);
 
