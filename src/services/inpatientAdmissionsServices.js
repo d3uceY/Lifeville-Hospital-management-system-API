@@ -75,7 +75,7 @@ export const getInpatientAdmissionsByPatientId = async (patientId) => {
     .innerJoin(patients, eq(inpatientAdmissions.patient_id, patients.patient_id))
     .leftJoin(users, eq(inpatientAdmissions.consultant_doctor_id, users.id))
     .where(eq(inpatientAdmissions.patient_id, patientId))
-    .orderBy(desc(inpatientAdmissions.admission_date));
+    .orderBy(desc(inpatientAdmissions.created_at));
 };
 
 
