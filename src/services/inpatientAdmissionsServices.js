@@ -37,7 +37,7 @@ export const getInpatientAdmissions = async () => {
     .innerJoin(patients, eq(inpatientAdmissions.patient_id, patients.patient_id))
     .leftJoin(users, eq(inpatientAdmissions.consultant_doctor_id, users.id))
     .where(eq(inpatientAdmissions.discharge_condition, "on admission"))
-    .orderBy(desc(inpatientAdmissions.admission_date));
+    .orderBy(desc(inpatientAdmissions.created_at));
 };
 
 
@@ -352,7 +352,7 @@ export const dischargeInpatientAdmission = async (dischargeData) => {
 }
 
 export const getDischargeSummaryByAdmissionId = async (admissionId) => {
-  return await db.select(
+  const result = await db.select(
     {
       ...discharge_summary,
       doctor_name: users.name
@@ -361,4 +361,10 @@ export const getDischargeSummaryByAdmissionId = async (admissionId) => {
     .from(discharge_summary)
     .innerJoin(users, eq(discharge_summary.doctor_id, users.id))
     .where(eq(discharge_summary.admission_id, admissionId));
+
+  if (result.length > 0) {
+    return result;
+  } else {
+    return [];
+  }
 }
