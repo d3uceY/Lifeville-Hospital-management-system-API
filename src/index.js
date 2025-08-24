@@ -31,6 +31,7 @@ import prescriptionRoutes from './routes/prescriptionRoutes.js'
 import procedureRoutes from './routes/procedureRoutes.js'
 import doctorNoteRoutes from './routes/doctorNoteRoutes.js'
 import nurseNoteRoutes from './routes/nurseNoteRoutes.js'
+import summaryRoutes from './routes/summaryRoutes.js'
 
 import { specs, swaggerUiOptions as swaggerUi } from "./swagger/swagger.js";
 
@@ -84,6 +85,7 @@ app.use("/api", prescriptionRoutes);
 app.use("/api", procedureRoutes);
 app.use("/api", doctorNoteRoutes);
 app.use("/api", nurseNoteRoutes);
+app.use("/api", summaryRoutes);
 
 // Swagger UI
 app.use(

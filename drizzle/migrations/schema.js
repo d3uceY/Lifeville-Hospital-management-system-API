@@ -240,7 +240,7 @@ export const inpatientAdmissions = pgTable("inpatient_admissions", {
 	consultant_doctor_id: integer("consultant_doctor_id").notNull(),
 	bed_group: varchar("bed_group", { length: 50 }),
 	bed_number: varchar("bed_number", { length: 255 }),
-	discharge_condition: text("discharge_condition").default("on admission"), // ✅ new column
+	discharge_condition: text("discharge_condition").default("on admission"),
 	created_at: timestamp("created_at", { mode: "string" }).defaultNow().notNull(),
 	updated_at: timestamp("updated_at", { mode: "string" }).defaultNow().notNull(),
 	end_date: timestamp("end_date", { mode: "string" }),
