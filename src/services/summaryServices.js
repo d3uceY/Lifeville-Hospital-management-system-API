@@ -51,7 +51,7 @@ export const getVitalSignSummaryByPatientId = async (patientId) => {
         .from(vitalSigns)
         .where(eq(vitalSigns.patient_id, patientId))
         .orderBy(desc(vitalSigns.created_at))
-        .limit(8);
+        .limit(3);
 
     return result;
 }
