@@ -44,10 +44,7 @@ export const getLabTestSummaryByPatientId = async (patientId) => {
 }
 
 export const getVitalSignSummaryByPatientId = async (patientId) => {
-    const result = await db.select({
-        recorded_at: vitalSigns.recorded_at,
-        recorded_by: vitalSigns.recorded_by,
-    })
+    const result = await db.select()
         .from(vitalSigns)
         .where(eq(vitalSigns.patient_id, patientId))
         .orderBy(desc(vitalSigns.created_at))
