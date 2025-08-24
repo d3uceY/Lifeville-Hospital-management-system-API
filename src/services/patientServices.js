@@ -1,7 +1,7 @@
 // drizzlePatients.js
-import { eq } from "drizzle-orm";
 import { db } from "../../drizzle-db.js";
 import { patients } from "../../drizzle/migrations/schema.js";
+import { desc, eq } from "drizzle-orm";
 
 export const getPatients = async () => {
   return await db
@@ -34,7 +34,6 @@ export const getPatientNameAndId = getPatientNameId;
 export const createPatient = async (patientData) => {
   const {
     date,
-    hospitalNumber,
     surname,
     firstName,
     otherNames,
@@ -61,22 +60,25 @@ export const createPatient = async (patientData) => {
     dietAllergies,
   } = patientData;
 
-  const existing = await db
-    .select()
+  // Get the last patient to determine the new hospital number
+  const [lastPatient] = await db
+    .select({ hospital_number: patients.hospital_number })
     .from(patients)
-    .where(eq(patients.hospital_number, hospitalNumber));
+    .orderBy(desc(patients.patient_id)) // safest to use primary key id
+    .limit(1);
 
-  if (existing.length > 0) {
-    const err = new Error("Hospital number already exists");
-    err.code = "DUPLICATE_HOSPITAL_NUMBER";
-    throw err;
+  let newHospitalNumber = 1; // default starting number
+  if (lastPatient) {
+    // Ensure it's an integer before incrementing
+    newHospitalNumber = Number(lastPatient.hospital_number) + 1;
   }
 
+  // Insert new patient with the generated hospital number
   const [newPatient] = await db
     .insert(patients)
     .values({
       date,
-      hospital_number: hospitalNumber,
+      hospital_number: newHospitalNumber, // auto-incremented
       surname,
       first_name: firstName,
       other_names: otherNames,
@@ -107,6 +109,7 @@ export const createPatient = async (patientData) => {
   return newPatient;
 };
 
+
 export const viewPatient = async (patientId) => {
   const [patient] = await db
     .select()
@@ -132,7 +135,7 @@ export const updatePatient = async (patientId, patientData) => {
   // Destructure + map camelCase → snake_case
   const {
     date,
-    hospitalNumber,
+    // hospitalNumber,
     surname,
     firstName,
     otherNames,
@@ -161,7 +164,7 @@ export const updatePatient = async (patientId, patientData) => {
 
   const updateData = {
     ...(date !== undefined && { date }),
-    ...(hospitalNumber !== undefined && { hospital_number: hospitalNumber }),
+    // ...(hospitalNumber !== undefined && { hospital_number: hospitalNumber }),
     ...(surname !== undefined && { surname }),
     ...(firstName !== undefined && { first_name: firstName }),
     ...(otherNames !== undefined && { other_names: otherNames }),
