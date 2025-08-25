@@ -5,8 +5,8 @@ import { seedSuperAdmin } from "./controllers/userControllers.js";
 
 import cookieParser from 'cookie-parser';
 
-//SOCKETS
 import { createServer } from "http";
+//SOCKETS
 import { Server as IOServer } from "socket.io";
 
 
@@ -39,32 +39,48 @@ env.config();
 
 const app = express();
 
-const port = 3000;
+const port = process.env.PORT || 3000;
 
 app.use(cookieParser());
 
-const FRONTEND = process.env.FRONTEND;
+const FRONTEND = process.env.FRONTEND || "http://localhost:5173";
+const allowedOrigins = [
+  FRONTEND,
+  "http://localhost:5173", 
+];
+  
 app.use(
   cors({
-    origin: FRONTEND,
+    origin: function (origin, callback) {
+      if (!origin) return callback(null, true);
+      if (allowedOrigins.indexOf(origin) !== -1) {
+        callback(null, true);
+      } else {
+        callback(new Error('Not allowed by CORS'));
+      }
+    },
     credentials: true,
-    methods: ["GET", "POST", "PUT", "DELETE"],
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     allowedHeaders: ["Content-Type", "Authorization"],
   })
 );
 
-app.use(express.json()); // Middleware to parse JSON requests
+app.use(express.json()); // Create an HTTP server from Express app
 
-// 1) Create an HTTP server from your Express app
 const httpServer = createServer(app);
 
-// 2) Initialize Socket.IO on that server
-const io = new IOServer(httpServer, { cors: { origin: "*" } });
+// Initialize Socket.IO on that server
+const io = new IOServer(httpServer, { 
+  cors: { 
+    origin: allowedOrigins,
+    credentials: true 
+  } 
+});
 
-// 3) Store the io instance on your app for later retrieval
-app.set("socketio", io); // ← lets any controller do req.app.get("socketio")
+// Store the io instance on your app for later retrieval
+app.set("socketio", io); // lets any controller do req.app.get("socketio")
 
-// Mount your routes
+// routes
 app.use("/api", patientRoutes);
 app.use("/api", vitalSignsRoutes);
 app.use("/api", doctorRoutes);
@@ -97,23 +113,16 @@ app.use(
   })
 );
 
-// 4) seed superadmin then start listening on the HTTP server (not app.listen)
+// seed superadmin then start listening on the HTTP server
 seedSuperAdmin().then(() => {
-  httpServer.listen(port, () =>
+  httpServer.listen(port, '0.0.0.0', () =>
     console.log(`Server + Socket.IO running on port ${port}`)
   );
-})
-  .catch((err) => {
+})  .catch((err) => {
     console.error("Error seeding superadmin:", err);
     process.exit(1);
   });
 
-// prints out html in the host http://localhost:3000/
 app.get("/", (req, res) => {
-  res.send("<h1>Hello World, is this working?</h1>");
+  res.send("<h1>API dey run</h1>");
 });
-
-// // confirmation that port is running
-// app.listen(port, () => {
-//   console.log(`Server running like a bitvh on port ${port}`);
-// });
