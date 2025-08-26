@@ -1,6 +1,6 @@
 import { pgTable, foreignKey, serial, integer, timestamp, varchar, text, numeric, unique, date, boolean, check, index, pgEnum } from "drizzle-orm/pg-core"
 import { sql } from "drizzle-orm"
-
+// this is just a suddenc hange 
 export const genderEnum = pgEnum("gender_enum", ['Male', 'Female', 'Other'])
 export const patientTypeEnum = pgEnum("patient_type_enum", ['INPATIENT', 'OUTPATIENT', 'NULL'])
 
@@ -322,7 +322,7 @@ export const diagnoses = pgTable("diagnoses", {
 ]);
 
 
-
+  
 export const birthRecords = pgTable("birth_records", {
 	birth_id: serial("birth_id").primaryKey().notNull(),
 	child_name: varchar("child_name", { length: 150 }).notNull(),
