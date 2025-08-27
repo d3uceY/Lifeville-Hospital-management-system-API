@@ -1,6 +1,6 @@
 node_modules/
 .env
-/src/.env
+src/.env
 .env.local
 .env.production
 npm-debug.log*
