@@ -1,4 +1,4 @@
-import * as vitalSignsServices from "../services/vitalSignsServices.js";
+import * as vitalSignsServices from '../services/vitalSignsServices.js';
 
 export const createVitalSign = async (req, res) => {
   try {
