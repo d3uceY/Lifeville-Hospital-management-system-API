@@ -6,7 +6,7 @@ env.config();
 
 const pool = new pg.Pool({
   connectionString: process.env.DATABASE_URL,
-  ssl: env.process.NODE_ENV === "development" ? false : true,
+  ssl: process.env.PRODUCTION === "true" ? true : false,
   max: 5,              
   min: 1,
   idleTimeoutMillis: 10000, 
