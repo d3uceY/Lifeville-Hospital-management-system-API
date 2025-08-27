@@ -1,4 +1,4 @@
-import { query } from "../db.js";
+import { query } from "../../drizzle-db.js";
 import { eq, desc, and } from "drizzle-orm";
 import { db } from "../../drizzle-db.js";
 import { prescriptionItems, prescriptions } from "../../drizzle/migrations/schema.js";

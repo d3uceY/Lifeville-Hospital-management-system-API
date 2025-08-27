@@ -1,4 +1,4 @@
-import { query } from "../db.js";
+import { query } from "../../drizzle-db.js";
 
 export async function addProcedure({ patient_id, recorded_by, procedure_name, comments, performed_at }) {
     const { rows } = await query(

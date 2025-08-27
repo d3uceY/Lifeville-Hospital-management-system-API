@@ -1,5 +1,5 @@
 // import query connection
-import { query } from "../db.js";
+import { query } from "../../drizzle-db.js";
 import { db } from "../../drizzle-db.js";
 import { appointments, patients, users } from "../../drizzle/migrations/schema.js";
 import { eq, ilike, desc, asc, count, or, sql } from "drizzle-orm";
@@ -55,7 +55,7 @@ export const getPaginatedAppointments = async (
       .orderBy(desc(appointments.created_at))
       .limit(pageSize)
       .offset(offset);
-      
+
     const totalCountResult = await countQuery;
     const totalItems = Number(totalCountResult[0].count);
 

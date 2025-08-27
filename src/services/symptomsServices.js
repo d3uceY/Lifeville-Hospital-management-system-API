@@ -1,5 +1,5 @@
 // import query connection
-import { query } from "../db.js";
+import { query } from "../../drizzle-db.js";
 
 export const getSymptomTypes = async () => {
   const { rows } = await query(`SELECT * FROM symptom_types`);

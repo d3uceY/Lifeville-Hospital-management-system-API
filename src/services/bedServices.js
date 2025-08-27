@@ -1,5 +1,5 @@
 // services/bedServices.js
-import { query } from "../db.js";
+import { query } from "../../drizzle-db.js";
 
 //
 // BED TYPES

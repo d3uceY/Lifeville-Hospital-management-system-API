@@ -1,4 +1,4 @@
-import { query } from "../db.js";
+import { query } from "../../drizzle-db.js";
 
 export const createPhysicalExamination = async (examData) => {
     const {

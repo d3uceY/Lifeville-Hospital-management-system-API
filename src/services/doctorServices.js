@@ -1,5 +1,5 @@
 // import query connection
-import { query } from "../db.js";
+import { query } from "../../drizzle-db.js";
 
 export const getDoctors = async () => {
   const { rows } = await query("SELECT id, role, name, email FROM users where role = 'doctor'");

@@ -1,4 +1,4 @@
-import { query } from "../db.js";
+import { query } from "../../drizzle-db.js";
 import jwt from "jsonwebtoken";
 import crypto from "crypto";
 import bcrypt from "bcrypt";

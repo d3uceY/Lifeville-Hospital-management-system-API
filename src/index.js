@@ -120,7 +120,7 @@ seedSuperAdmin().then(() => {
   );
 })  .catch((err) => {
     console.error("Error seeding superadmin:", err);
-    process.exit(1);
+    // process.exit(1);
   });
 
 app.get("/", (req, res) => {
