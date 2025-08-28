@@ -1,6 +1,7 @@
 // routes/patientRoutes.js
 import express from "express";
 import * as patientController from "../controllers/patientControllers.js";
+import { authenticate } from "../middleware/auth.js";
 
 const router = express.Router();
 
@@ -27,7 +28,7 @@ const router = express.Router();
  *               items:
  *                 $ref: '#/components/schemas/Patient'
  */
-router.get("/patients", patientController.getPatients);
+router.get("/patients", authenticate, patientController.getPatients);
 
 /**
  * @swagger

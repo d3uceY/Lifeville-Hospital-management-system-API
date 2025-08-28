@@ -252,7 +252,7 @@ export const inpatientAdmissions = pgTable("inpatient_admissions", {
 	}).onDelete("cascade"),
 	foreignKey({
 		columns: [table.consultant_doctor_id],
-		foreignColumns: [doctors.doctor_id],
+		foreignColumns: [users.id],
 		name: "inpatient_admissions_consultant_doctor_id_fkey"
 	}),
 ]);
