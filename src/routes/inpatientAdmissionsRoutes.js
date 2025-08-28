@@ -2,7 +2,7 @@
 
 import express from "express";
 import * as inpatientControllers from "../controllers/inpatientAdmissionsController.js";
-
+import { authenticate } from "../middleware/auth.js";
 const router = express.Router();
 
 /**
@@ -12,7 +12,8 @@ const router = express.Router();
  * PUT   /inpatients/:id  → update an admission
  * DELETE /inpatients/:id → delete an admission
  */
-router.get("/inpatients", inpatientControllers.getInpatientAdmissions);
+
+router.get("/inpatients", authenticate, inpatientControllers.getInpatientAdmissions);
 router.post("/inpatients", inpatientControllers.createInpatientAdmission);
 router.get("/inpatients/:id", inpatientControllers.viewInpatientAdmission);
 router.put("/inpatients/:id", inpatientControllers.updateInpatientAdmission);
