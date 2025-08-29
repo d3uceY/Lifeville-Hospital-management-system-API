@@ -1,4 +1,7 @@
 import { query } from "../../drizzle-db.js";
+import { db } from "../../drizzle-db.js";
+import { physicalExaminations, patients, users } from "../../drizzle/migrations/schema.js";
+import { eq, ilike, desc, asc, count, or, sql } from "drizzle-orm";
 
 export const createPhysicalExamination = async (examData) => {
     const {
@@ -58,13 +61,21 @@ export const createPhysicalExamination = async (examData) => {
 
 
 export const getPhysicalExaminationsByPatientId = async (patientId) => {
-    const { rows } = await query(
-        `SELECT pe.*, p.surname, p.first_name
-         FROM physical_examinations pe
-         INNER JOIN patients p ON pe.patient_id = p.patient_id
-         WHERE pe.patient_id = $1
-         ORDER BY pe.created_at DESC`,
-        [patientId]
-    );
+    const rows = await db
+      .select({
+        ...physicalExaminations, // expands into all physical_examinations columns
+        first_name: patients.first_name,
+        surname: patients.surname,
+        hospital_number: patients.hospital_number,
+      })
+      .from(physicalExaminations)
+      .innerJoin(
+        patients,
+        eq(physicalExaminations.patient_id, patients.patient_id)
+      )
+      .where(eq(physicalExaminations.patient_id, patientId))
+      .orderBy(desc(physicalExaminations.created_at));
+  
     return rows;
-};
+  };
+  

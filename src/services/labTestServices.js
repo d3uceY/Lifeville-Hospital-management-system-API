@@ -12,6 +12,7 @@ export const getLabTestsByPatientId = async (patientId) => {
       ...labTests,
       first_name: patients.first_name,
       surname: patients.surname,
+      hospital_number: patients.hospital_number,
     })
     .from(labTests)
     .innerJoin(patients, eq(patients.patient_id, labTests.patient_id))
