@@ -6,9 +6,9 @@ export const getPatientStatusDistribution = async () => {
     const patientData = []
 
     const admittedCount = await db.select({ count: sql`count(*)` }).from(patients).where(eq(patients.patient_type, "INPATIENT"));
-    patientData.push({ name: "Admitted", count: Number(admittedCount[0].count), fill:"var(--color-chart-1)" });
+    patientData.push({ name: "Admitted", value: Number(admittedCount[0].count), fill:"var(--color-chart-1)" });
     const dischargedCount = await db.select({ count: sql`count(*)` }).from(patients).where(eq(patients.patient_type, "OUTPATIENT"));
-    patientData.push({ name: "Discharged", count: Number(dischargedCount[0].count), fill:"var(--color-chart-2)" });
+    patientData.push({ name: "Discharged", value: Number(dischargedCount[0].count), fill:"var(--color-chart-2)" });
 
     return patientData
 }
@@ -48,7 +48,7 @@ export const getAppointmentStatusDistribution = async () => {
     appointmentData.push({ status: "Completed", count: Number(completedCount[0].count), fill:"var(--color-chart-2)" });
 
     const cancelledCount = await db.select({ count: sql`count(*)` }).from(appointments).where(eq(appointments.status, "canceled"));
-    appointmentData.push({ status: "Cancelled", count: Number(cancelledCount[0].count), fill:"var(--color-chart-3)" });
+    appointmentData.push({ status: "Canceled", count: Number(cancelledCount[0].count), fill:"var(--color-chart-3)" });
 
     const confirmedCount = await db.select({ count: sql`count(*)` }).from(appointments).where(eq(appointments.status, "confirmed"));
     appointmentData.push({ status: "Confirmed", count: Number(confirmedCount[0].count), fill:"var(--color-chart-4)" });
@@ -72,10 +72,6 @@ export const getAppointmensToday = async () => {
 }
 
 export const getLabTestPending = async () => {
-    const labTestPendingData = []
-
     const pendingCount = await db.select({ count: sql`count(*)` }).from(labTests).where(eq(labTests.status, "to do"));
-    labTestPendingData.push({ name: "to do", count: Number(pendingCount[0].count), fill:"var(--color-chart-1)" });
-
-    return labTestPendingData
+    return Number(pendingCount[0].count)
 }
