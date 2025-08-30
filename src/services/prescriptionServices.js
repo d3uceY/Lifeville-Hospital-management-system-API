@@ -55,39 +55,52 @@ export const createPrescription = async (prescriptionData) => {
 // GET prescriptions for a patient
 export const getPrescriptions = async (patient_id) => {
     const { rows } = await query(
-        `SELECT 
-            p.prescription_id,
-            p.patient_id,
-            p.prescribed_by,
-            p.notes,
-            p.status,
-            p.updated_by,
-            p.updated_at,
-            p.prescription_date,
-            json_agg(
-                json_build_object(
-                    'drug_name', pi.drug_name,
-                    'dosage', pi.dosage,
-                    'frequency', pi.frequency,
-                    'duration', pi.duration,
-                    'instructions', pi.instructions
-                )
-            ) AS items
-        FROM prescriptions p
-        LEFT JOIN prescription_items pi 
-            ON p.prescription_id = pi.prescription_id
-        WHERE p.patient_id = $1
-        GROUP BY p.prescription_id
-        ORDER BY p.prescription_date DESC`,
-        [patient_id]
+      `SELECT 
+          p.prescription_id,
+          p.patient_id,
+          p.prescribed_by,
+          p.notes,
+          p.status,
+          p.updated_by,
+          pa.hospital_number,
+          p.updated_at,
+          p.prescription_date,
+          json_agg(
+              json_build_object(
+                  'drug_name', pi.drug_name,
+                  'dosage', pi.dosage,
+                  'frequency', pi.frequency,
+                  'duration', pi.duration,
+                  'instructions', pi.instructions
+              )
+          ) AS items
+      FROM prescriptions p
+      LEFT JOIN prescription_items pi 
+          ON p.prescription_id = pi.prescription_id
+      LEFT JOIN patients pa
+          ON p.patient_id = pa.patient_id
+      WHERE p.patient_id = $1
+      GROUP BY 
+          p.prescription_id,
+          p.patient_id,
+          p.prescribed_by,
+          p.notes,
+          p.status,
+          p.updated_by,
+          pa.hospital_number,
+          p.updated_at,
+          p.prescription_date
+      ORDER BY p.prescription_date DESC`,
+      [patient_id]
     );
-
+  
     return rows;
-};
-
+  };
+  
+  
 export const deletePrescription = async (prescriptionId) => {
     const deletedPrescription = db.delete(prescriptions).where(eq(prescriptions.prescription_id, prescriptionId)).returning();
-    return deletedPrescription; 
+    return deletedPrescription;
 };
 
 

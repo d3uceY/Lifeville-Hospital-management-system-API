@@ -85,7 +85,7 @@ export const getPaginatedBills = async (
             billsMap.set(row.bill_id, {
                 id: row.bill_id,
                 patientId: row.patient_id,
-                patientName: `${row.first_name} ${row.other_names} ${row.surname}`,
+                patientName: `${row.first_name} ${row.other_names ?? ''} ${row.surname}`.trim(),
                 hospitalNumber: row.hospital_number,
                 billNumber: row.bill_number,
                 issuedBy: row.issued_by,
