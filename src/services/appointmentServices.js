@@ -1,5 +1,4 @@
 // import query connection
-import { query } from "../../drizzle-db.js";
 import { db } from "../../drizzle-db.js";
 import { appointments, patients, users } from "../../drizzle/migrations/schema.js";
 import { eq, ilike, desc, asc, count, or, sql } from "drizzle-orm";

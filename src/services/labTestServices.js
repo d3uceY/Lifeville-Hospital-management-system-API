@@ -73,7 +73,8 @@ export const getPaginatedLabTests = async (
       ...labTests,
     })
     .from(labTests)
-    .innerJoin(patients, eq(patients.patient_id, labTests.patient_id));
+    .innerJoin(patients, eq(patients.patient_id, labTests.patient_id))
+    .orderBy(desc(labTests.created_at));
 
   // 2. Build the base query for counting total items (must have the same joins and where clauses)
   let countQuery = db
