@@ -26,15 +26,15 @@ export const getPaginatedAppointments = async (
         doctor_name: users.name,
       })
       .from(appointments)
-      .innerJoin(patients, eq(appointments.patient_id, patients.patient_id))
-      .innerJoin(users, eq(appointments.doctor_id, users.id));
+      .leftJoin(patients, eq(appointments.patient_id, patients.patient_id))
+      .leftJoin(users, eq(appointments.doctor_id, users.id));
 
     // 2. Build the base query for counting the total items
     let countQuery = db
       .select({ count: sql`count(*)` })
       .from(appointments)
-      .innerJoin(patients, eq(appointments.patient_id, patients.patient_id))
-      .innerJoin(users, eq(appointments.doctor_id, users.id));
+      .leftJoin(patients, eq(appointments.patient_id, patients.patient_id))
+      .leftJoin(users, eq(appointments.doctor_id, users.id));
 
     // 3. Apply the search filter to BOTH queries if a search term exists
     if (q) {

@@ -6,9 +6,9 @@ export const getPatientStatusDistribution = async () => {
     const patientData = []
 
     const admittedCount = await db.select({ count: sql`count(*)` }).from(patients).where(eq(patients.patient_type, "INPATIENT"));
-    patientData.push({ name: "Admitted", count: Number(admittedCount[0].count) });
+    patientData.push({ name: "Admitted", count: Number(admittedCount[0].count), fill:"var(--color-chart-1)" });
     const dischargedCount = await db.select({ count: sql`count(*)` }).from(patients).where(eq(patients.patient_type, "OUTPATIENT"));
-    patientData.push({ name: "Discharged", count: Number(dischargedCount[0].count) });
+    patientData.push({ name: "Discharged", count: Number(dischargedCount[0].count), fill:"var(--color-chart-2)" });
 
     return patientData
 }
@@ -17,22 +17,22 @@ export const getStaffRolesDistribution = async () => {
     const staffRolesData = []
 
     const doctorCount = await db.select({ count: sql`count(*)` }).from(users).where(eq(users.role, "doctor"));
-    staffRolesData.push({ name: "Doctors", count: Number(doctorCount[0].count) });
+    staffRolesData.push({ role: "Doctors", count: Number(doctorCount[0].count), fill:"var(--color-chart-1)" });
 
     const nurseCount = await db.select({ count: sql`count(*)` }).from(users).where(eq(users.role, "nurse"));
-    staffRolesData.push({ name: "Nurses", count: Number(nurseCount[0].count) });
+    staffRolesData.push({ role: "Nurses", count: Number(nurseCount[0].count), fill:"var(--color-chart-2)" });
 
     const receptionistCount = await db.select({ count: sql`count(*)` }).from(users).where(eq(users.role, "receptionist"));
-    staffRolesData.push({ name: "Receptionist", count: Number(receptionistCount[0].count) });
+    staffRolesData.push({ role: "Receptionist", count: Number(receptionistCount[0].count), fill:"var(--color-chart-3)" });
 
     const labTechnicianCount = await db.select({ count: sql`count(*)` }).from(users).where(eq(users.role, "lab"));
-    staffRolesData.push({ name: "Lab Technician", count: Number(labTechnicianCount[0].count) });
+    staffRolesData.push({ role: "Lab Technician", count: Number(labTechnicianCount[0].count), fill:"var(--color-chart-4)" });
 
     const accountantCount = await db.select({ count: sql`count(*)` }).from(users).where(eq(users.role, "accountant"));
-    staffRolesData.push({ name: "Accountant", count: Number(accountantCount[0].count) });
+    staffRolesData.push({ role: "Accountant", count: Number(accountantCount[0].count), fill:"var(--color-chart-5)" });
 
     const superadminCount = await db.select({ count: sql`count(*)` }).from(users).where(eq(users.role, "superadmin"));
-    staffRolesData.push({ name: "Super Admin", count: Number(superadminCount[0].count) });
+    staffRolesData.push({ role: "Super Admin", count: Number(superadminCount[0].count), fill:"var(--color-chart-6)" });
 
     return staffRolesData
 }
@@ -42,19 +42,19 @@ export const getAppointmentStatusDistribution = async () => {
     const appointmentData = []
 
     const scheduledCount = await db.select({ count: sql`count(*)` }).from(appointments).where(eq(appointments.status, "scheduled"));
-    appointmentData.push({ name: "Scheduled", count: Number(scheduledCount[0].count) });
+    appointmentData.push({ status: "Scheduled", count: Number(scheduledCount[0].count), fill:"var(--color-chart-1)" });
 
     const completedCount = await db.select({ count: sql`count(*)` }).from(appointments).where(eq(appointments.status, "completed"));
-    appointmentData.push({ name: "Completed", count: Number(completedCount[0].count) });
+    appointmentData.push({ status: "Completed", count: Number(completedCount[0].count), fill:"var(--color-chart-2)" });
 
     const cancelledCount = await db.select({ count: sql`count(*)` }).from(appointments).where(eq(appointments.status, "canceled"));
-    appointmentData.push({ name: "Cancelled", count: Number(cancelledCount[0].count) });
+    appointmentData.push({ status: "Cancelled", count: Number(cancelledCount[0].count), fill:"var(--color-chart-3)" });
 
     const confirmedCount = await db.select({ count: sql`count(*)` }).from(appointments).where(eq(appointments.status, "confirmed"));
-    appointmentData.push({ name: "Confirmed", count: Number(confirmedCount[0].count) });
+    appointmentData.push({ status: "Confirmed", count: Number(confirmedCount[0].count), fill:"var(--color-chart-4)" });
 
     const pendingCount = await db.select({ count: sql`count(*)` }).from(appointments).where(eq(appointments.status, "pending"));
-    appointmentData.push({ name: "Pending", count: Number(pendingCount[0].count) });
+    appointmentData.push({ status: "Pending", count: Number(pendingCount[0].count), fill:"var(--color-chart-5)" });
 
     return appointmentData
 }
@@ -75,7 +75,7 @@ export const getLabTestPending = async () => {
     const labTestPendingData = []
 
     const pendingCount = await db.select({ count: sql`count(*)` }).from(labTests).where(eq(labTests.status, "to do"));
-    labTestPendingData.push({ name: "to do", count: Number(pendingCount[0].count) });
+    labTestPendingData.push({ name: "to do", count: Number(pendingCount[0].count), fill:"var(--color-chart-1)" });
 
     return labTestPendingData
 }
