@@ -48,9 +48,9 @@ app.use(cookieParser());
 const FRONTEND = process.env.FRONTEND || "http://localhost:5173";
 const allowedOrigins = [
   FRONTEND,
-  "http://localhost:5173", 
+  "http://localhost:5173",
 ];
-  
+
 app.use(
   cors({
     origin: function (origin, callback) {
@@ -72,11 +72,11 @@ app.use(express.json()); // Create an HTTP server from Express app
 const httpServer = createServer(app);
 
 // Initialize Socket.IO on that server
-const io = new IOServer(httpServer, { 
-  cors: { 
+const io = new IOServer(httpServer, {
+  cors: {
     origin: allowedOrigins,
-    credentials: true 
-  } 
+    credentials: true
+  }
 });
 
 // Store the io instance on your app for later retrieval
@@ -122,10 +122,10 @@ seedSuperAdmin().then(() => {
   httpServer.listen(port, '0.0.0.0', () =>
     console.log(`Server + Socket.IO running on port ${port}`)
   );
-})  .catch((err) => {
-    console.error("Error seeding superadmin:", err);
-    // process.exit(1);
-  });
+}).catch((err) => {
+  console.error("Error seeding superadmin:", err);
+  // process.exit(1);
+});
 
 app.get("/", (req, res) => {
   res.send("<h1>API dey run</h1>");
