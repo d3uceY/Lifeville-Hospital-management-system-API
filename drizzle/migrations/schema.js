@@ -506,3 +506,22 @@ export const discharge_summary = pgTable("discharge_summary", {
 	recorded_by: text("recorded_by").notNull(),
 	created_at: timestamp("created_at", { mode: "date" }).defaultNow().notNull(),
 });
+
+export const patientVisits = pgTable("patient_visits", {
+	id: serial("id").primaryKey(),
+
+	doctor_id: integer("doctor_id")
+	  .notNull()
+	  .references(() => users.id, { onDelete: "set null" }),
+  
+	patient_id: integer("patient_id")
+	  .notNull()
+	  .references(() => patients.patient_id, { onDelete: "cascade" }),
+  
+	recorded_by: text("recorded_by").notNull(),
+  
+	purpose: text("purpose").notNull(),
+  
+	created_at: timestamp("created_at", { withTimezone: true })
+	  .defaultNow(),
+  });
