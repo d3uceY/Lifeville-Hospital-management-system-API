@@ -525,3 +525,4 @@ export const patientVisits = pgTable("patient_visits", {
 	created_at: timestamp("created_at", { withTimezone: true })
 	  .defaultNow(),
   });
+  
