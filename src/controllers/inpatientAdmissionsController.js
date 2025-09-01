@@ -111,9 +111,17 @@ export const dischargeInpatientAdmission = async (req, res) => {
   try {
     const dischargeData = req.body;
     const discharged = await inpatientServices.dischargeInpatientAdmission(dischargeData);
+
     if (!discharged) {
       return res.status(404).json({ message: "Admission not found or already discharged" });
     }
+
+    const io = req.app.get("socketio");
+    io.emit("notification", {
+      message: "Patient Discharged",
+      description: `${discharged.first_name} ${discharged.surname}`
+    });
+
     res.status(200).json({ discharged, message: "Admission discharged successfully" });
   } catch (err) {
     console.error("error discharging inpatient admission:", err);

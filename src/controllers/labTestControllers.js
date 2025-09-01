@@ -45,6 +45,17 @@ export async function getLabTestsByPatientId(req, res) {
 export async function createLabTest(req, res) {
     try {
         const labTest = await labTestServices.createLabTest(req.body);
+        if (!labTest) {
+            return res.status(400).json({ error: "Failed to create lab test" });
+        }
+
+        // emit notification
+        const io = req.app.get("socketio");
+        io.emit("notification", {
+            message: `(${labTest.test_type}) Prescribed by ${labTest.prescribed_by}`,
+            description: `patient: ${labTest.first_name} ${labTest.surname}`
+        });
+
         res.json(labTest);
     } catch (error) {
         console.error(error);

@@ -16,12 +16,26 @@ export const createPatients = async (req, res) => {
   try {
     const patientData = req.body;
     const newPatient = await patientServices.createPatient(patientData);
+
+    if (!newPatient) {
+      return res.status(400).json({
+        message: "Failed to create patient",
+      });
+    }
+    
+    // emit notification
+    const io = req.app.get("socketio");
+    io.emit("notification", {
+      message: "New Patient Added",
+      description: `${newPatient.first_name} ${newPatient.surname}`
+    });
+
     res.status(200).json({ newPatient, message: "Submitted Successfully" });
   } catch (err) {
-    // Check if the error is related to duplicate hospital number
+  
     if (err.code === "DUPLICATE_HOSPITAL_NUMBER") {
       return res.status(400).json({
-        message: err.message, // Send custom error message to the frontend
+        message: err.message, 
       });
     }
 

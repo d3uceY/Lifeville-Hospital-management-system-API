@@ -37,7 +37,17 @@ export const createLabTest = async (labTest) => {
     status: 'to do',
   }).returning();
 
-  return newTest;
+  // get patient details for notification
+  const patient = await db.select({
+    first_name: patients.first_name,
+    surname: patients.surname,
+  }).from(patients).where(eq(patients.patient_id, labTest.patientId));
+
+  return {
+    ...newTest,
+    first_name: patient[0].first_name,
+    surname: patient[0].surname,
+  };
 };
 
 export const updateLabTest = async (id, status, results) => {

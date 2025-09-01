@@ -340,15 +340,17 @@ export const dischargeInpatientAdmission = async (dischargeData) => {
 
   // update patient type
   try {
-    await db.update(patients).set({
+   const dischargedPatient = await db.update(patients).set({
+
       patient_type: "OUTPATIENT",
-    }).where(eq(patients.patient_id, patient_id));
+    }).where(eq(patients.patient_id, patient_id)).returning();
+    return dischargedPatient;
+
   } catch (err) {
     console.error("Error updating patient type:", err);
     throw err;
   }
 
-  return true;
 }
 
 export const getDischargeSummaryByAdmissionId = async (admissionId) => {
