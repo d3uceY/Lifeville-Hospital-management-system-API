@@ -25,6 +25,17 @@ export const getPaginatedLabTests = async (req, res) => {
 export const updateLabTest = async (req, res) => {
     try {
         const labTest = await labTestServices.updateLabTest(req.params.id, req.body.status, req.body.results);
+        if (!labTest) {
+            return res.status(400).json({ error: "Failed to update lab test" });
+        }
+
+        // emit notification
+        const io = req.app.get("socketio");
+        io.emit("notification", {
+            message: `(${labTest.test_type}) ${labTest.status} by ${labTest.prescribed_by}`,
+            description: `Patient: ${labTest.first_name} ${labTest.surname}`
+        });
+
         res.json(labTest);
     } catch (error) {
         console.error(error);
@@ -53,7 +64,7 @@ export async function createLabTest(req, res) {
         const io = req.app.get("socketio");
         io.emit("notification", {
             message: `(${labTest.test_type}) Prescribed by ${labTest.prescribed_by}`,
-            description: `patient: ${labTest.first_name} ${labTest.surname}`
+            description: `Patient: ${labTest.first_name} ${labTest.surname}`
         });
 
         res.json(labTest);

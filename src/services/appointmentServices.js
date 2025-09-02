@@ -131,7 +131,21 @@ export const createAppointment = async (appointmentData) => {
     status: "scheduled",
   }).returning();
 
-  return rows[0];
+  const patient = await db.select({
+    first_name: patients.first_name,
+    surname: patients.surname,
+  }).from(patients).where(eq(patients.patient_id, rows[0].patient_id));
+
+  const doctor = await db.select({
+    name: users.name,
+  }).from(users).where(eq(users.id, rows[0].doctor_id));
+
+  return {
+    ...rows[0],
+    first_name: patient[0].first_name,
+    surname: patient[0].surname,
+    doctor_name: doctor[0].name,
+  };
 };
 
 // Update an existing appointment

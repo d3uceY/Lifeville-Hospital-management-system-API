@@ -1,4 +1,5 @@
 import * as appointmentService from "../services/appointmentServices.js";
+import { formatDate } from "../utils/formatDate.js";
 
 // Get all appointments
 export const getAppointments = async (req, res) => {
@@ -35,9 +36,12 @@ export const createAppointment = async (req, res) => {
       appointmentData
     );
 
-    // Grab the io instance and broadcast
     const io = req.app.get("socketio");
-    io.emit("newAppointment", newAppointment);
+    io.emit("notification", {
+      message: `( New Appointment on ${formatDate(newAppointment.appointment_date)} ) Doctor: ${newAppointment.doctor_name}`,
+      description: `Patient: ${newAppointment.first_name} ${newAppointment.surname}`
+    });
+
 
     res
       .status(201)

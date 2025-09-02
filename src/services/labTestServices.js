@@ -56,7 +56,16 @@ export const updateLabTest = async (id, status, results) => {
     .where(eq(labTests.id, id))
     .returning();
 
-  return updated;
+  const patient = await db.select({
+    first_name: patients.first_name,
+    surname: patients.surname,
+  }).from(patients).where(eq(patients.patient_id, updated.patient_id));
+
+  return {
+    ...updated,
+    first_name: patient[0].first_name,
+    surname: patient[0].surname,
+  };
 };
 
 
@@ -73,7 +82,7 @@ export const getPaginatedLabTests = async (
   const q = searchTerm.trim();
   const term = `%${q}%`;
 
-  // 1. Build the base query for fetching the data
+  // Build the base query for fetching the data
   let dataQuery = db
     .select({
       lab_test_id: labTests.id,
@@ -86,13 +95,13 @@ export const getPaginatedLabTests = async (
     .innerJoin(patients, eq(patients.patient_id, labTests.patient_id))
     .orderBy(desc(labTests.created_at));
 
-  // 2. Build the base query for counting total items (must have the same joins and where clauses)
+  // Build the base query for counting total items (must have the same joins and where clauses)
   let countQuery = db
     .select({ count: sql`count(*)` })
     .from(labTests)
     .innerJoin(patients, eq(patients.patient_id, labTests.patient_id));
 
-  // 3. Apply the search filter to BOTH queries if a search term exists
+  // Apply the search filter to BOTH queries if a search term exists
   if (q) {
     const whereClause = or(
       ilike(patients.first_name, term),
@@ -108,16 +117,16 @@ export const getPaginatedLabTests = async (
     countQuery.where(whereClause);
   }
 
-  // 4. Execute both queries
+  // Execute both queries
   const data = await dataQuery.limit(pageSize).offset(offset);
   const totalCountResult = await countQuery;
-  
+
   const totalItems = Number(totalCountResult[0].count);
 
-  // 5. Calculate total pages
+  // Calculate total pages
   const totalPages = Math.ceil(totalItems / pageSize);
 
-  // 6. Return the data in the specified format
+  // Return the data in the specified format
   return {
     data,
     totalItems,
@@ -127,8 +136,6 @@ export const getPaginatedLabTests = async (
     skipped: offset,
   };
 };
-
-
 
 
 
