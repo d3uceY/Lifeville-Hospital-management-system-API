@@ -104,6 +104,8 @@ export const updateAppointmentStatusController = async (req, res) => {
       status
     );
 
+    console.log(updatedAppointment)
+
     if (!updatedAppointment) {
       return res.status(404).json({ error: "Appointment not found" });
     }

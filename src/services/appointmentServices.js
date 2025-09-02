@@ -177,7 +177,16 @@ export const updateAppointmentStatus = async (appointmentId, status) => {
     .where(eq(appointments.appointment_id, appointmentId))
     .returning();
 
-  return rows[0];
+    const patient = await db.select({
+      first_name: patients.first_name,
+      surname: patients.surname,
+    }).from(patients).where(eq(patients.patient_id, rows[0].patient_id));
+
+  return {
+    ...rows[0],
+    first_name: patient[0].first_name,
+    surname: patient[0].surname,
+  };
 };
 
 
