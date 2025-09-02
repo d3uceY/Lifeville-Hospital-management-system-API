@@ -49,6 +49,7 @@ const FRONTEND = process.env.FRONTEND || "http://localhost:5173";
 const allowedOrigins = [
   FRONTEND,
   "http://localhost:5173",
+  "http://10.101.159.69:5173"
 ];
 
 app.use(
