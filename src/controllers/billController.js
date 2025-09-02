@@ -7,7 +7,7 @@ export const createBill = async (req, res) => {
         const newBill = await billService.createBill(billData);
         res.status(201).json({ newBill, message: "Bill created" });
     } catch (err) {
-        console.log(err)
+        console.error(err)
         res.status(500).json({ error: err.message });
     }
 }
@@ -18,7 +18,7 @@ export const getBillByPatientId = async (req, res) => {
         const bills = await billService.getBillByPatientId(patientId);
         res.status(200).json(bills);
     } catch (err) {
-        console.log(err)
+        console.error(err)
         res.status(500).json({ error: err.message });
     }
 }
@@ -29,7 +29,7 @@ export const getPaginatedBills = async (req, res) => {
         const bills = await billService.getPaginatedBills(page, pageSize, { billNumber, status, issuedBy, patientId });
         res.status(200).json(bills);
     } catch (err) {
-        console.log(err)
+        console.error(err)
         res.status(500).json({ error: err.message });
     }
 }
@@ -40,7 +40,7 @@ export const deleteBill = async (req, res) => {
         const deletedBill = await billService.deleteBill(billId);
         res.status(200).json({ deletedBill, message: "Bill deleted" });
     } catch (err) {
-        console.log(err)
+        console.error(err)
         res.status(500).json({ error: err.message });
     }
 }
@@ -52,7 +52,7 @@ export const getBillById = async (req, res) => {
         const bill = await billService.getBillById(billId);
         res.status(200).json(bill);
     } catch (err) {
-        console.log(err)
+        console.error(err)
         res.status(500).json({ error: err.message });
     }
 }
@@ -63,7 +63,7 @@ export const updateBillPayment = async (req, res) => {
         const updatedBill = await billService.updateBillPayment(billId, req.body);
         res.status(200).json({ updatedBill, message: "Bill updated" });
     } catch (err) {
-        console.log(err)
+        console.error(err)
         res.status(500).json({ error: err.message });
     }
 }

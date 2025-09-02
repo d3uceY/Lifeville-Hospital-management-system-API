@@ -86,7 +86,7 @@ export async function listUsersController(req, res) {
         const users = await userService.listUsers();
         res.status(200).json(users);
     } catch (err) {
-        console.log(err)
+        console.error(err)
         res.status(500).json({ error: err.message });
     }
 }
@@ -97,7 +97,7 @@ export async function updateUserController(req, res) {
         const updatedUser = await userService.updateUser(req.body, req.params.id);
         res.status(200).json(updatedUser);
     } catch (err) {
-        console.log(err)
+        console.error(err)
         res.status(500).json({ error: err.message });
     }
 }
@@ -107,7 +107,7 @@ export async function deleteUserController(req, res) {
         const deletedUser = await userService.deleteUser(req.params.id);
         res.status(200).json(deletedUser);
     } catch (err) {
-        console.log(err)
+        console.error(err)
         res.status(500).json({ error: err.message });
     }
 }

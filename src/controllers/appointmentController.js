@@ -47,7 +47,7 @@ export const createAppointment = async (req, res) => {
       .status(201)
       .json({ newAppointment, message: "Appointment created successfully" });
   } catch (error) {
-    console.log(error)
+    console.error(error)
     res
       .status(500)
       .json({ message: "Failed to create appointment", error: error.message });
@@ -78,6 +78,13 @@ export const updateAppointment = async (req, res) => {
       return res.status(404).json({ error: "Appointment not found" });
     }
 
+    const io = req.app.get("socketio");
+    io.emit("notification", {
+      message: `(Updated Appointment on ${formatDate(updatedAppointment.appointment_date)} ) Status: ${updatedAppointment.status}`,
+      description: `Patient: ${updatedAppointment.first_name} ${updatedAppointment.surname}`
+    });
+
+
     res.status(200).json({
       updatedAppointment,
       message: "Appointment updated successfully",
@@ -100,6 +107,12 @@ export const updateAppointmentStatusController = async (req, res) => {
     if (!updatedAppointment) {
       return res.status(404).json({ error: "Appointment not found" });
     }
+
+    const io = req.app.get("socketio");
+    io.emit("notification", {
+      message: `(Updated Appointment on ${formatDate(updatedAppointment.appointment_date)} ) Status: ${updatedAppointment.status}`,
+      description: `Patient: ${updatedAppointment.first_name} ${updatedAppointment.surname}`
+    });
 
     res.status(200).json({
       updatedAppointment,

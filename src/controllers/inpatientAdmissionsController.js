@@ -118,8 +118,8 @@ export const dischargeInpatientAdmission = async (req, res) => {
 
     const io = req.app.get("socketio");
     io.emit("notification", {
-      message: "Patient Discharged",
-      description: `${discharged.first_name} ${discharged.surname}`
+      message: `Patient Discharged by ${dischargeData.recorded_by}`,
+      description: `Patient: ${discharged.first_name} ${discharged.surname}`
     });
 
     res.status(200).json({ discharged, message: "Admission discharged successfully" });

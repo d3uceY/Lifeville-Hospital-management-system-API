@@ -33,7 +33,7 @@ export const updateDoctor = async (req, res) => {
     res.status(200).json({ doctor, message: "Updated Successfully" });
   } catch (error) {
     res.status(500).json({ message: `internal server error ${error.message}` });
-    console.log(error)
+    console.error(error)
   }
 };
 
