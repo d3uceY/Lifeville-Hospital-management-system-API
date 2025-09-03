@@ -33,10 +33,11 @@ export const getNotificationsByUserData = async (userData) => {
     return notifications;
 }
 
+
 export const getUnreadNotifications = async (userData) => {
     const { role, id: userId } = userData;
 
-    const notifications = await db.select(
+    const unreadNotifications = await db.select(
         {
             ...notifications,
             is_read: sql`CASE WHEN ${notificationReads.id} IS NULL THEN false ELSE true END`,
@@ -60,29 +61,29 @@ export const getUnreadNotifications = async (userData) => {
         .limit(5);
 
 
-        const [totalUnread] = await db
+    const [totalUnread] = await db
         .select({ count: sql`count(*)` })
         .from(notifications)
         .leftJoin(
-          notificationReads,
-          and(
-            eq(notifications.id, notificationReads.notification_id),
-            eq(notificationReads.user_id, userId)
-          )
+            notificationReads,
+            and(
+                eq(notifications.id, notificationReads.notification_id),
+                eq(notificationReads.user_id, userId)
+            )
         )
         .where(
-          and(
-            or(
-              eq(notifications.recipient_id, userId),
-              eq(notifications.recipient_role, role)
-            ),
-            isNull(notificationReads.id) 
-          )
+            and(
+                or(
+                    eq(notifications.recipient_id, userId),
+                    eq(notifications.recipient_role, role)
+                ),
+                isNull(notificationReads.id)
+            )
         );
-      
+
 
     return {
-        UnreadNotifications: notifications.filter(notification => !notification.is_read),
+        unreadNotifications: unreadNotifications.filter(notification => !notification.is_read),
         totalUnread: Number(totalUnread.count),
     };
 }
@@ -97,7 +98,6 @@ export const getPaginatedNotificationsByUserData = async (
     const { role, id: userId } = userData;
     const offset = (page - 1) * pageSize;
 
-    // join notifications with notification_reads
     const notificationsWithRead = await db
         .select({
             id: notifications.id,
@@ -128,7 +128,6 @@ export const getPaginatedNotificationsByUserData = async (
         .limit(pageSize)
         .offset(offset);
 
-    // count total
     const [totalItems] = await db
         .select({ count: sql`count(*)` })
         .from(notifications)

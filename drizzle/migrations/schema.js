@@ -527,6 +527,23 @@ export const patientVisits = pgTable("patient_visits", {
 });
 
 
+
+export const notificationReads = pgTable("notification_reads", {
+	id: serial("id").primaryKey(),
+	notification_id: integer("notification_id")
+	.notNull()
+	.references(() => notifications.id, { onDelete: "cascade" }),
+	user_id: integer("user_id").notNull(),
+	read_at: timestamp("read_at").defaultNow(),
+}, (table) => ({
+	uniqNotificationUser: uniqueIndex("uniq_notification_user").on(
+		table.notification_id,
+		table.user_id
+    ),
+})
+);
+
+
 export const notifications = pgTable("notifications", {
 	id: serial("id").primaryKey(),
 	recipient_id: integer("recipient_id"),
@@ -538,17 +555,4 @@ export const notifications = pgTable("notifications", {
 	created_at: timestamp("created_at").defaultNow(),
 });
 
-export const notificationReads = pgTable("notification_reads", {
-	id: serial("id").primaryKey(),
-	notification_id: integer("notification_id")
-		.notNull()
-		.references(() => notifications.id, { onDelete: "cascade" }),
-	user_id: integer("user_id").notNull(),
-	read_at: timestamp("read_at").defaultNow(),
-}, (table) => ({
-    uniqNotificationUser: uniqueIndex("uniq_notification_user").on(
-      table.notification_id,
-      table.user_id
-    ),
-  })
-);
+
