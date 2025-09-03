@@ -148,6 +148,7 @@ export const getPaginatedNotificationsByUserData = async (
         skipped: offset,
     };
 };
+
 export const markNotificationAsRead = async (notificationId, userData) => {
     const { id } = userData;
     await db.insert(notificationReads)

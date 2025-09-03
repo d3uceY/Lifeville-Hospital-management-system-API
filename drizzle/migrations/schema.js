@@ -545,9 +545,10 @@ export const notificationReads = pgTable("notification_reads", {
 		.references(() => notifications.id, { onDelete: "cascade" }),
 	user_id: integer("user_id").notNull(),
 	read_at: timestamp("read_at").defaultNow(),
-});
-
-export const notificationReadsUniqueIdx = uniqueIndex("uniq_notification_user").on(
-	notificationReads.notification_id,
-	notificationReads.user_id
+}, (table) => ({
+    uniqNotificationUser: uniqueIndex("uniq_notification_user").on(
+      table.notification_id,
+      table.user_id
+    ),
+  })
 );
