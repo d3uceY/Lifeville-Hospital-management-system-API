@@ -535,6 +535,5 @@ export const notifications = pgTable("notifications", {
 	title: varchar("title", { length: 255 }),
 	message: text("message"),
 	data: jsonb("data"),
-	is_read: boolean("is_read").default(false),
 	created_at: timestamp("created_at").defaultNow(),
 });
