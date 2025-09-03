@@ -1,4 +1,4 @@
-import { pgTable, foreignKey, serial, integer, timestamp, varchar, text, numeric, unique, date, boolean, check, index, pgEnum, jsonb } from "drizzle-orm/pg-core"
+import { pgTable, foreignKey, serial, integer, timestamp, varchar, text, numeric, unique, date, boolean, check, index, pgEnum, jsonb, uniqueIndex } from "drizzle-orm/pg-core"
 import { sql } from "drizzle-orm"
 // this is just a suddenc hange 
 export const genderEnum = pgEnum("gender_enum", ['Male', 'Female', 'Other'])
@@ -537,3 +537,17 @@ export const notifications = pgTable("notifications", {
 	data: jsonb("data"),
 	created_at: timestamp("created_at").defaultNow(),
 });
+
+export const notificationReads = pgTable("notification_reads", {
+	id: serial("id").primaryKey(),
+	notification_id: integer("notification_id")
+		.notNull()
+		.references(() => notifications.id, { onDelete: "cascade" }),
+	user_id: integer("user_id").notNull(),
+	read_at: timestamp("read_at").defaultNow(),
+});
+
+export const notificationReadsUniqueIdx = uniqueIndex("uniq_notification_user").on(
+	notificationReads.notification_id,
+	notificationReads.user_id
+);
