@@ -1,4 +1,4 @@
-import { pgTable, foreignKey, serial, integer, timestamp, varchar, text, numeric, unique, date, boolean, check, index, pgEnum } from "drizzle-orm/pg-core"
+import { pgTable, foreignKey, serial, integer, timestamp, varchar, text, numeric, unique, date, boolean, check, index, pgEnum, jsonb } from "drizzle-orm/pg-core"
 import { sql } from "drizzle-orm"
 // this is just a suddenc hange 
 export const genderEnum = pgEnum("gender_enum", ['Male', 'Female', 'Other'])
@@ -322,7 +322,7 @@ export const diagnoses = pgTable("diagnoses", {
 ]);
 
 
-  
+
 export const birthRecords = pgTable("birth_records", {
 	birth_id: serial("birth_id").primaryKey().notNull(),
 	child_name: varchar("child_name", { length: 150 }).notNull(),
@@ -511,18 +511,30 @@ export const patientVisits = pgTable("patient_visits", {
 	id: serial("id").primaryKey(),
 
 	doctor_id: integer("doctor_id")
-	  .notNull()
-	  .references(() => users.id, { onDelete: "set null" }),
-  
+		.notNull()
+		.references(() => users.id, { onDelete: "set null" }),
+
 	patient_id: integer("patient_id")
-	  .notNull()
-	  .references(() => patients.patient_id, { onDelete: "cascade" }),
-  
+		.notNull()
+		.references(() => patients.patient_id, { onDelete: "cascade" }),
+
 	recorded_by: text("recorded_by").notNull(),
-  
+
 	purpose: text("purpose").notNull(),
-  
+
 	created_at: timestamp("created_at", { withTimezone: true })
-	  .defaultNow(),
-  });
-  
+		.defaultNow(),
+});
+
+
+export const notifications = pgTable("notifications", {
+	id: serial("id").primaryKey(),
+	recipient_id: integer("recipient_id"),
+	recipient_role: varchar("recipient_role", { length: 50 }),
+	type: varchar("type", { length: 100 }).notNull(),
+	title: varchar("title", { length: 255 }),
+	message: text("message"),
+	data: jsonb("data"),
+	is_read: boolean("is_read").default(false),
+	created_at: timestamp("created_at").defaultNow(),
+});
