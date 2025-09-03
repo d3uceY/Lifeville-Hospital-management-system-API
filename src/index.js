@@ -34,6 +34,7 @@ import nurseNoteRoutes from './routes/nurseNoteRoutes.js'
 import summaryRoutes from './routes/summaryRoutes.js'
 import statsRoutes from './routes/statsRoutes.js'
 import patientVisitsRoutes from './routes/patientVisitsRoutes.js'
+import notificationRoutes from './routes/notificationRoutes.js'
 
 import { specs, swaggerUiOptions as swaggerUi } from "./swagger/swagger.js";
 
@@ -80,7 +81,7 @@ const io = new IOServer(httpServer, {
   }
 });
 
-// Store the io instance on your app for later retrieval
+// Stored io instance 
 app.set("socketio", io); // lets any controller do req.app.get("socketio")
 
 // routes
@@ -107,6 +108,7 @@ app.use("/api", nurseNoteRoutes);
 app.use("/api", summaryRoutes);
 app.use("/api", statsRoutes);
 app.use("/api", patientVisitsRoutes);
+app.use("/api", notificationRoutes);
 
 // Swagger UI
 app.use(
