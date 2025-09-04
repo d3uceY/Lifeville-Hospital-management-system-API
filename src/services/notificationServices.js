@@ -114,7 +114,6 @@ export const getPaginatedNotificationsByUserData = async (
             title: notifications.title,
             message: notifications.message,
             data: notifications.data,
-            time: timeAgo(notifications.created_at),
             created_at: notifications.created_at,
             is_read: sql`CASE WHEN ${notificationReads.id} IS NULL THEN false ELSE true END`,
         })
