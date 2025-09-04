@@ -1,5 +1,6 @@
 import * as appointmentService from "../services/appointmentServices.js";
 import { formatDate } from "../utils/formatDate.js";
+import { addNotification } from "../services/notificationServices.js";
 
 // Get all appointments
 export const getAppointments = async (req, res) => {
@@ -35,6 +36,34 @@ export const createAppointment = async (req, res) => {
     const newAppointment = await appointmentService.createAppointment(
       appointmentData
     );
+    if (!newAppointment) {
+      return res.status(404).json({ error: "Appointment not found" });
+    }
+
+    // notification
+    try {
+
+      // Jsonb data
+      const data = {
+        first_name: newAppointment.first_name,
+        surname: newAppointment.surname,
+        patient_id: newAppointment.patient_id,
+      }
+      const roles = ["superadmin", "doctor", "receptionist"];
+
+      const notificationInfo = roles.map(role => ({
+        recipient_role: role,
+        type: "APPOINTMENT",
+        title: "New Appointment",
+        message: `New appointment on ${formatDate(newAppointment.appointment_date)} has been created`,
+        data,
+      }));
+
+      await addNotification(notificationInfo);
+
+    } catch (error) {
+      console.error(error);
+    }
 
     const io = req.app.get("socketio");
     io.emit("notification", {
@@ -76,6 +105,30 @@ export const updateAppointment = async (req, res) => {
 
     if (!updatedAppointment) {
       return res.status(404).json({ error: "Appointment not found" });
+    }
+
+    // notification
+    try {
+
+      // Jsonb data
+      const data = {
+        first_name: updatedAppointment.first_name,
+        surname: updatedAppointment.surname,
+        patient_id: updatedAppointment.patient_id,
+      }
+      const roles = ["superadmin", "doctor", "receptionist"];
+
+      const notificationInfo = roles.map(role => ({
+        recipient_role: role,
+        type: "APPOINTMENT",
+        title: "Appointment Updated",
+        message: `Appointment on ${formatDate(updatedAppointment.appointment_date)} has been updated`,
+        data,
+      }));
+      await addNotification(notificationInfo);
+
+    } catch (error) {
+      console.error(error);
     }
 
     const io = req.app.get("socketio");

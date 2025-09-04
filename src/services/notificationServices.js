@@ -157,3 +157,14 @@ export const markNotificationAsRead = async (notificationId, userData) => {
             read_at: new Date(),
         })
 }
+
+export const addNotification = async (notificationData) => {
+    try {
+        await Promise.all(notificationData.map(async (notification) => {
+            await db.insert(notifications)
+                .values(notification)
+        }))
+    } catch (error) {
+        console.error(error)
+    }
+}

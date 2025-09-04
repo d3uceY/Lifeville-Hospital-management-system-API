@@ -2,7 +2,10 @@ import * as notificationServices from "../services/notificationServices.js";
 
 export const getNotificationsByUserData = async (req, res) => {
     try {
-        const userData = req.body;
+        const userData = {
+            id: req.userId,
+            role: req.userRole
+        };
         const notifications = await notificationServices.getNotificationsByUserData(userData);
         res.status(200).json(notifications);
     } catch (error) {
@@ -14,7 +17,10 @@ export const getNotificationsByUserData = async (req, res) => {
 export const getPaginatedNotificationsByUserData = async (req, res) => {
     try {
         const { page, pageSize } = req.query;
-        const notifications = await notificationServices.getPaginatedNotificationsByUserData(req.body, Number(page), Number(pageSize));
+        const notifications = await notificationServices.getPaginatedNotificationsByUserData({
+            id: req.userId,
+            role: req.userRole
+        }, Number(page), Number(pageSize));
         res.status(200).json(notifications);
     } catch (error) {
         console.error(error);
@@ -24,7 +30,10 @@ export const getPaginatedNotificationsByUserData = async (req, res) => {
 
 export const getUnreadNotifications = async (req, res) => {
     try {
-        const userData = req.body;
+        const userData = {
+            id: req.userId,
+            role: req.userRole
+        };
         const notifications = await notificationServices.getUnreadNotifications(userData);
         res.status(200).json(notifications);
     } catch (error) {
@@ -36,7 +45,10 @@ export const getUnreadNotifications = async (req, res) => {
 export const markNotificationAsRead = async (req, res) => {
     try {
         const { notificationId } = req.params;
-        const userData = req.body;
+        const userData = {
+            id: req.userId,
+            role: req.userRole
+        };
         await notificationServices.markNotificationAsRead(notificationId, userData);
         res.status(200).json({ message: "Notification marked as read" });
     } catch (error) {

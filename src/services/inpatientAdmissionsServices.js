@@ -194,7 +194,18 @@ export const createInpatientAdmission = async (admissionData) => {
     })
     .returning();
 
-  return newAdmission;
+  const [doctorName] = await db.select({
+    doctor_name: users.name,
+  })
+    .from(users)
+    .where(eq(users.id, consultantDoctorId));
+
+  console.log(doctorName);
+
+  return {
+    ...newAdmission,
+    doctorName: doctorName.doctor_name,
+  };
 };
 
 /**
@@ -340,7 +351,7 @@ export const dischargeInpatientAdmission = async (dischargeData) => {
 
   // update patient type
   try {
-   const [dischargedPatient] = await db.update(patients).set({
+    const [dischargedPatient] = await db.update(patients).set({
 
       patient_type: "OUTPATIENT",
     }).where(eq(patients.patient_id, patient_id)).returning();
