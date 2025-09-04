@@ -48,6 +48,7 @@ export const createAppointment = async (req, res) => {
         first_name: newAppointment.first_name,
         surname: newAppointment.surname,
         patient_id: newAppointment.patient_id,
+        priority: "normal",
       }
       const roles = ["superadmin", "doctor", "receptionist"];
 
@@ -115,6 +116,7 @@ export const updateAppointment = async (req, res) => {
         first_name: updatedAppointment.first_name,
         surname: updatedAppointment.surname,
         patient_id: updatedAppointment.patient_id,
+        priority: "normal",
       }
       const roles = ["superadmin", "doctor", "receptionist"];
 

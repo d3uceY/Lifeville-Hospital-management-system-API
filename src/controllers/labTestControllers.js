@@ -41,6 +41,7 @@ export const updateLabTest = async (req, res) => {
                 patient_id: labTest.patient_id,
                 status: labTest.status,
                 test_type: labTest.test_type,
+                priority: "normal",
             }
             const roles = ["superadmin", "doctor", "lab"];
 
@@ -98,6 +99,7 @@ export async function createLabTest(req, res) {
                 patient_id: labTest.patient_id,
                 status: labTest.status,
                 test_type: labTest.test_type,
+                priority: "normal",
             }
             const roles = ["superadmin", "doctor", "lab"];
 

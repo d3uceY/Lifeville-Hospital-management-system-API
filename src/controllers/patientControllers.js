@@ -33,6 +33,7 @@ export const createPatients = async (req, res) => {
         first_name: newPatient.first_name,
         surname: newPatient.surname,
         patient_id: newPatient.patient_id,
+        priority: "normal",
       }
 
       const roles = ["superadmin", "doctor", "lab", "receptionist", "nurse"];
@@ -109,6 +110,7 @@ export const updatePatient = async (req, res) => {
         first_name: updatedPatient.first_name,
         surname: updatedPatient.surname,
         patient_id: updatedPatient.patient_id,
+        priority: "urgent",
       }
       const roles = ["superadmin", "doctor", "lab", "receptionist", "nurse"];
 

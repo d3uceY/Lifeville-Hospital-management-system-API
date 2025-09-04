@@ -1,6 +1,7 @@
 import { db } from "../../drizzle-db.js";
 import { users, notifications, notificationReads } from "../../drizzle/migrations/schema.js";
 import { eq, ilike, desc, asc, count, or, sql, and, isNull } from "drizzle-orm";
+import { timeAgo } from "../utils/getTimeAgo.js";
 
 
 
@@ -30,7 +31,10 @@ export const getNotificationsByUserData = async (userData) => {
         .orderBy(desc(notifications.created_at))
         .limit(5);
 
-    return notifications;
+    return notifications.map(notification => ({
+        ...notification,
+        time: timeAgo(notification.created_at),
+    }));
 }
 
 
@@ -83,7 +87,10 @@ export const getUnreadNotifications = async (userData) => {
 
 
     return {
-        unreadNotifications: unreadNotifications.filter(notification => !notification.is_read),
+        unreadNotifications: unreadNotifications.filter(notification => !notification.is_read).map(notification => ({
+            ...notification,
+            time: timeAgo(notification.created_at),
+        })),
         totalUnread: Number(totalUnread.count),
     };
 }
@@ -107,6 +114,7 @@ export const getPaginatedNotificationsByUserData = async (
             title: notifications.title,
             message: notifications.message,
             data: notifications.data,
+            time: timeAgo(notifications.created_at),
             created_at: notifications.created_at,
             is_read: sql`CASE WHEN ${notificationReads.id} IS NULL THEN false ELSE true END`,
         })
@@ -139,7 +147,10 @@ export const getPaginatedNotificationsByUserData = async (
         );
 
     return {
-        data: notificationsWithRead,
+        data: notificationsWithRead.map(notification => ({
+            ...notification,
+            time: timeAgo(notification.created_at),
+        })),
         totalItems: Number(totalItems.count),
         totalPages: Math.ceil(Number(totalItems.count) / pageSize),
         currentPage: page,
