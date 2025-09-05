@@ -124,7 +124,7 @@ export const updateAppointment = async (req, res) => {
         recipient_role: role,
         type: "APPOINTMENT",
         title: "Appointment Updated",
-        message: `Appointment on ${formatDate(updatedAppointment.appointment_date)} has been updated`,
+        message: `Appointment on ${formatDate(updatedAppointment.appointment_date)} has been updated (status: ${updatedAppointment.status})`,
         data,
       }));
       await addNotification(notificationInfo);
@@ -162,6 +162,31 @@ export const updateAppointmentStatusController = async (req, res) => {
 
     if (!updatedAppointment) {
       return res.status(404).json({ error: "Appointment not found" });
+    }
+
+    // notification
+    try {
+
+      // Jsonb data
+      const data = {
+        first_name: updatedAppointment.first_name,
+        surname: updatedAppointment.surname,
+        patient_id: updatedAppointment.patient_id,
+        priority: "normal",
+      }
+      const roles = ["superadmin", "doctor", "receptionist"];
+
+      const notificationInfo = roles.map(role => ({
+        recipient_role: role,
+        type: "APPOINTMENT",
+        title: "Appointment Updated",
+        message: `Appointment on ${formatDate(updatedAppointment.appointment_date)} has been updated to ${updatedAppointment.status}`,
+        data,
+      }));
+      await addNotification(notificationInfo);
+
+    } catch (error) {
+      console.error(error);
     }
 
     const io = req.app.get("socketio");
