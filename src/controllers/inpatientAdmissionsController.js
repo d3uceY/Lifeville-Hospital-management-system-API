@@ -50,7 +50,7 @@ export const createInpatientAdmission = async (req, res) => {
 
       // Jsonb data
       const data = {
-        first_name: newAdmission.first_name,
+        first_name: newAdmission.firstName,
         surname: newAdmission.surname,
         patient_id: newAdmission.patient_id,
         priority: "normal",
@@ -61,7 +61,7 @@ export const createInpatientAdmission = async (req, res) => {
         recipient_role: role,
         type: "INPATIENT",
         title: "Patient Admitted",
-        message: `Patient ${newAdmission.first_name} ${newAdmission.surname} has been admitted`,
+        message: `Patient ${newAdmission.firstName} ${newAdmission.surname} has been admitted`,
         data,
       }));
       await addNotification(notificationInfo);
@@ -73,7 +73,7 @@ export const createInpatientAdmission = async (req, res) => {
     const io = req.app.get("socketio");
     io.emit("notification", {
       message: `Patient Admitted by ${newAdmission.doctorName}`,
-      description: `Patient: ${newAdmission.first_name} ${newAdmission.surname}`
+      description: `Patient: ${newAdmission.firstName} ${newAdmission.surname}`
     });
 
     res.status(200).json({ newAdmission, message: "Admission created successfully" });
