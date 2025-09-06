@@ -69,7 +69,7 @@ app.use(
   })
 );
 
-app.use(express.json()); // Create an HTTP server from Express app
+app.use(express.json()); // HTTP server from Express app
 
 const httpServer = createServer(app);
 
@@ -109,6 +109,15 @@ app.use("/api", summaryRoutes);
 app.use("/api", statsRoutes);
 app.use("/api", patientVisitsRoutes);
 app.use("/api", notificationRoutes);
+
+
+app.get("/api/server-time", (req, res) => {
+  res.json({
+    utc: new Date().toISOString(),
+    local: new Date().toString()
+  });
+});
+
 
 // Swagger UI
 app.use(
