@@ -29,6 +29,7 @@ export const getPaginatedPatientVisits = async (
 
     const filters = [];
 
+
     if (normalize(firstName)) {
         filters.push(ilike(patients.first_name, `%${normalize(firstName)}%`));
     }
@@ -43,7 +44,12 @@ export const getPaginatedPatientVisits = async (
     }
 
     if (startDate && endDate) {
-        filters.push(between(patientVisits.created_at, startDate, endDate));
+        const start = new Date(startDate);
+        const end = new Date(endDate);
+
+        if (!isNaN(start) && !isNaN(end)) {
+            filters.push(between(patientVisits.created_at, start, end));
+        }
     }
 
     const where = filters.length > 0 ? and(...filters) : undefined;
