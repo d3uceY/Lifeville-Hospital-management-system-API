@@ -5,7 +5,9 @@ export const getPaginatedBills = async (
     pageSize = 10,
     { billNumber, status, issuedBy, patientId } = {}
 ) => {
-    const offset = (page - 1) * pageSize;
+    const pageNumber = Number(page);
+    const pageSizeNumber = Number(pageSize);
+    const offset = (pageNumber - 1) * pageSizeNumber;
 
     // Dynamic WHERE clause parts
     const whereClauses = [];
@@ -37,7 +39,7 @@ export const getPaginatedBills = async (
         values
     );
     const totalItems = parseInt(countResult.rows[0].total, 10);
-    const totalPages = Math.ceil(totalItems / pageSize);
+    const totalPages = Math.ceil(totalItems / pageSizeNumber);
 
     // 2️⃣ Get paginated bills with their items
     const { rows } = await query(
@@ -74,7 +76,7 @@ export const getPaginatedBills = async (
         ORDER BY b.bill_date DESC
         LIMIT $${paramIndex++} OFFSET $${paramIndex++}
         `,
-        [...values, pageSize, offset]
+        [...values, pageSizeNumber, offset]
     );
 
     // 3️⃣ Group rows into bills with items

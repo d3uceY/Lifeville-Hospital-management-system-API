@@ -11,7 +11,9 @@ export const getPaginatedAppointments = async (
 ) => {
 
   try {
-    const offset = (page - 1) * pageSize;
+    const pageNumber = Number(page);
+    const pageSizeNumber = Number(pageSize);
+    const offset = (pageNumber - 1) * pageSizeNumber;
     const q = searchTerm.trim();
     const term = `%${q}%`;
 
@@ -52,7 +54,7 @@ export const getPaginatedAppointments = async (
     // 4. Execute both queries
     const data = await dataQuery
       .orderBy(desc(appointments.created_at))
-      .limit(pageSize)
+      .limit(pageSizeNumber)
       .offset(offset);
 
     const totalCountResult = await countQuery;
@@ -66,8 +68,8 @@ export const getPaginatedAppointments = async (
       data,
       totalItems,
       totalPages,
-      currentPage: page,
-      pageSize,
+      currentPage: pageNumber,
+      pageSize: pageSizeNumber,
       skipped: offset,
     };
   } catch (error) {
@@ -165,10 +167,10 @@ export const updateAppointment = async (appointment_id, appointmentData) => {
     .where(eq(appointments.appointment_id, appointment_id))
     .returning();
 
-    const patient = await db.select({
-      first_name: patients.first_name,
-      surname: patients.surname,
-    }).from(patients).where(eq(patients.patient_id, rows[0].patient_id));
+  const patient = await db.select({
+    first_name: patients.first_name,
+    surname: patients.surname,
+  }).from(patients).where(eq(patients.patient_id, rows[0].patient_id));
 
   return {
     ...rows[0],
@@ -186,10 +188,10 @@ export const updateAppointmentStatus = async (appointmentId, status) => {
     .where(eq(appointments.appointment_id, appointmentId))
     .returning();
 
-    const patient = await db.select({
-      first_name: patients.first_name,
-      surname: patients.surname,
-    }).from(patients).where(eq(patients.patient_id, rows[0].patient_id));
+  const patient = await db.select({
+    first_name: patients.first_name,
+    surname: patients.surname,
+  }).from(patients).where(eq(patients.patient_id, rows[0].patient_id));
 
   return {
     ...rows[0],

@@ -22,7 +22,9 @@ export const getPaginatedPatientVisits = async (
     pageSize = 10,
     { firstName, surname, phoneNumber, hospitalNumber, startDate, endDate } = {}
 ) => {
-    const offset = (page - 1) * pageSize;
+    const pageNumber = Number(page);
+    const pageSizeNumber = Number(pageSize);
+    const offset = (pageNumber - 1) * pageSizeNumber;
 
     const normalize = (val) =>
         typeof val === "string" && val.trim() !== "" ? val.trim() : null;
@@ -61,7 +63,7 @@ export const getPaginatedPatientVisits = async (
         .where(where ?? sql`true`);
 
     const totalItems = Number(total);
-    const totalPages = Math.ceil(totalItems / pageSize);
+    const totalPages = Math.ceil(totalItems / pageSizeNumber);
 
     const rows = await db
         .select({
@@ -81,7 +83,7 @@ export const getPaginatedPatientVisits = async (
         .leftJoin(patients, eq(patientVisits.patient_id, patients.patient_id))
         .where(where ?? sql`true`)
         .orderBy(desc(patientVisits.created_at))
-        .limit(pageSize)
+        .limit(pageSizeNumber)
         .offset(offset);
 
     const visits = rows.map((row) => ({
