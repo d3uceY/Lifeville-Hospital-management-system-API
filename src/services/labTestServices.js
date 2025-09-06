@@ -76,59 +76,80 @@ export const updateLabTest = async (id, status, results) => {
 export const getPaginatedLabTests = async (
   page = 1,
   pageSize = 10,
-  searchTerm = ""
+  { firstName, surname, hospitalNumber, testType, status, startDate, endDate } = {}
 ) => {
-  const offset = (page - 1) * pageSize;
-  const q = searchTerm.trim();
-  const term = `%${q}%`;
+  const pageNumber = Number(page);
+  const pageSizeNumber = Number(pageSize);
+  const offset = (pageNumber - 1) * pageSizeNumber;
 
-  // Build the base query for fetching the data
-  let dataQuery = db
+  const normalize = (val) =>
+    typeof val === "string" && val.trim() !== "" ? val.trim() : null;
+
+  const filters = [];
+
+  if (normalize(firstName)) {
+    filters.push(ilike(patients.first_name, `%${normalize(firstName)}%`));
+  }
+  if (normalize(surname)) {
+    filters.push(ilike(patients.surname, `%${normalize(surname)}%`));
+  }
+  if (normalize(hospitalNumber)) {
+    filters.push(ilike(patients.hospital_number, `%${normalize(hospitalNumber)}%`));
+  }
+  if (normalize(testType)) {
+    filters.push(ilike(labTests.test_type, `%${normalize(testType)}%`));
+  }
+  if (normalize(status)) {
+    filters.push(ilike(labTests.status, `%${normalize(status)}%`));
+  }
+  if (startDate && endDate) {
+    const start = new Date(startDate);
+    const end = new Date(endDate);
+    if (!isNaN(start) && !isNaN(end)) {
+      filters.push(between(labTests.created_at, start, end));
+    }
+  }
+
+  const where = filters.length > 0 ? and(...filters) : undefined;
+
+  const [{ total }] = await db
+    .select({ total: count() })
+    .from(labTests)
+    .innerJoin(patients, eq(labTests.patient_id, patients.patient_id))
+    .where(where ?? sql`true`);
+
+  const totalItems = Number(total);
+  const totalPages = Math.ceil(totalItems / pageSizeNumber);
+
+  const rows = await db
     .select({
       lab_test_id: labTests.id,
+      patient_id: labTests.patient_id,
+      test_type: labTests.test_type,
+      status: labTests.status,
+      results: labTests.results,
+      comments: labTests.comments,
+      prescribed_by: labTests.prescribed_by,
+      created_at: labTests.created_at,
+      updated_at: labTests.updated_at,
       first_name: patients.first_name,
       surname: patients.surname,
       hospital_number: patients.hospital_number,
-      ...labTests,
     })
     .from(labTests)
-    .innerJoin(patients, eq(patients.patient_id, labTests.patient_id))
-    .orderBy(desc(labTests.created_at));
+    .innerJoin(patients, eq(labTests.patient_id, patients.patient_id))
+    .where(where ?? sql`true`)
+    .orderBy(desc(labTests.created_at))
+    .limit(pageSizeNumber)
+    .offset(offset);
 
-  // Build the base query for counting total items (must have the same joins and where clauses)
-  let countQuery = db
-    .select({ count: sql`count(*)` })
-    .from(labTests)
-    .innerJoin(patients, eq(patients.patient_id, labTests.patient_id));
+  const labTestData = rows.map((row) => ({
+    ...row,
+    patient_full_name: `${row.first_name ?? ""} ${row.surname ?? ""}`.trim(),
+  }));
 
-  // Apply the search filter to BOTH queries if a search term exists
-  if (q) {
-    const whereClause = or(
-      ilike(patients.first_name, term),
-      ilike(patients.surname, term),
-      ilike(patients.hospital_number, term),
-      ilike(labTests.test_type, term),
-      ilike(labTests.status, term),
-      ilike(sql`${labTests.prescribed_by}::text`, term),
-      ilike(labTests.comments, term),
-      ilike(sql`${labTests.results}::text`, term)
-    );
-    dataQuery.where(whereClause);
-    countQuery.where(whereClause);
-  }
-
-  // Execute both queries
-  const data = await dataQuery.limit(pageSize).offset(offset);
-  const totalCountResult = await countQuery;
-
-  const totalItems = Number(totalCountResult[0].count);
-
-  // Calculate total pages
-  const totalPages = Math.ceil(totalItems / pageSize);
-
-  // Return the data in the specified format
   return {
-    data,
+    data: labTestData,
     totalItems,
     totalPages,
     currentPage: page,
@@ -136,7 +157,6 @@ export const getPaginatedLabTests = async (
     skipped: offset,
   };
 };
-
 
 
 
