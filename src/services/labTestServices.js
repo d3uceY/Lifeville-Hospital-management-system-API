@@ -50,6 +50,8 @@ export const createLabTest = async (labTest) => {
   };
 };
 
+
+
 export const updateLabTest = async (id, status, results) => {
   const [updated] = await db.update(labTests)
     .set({ status, results, updated_at: new Date() })
@@ -83,7 +85,7 @@ export const getPaginatedLabTests = async (
   const offset = (pageNumber - 1) * pageSizeNumber;
 
   const normalize = (val) =>
-    typeof val === "string" && val.trim() !== "" ? val.trim() : null;
+    typeof val === "string" && val.trim() !== "" && val !== "undefined" ? val.trim() : null;
 
   const filters = [];
 

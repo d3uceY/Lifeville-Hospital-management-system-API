@@ -9,26 +9,29 @@ export const getPaginatedBills = async (
     const pageSizeNumber = Number(pageSize);
     const offset = (pageNumber - 1) * pageSizeNumber;
 
+    const normalize = (val) =>
+        typeof val === "string" && val.trim() !== "" && val !== "undefined" ? val.trim() : null;
+
     // Dynamic WHERE clause parts
     const whereClauses = [];
     const values = [];
     let paramIndex = 1;
 
-    if (billNumber) {
+    if (normalize(billNumber)) {
         whereClauses.push(`b.bill_number ILIKE $${paramIndex++}`);
-        values.push(`%${billNumber}%`);
+        values.push(`%${normalize(billNumber)}%`);
     }
-    if (status) {
+    if (normalize(status)) {
         whereClauses.push(`b.status ILIKE $${paramIndex++}`);
-        values.push(`%${status}%`);
+        values.push(`%${normalize(status)}%`);
     }
-    if (issuedBy) {
+    if (normalize(issuedBy)) {
         whereClauses.push(`b.issued_by ILIKE $${paramIndex++}`);
-        values.push(`%${issuedBy}%`);
+        values.push(`%${normalize(issuedBy)}%`);
     }
-    if (patientId) {
+    if (normalize(patientId)) {
         whereClauses.push(`b.patient_id = $${paramIndex++}`);
-        values.push(patientId);
+        values.push(normalize(patientId));
     }
 
     const whereSQL = whereClauses.length > 0 ? `WHERE ${whereClauses.join(" AND ")}` : "";
