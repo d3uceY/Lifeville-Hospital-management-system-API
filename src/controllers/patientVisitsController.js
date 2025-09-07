@@ -1,5 +1,5 @@
 import * as patientVisitsServices from "../services/patientVisitsServices.js";
-import { formatDate } from "../utils/date.js";
+import { formatDate } from "../utils/formatDate.js";
 import { addNotification } from "../services/notificationServices.js";
 
 export const createPatientVisit = async (req, res) => {
@@ -33,6 +33,13 @@ export const createPatientVisit = async (req, res) => {
         } catch (error) {
             console.error(error);
         }
+
+        const io = req.app.get("socketio");
+        io.emit("notification", {
+            message: `( New Patient Visit on ${formatDate(patientVisit.created_at)} ) Doctor: ${patientVisit.doctor_name}`,
+            description: `Patient: ${patientVisit.first_name} ${patientVisit.surname}`
+        });
+
 
         res.status(201).json(patientVisit);
     } catch (error) {

@@ -103,7 +103,9 @@ export const getPaginatedNotificationsByUserData = async (
     pageSize = 10
 ) => {
     const { role, id: userId } = userData;
-    const offset = (page - 1) * pageSize;
+    const pageNumber = Number(page);
+    const pageSizeNumber = Number(pageSize);
+    const offset = (pageNumber - 1) * pageSizeNumber;
 
     const notificationsWithRead = await db
         .select({
@@ -132,7 +134,7 @@ export const getPaginatedNotificationsByUserData = async (
             )
         )
         .orderBy(desc(notifications.created_at))
-        .limit(pageSize)
+        .limit(pageSizeNumber)
         .offset(offset);
 
     const [totalItems] = await db
@@ -151,9 +153,9 @@ export const getPaginatedNotificationsByUserData = async (
             time: timeAgo(notification.created_at),
         })),
         totalItems: Number(totalItems.count),
-        totalPages: Math.ceil(Number(totalItems.count) / pageSize),
-        currentPage: page,
-        pageSize,
+        totalPages: Math.ceil(Number(totalItems.count) / pageSizeNumber),
+        currentPage: pageNumber,
+        pageSize: pageSizeNumber,
         skipped: offset,
     };
 };

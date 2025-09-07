@@ -18,10 +18,14 @@ export const createPatientVisit = async (patientVisitData) => {
         surname: patients.surname,
     }).from(patients).where(eq(patients.patient_id, patientId));
 
+    const [doctorData] = await db.select({
+        name: users.name,
+    }).from(users).where(eq(users.id, doctorId));
     return {
         ...rows,
         first_name: patientData[0].first_name,
         surname: patientData[0].surname,
+        doctor_name: doctorData.name,
     };
 };
 
