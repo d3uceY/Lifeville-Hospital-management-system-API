@@ -175,9 +175,9 @@ export const createInpatientAdmission = async (admissionData) => {
     throw err;
   }
 
-  await db.update(patients).set({
+  const [updatedPatient] = await db.update(patients).set({
     patient_type: "INPATIENT",
-  }).where(eq(patients.patient_id, patientId));
+  }).where(eq(patients.patient_id, patientId)).returning();
 
   const [newAdmission] = await db
     .insert(inpatientAdmissions)
@@ -194,7 +194,19 @@ export const createInpatientAdmission = async (admissionData) => {
     })
     .returning();
 
-  return newAdmission;
+  const [doctorName] = await db.select({
+    doctor_name: users.name,
+  })
+    .from(users)
+    .where(eq(users.id, consultantDoctorId));
+
+
+  return {
+    ...newAdmission,
+    doctorName: doctorName.doctor_name,
+    firstName: updatedPatient.first_name,
+    surname: updatedPatient.surname,
+  };
 };
 
 /**
@@ -340,15 +352,17 @@ export const dischargeInpatientAdmission = async (dischargeData) => {
 
   // update patient type
   try {
-    await db.update(patients).set({
+    const [dischargedPatient] = await db.update(patients).set({
+
       patient_type: "OUTPATIENT",
-    }).where(eq(patients.patient_id, patient_id));
+    }).where(eq(patients.patient_id, patient_id)).returning();
+    return dischargedPatient;
+
   } catch (err) {
     console.error("Error updating patient type:", err);
     throw err;
   }
 
-  return true;
 }
 
 export const getDischargeSummaryByAdmissionId = async (admissionId) => {

@@ -1,4 +1,6 @@
 import * as appointmentService from "../services/appointmentServices.js";
+import { formatDate } from "../utils/formatDate.js";
+import { addNotification } from "../services/notificationServices.js";
 
 // Get all appointments
 export const getAppointments = async (req, res) => {
@@ -34,16 +36,48 @@ export const createAppointment = async (req, res) => {
     const newAppointment = await appointmentService.createAppointment(
       appointmentData
     );
+    if (!newAppointment) {
+      return res.status(404).json({ error: "Appointment not found" });
+    }
 
-    // Grab the io instance and broadcast
+    // notification
+    try {
+
+      // Jsonb data
+      const data = {
+        first_name: newAppointment.first_name,
+        surname: newAppointment.surname,
+        patient_id: newAppointment.patient_id,
+        priority: "normal",
+      }
+      const roles = ["superadmin", "doctor", "receptionist"];
+
+      const notificationInfo = roles.map(role => ({
+        recipient_role: role,
+        type: "APPOINTMENT",
+        title: "New Appointment",
+        message: `New appointment on ${formatDate(newAppointment.appointment_date)} has been created`,
+        data,
+      }));
+
+      await addNotification(notificationInfo);
+
+    } catch (error) {
+      console.error(error);
+    }
+
     const io = req.app.get("socketio");
-    io.emit("newAppointment", newAppointment);
+    io.emit("notification", {
+      message: `( New Appointment on ${formatDate(newAppointment.appointment_date)} ) Doctor: ${newAppointment.doctor_name}`,
+      description: `Patient: ${newAppointment.first_name} ${newAppointment.surname}`
+    });
+
 
     res
       .status(201)
       .json({ newAppointment, message: "Appointment created successfully" });
   } catch (error) {
-    console.log(error)
+    console.error(error)
     res
       .status(500)
       .json({ message: "Failed to create appointment", error: error.message });
@@ -74,6 +108,38 @@ export const updateAppointment = async (req, res) => {
       return res.status(404).json({ error: "Appointment not found" });
     }
 
+    // notification
+    try {
+
+      // Jsonb data
+      const data = {
+        first_name: updatedAppointment.first_name,
+        surname: updatedAppointment.surname,
+        patient_id: updatedAppointment.patient_id,
+        priority: "normal",
+      }
+      const roles = ["superadmin", "doctor", "receptionist"];
+
+      const notificationInfo = roles.map(role => ({
+        recipient_role: role,
+        type: "APPOINTMENT",
+        title: "Appointment Updated",
+        message: `Appointment on ${formatDate(updatedAppointment.appointment_date)} has been updated (status: ${updatedAppointment.status})`,
+        data,
+      }));
+      await addNotification(notificationInfo);
+
+    } catch (error) {
+      console.error(error);
+    }
+
+    const io = req.app.get("socketio");
+    io.emit("notification", {
+      message: `(Updated Appointment on ${formatDate(updatedAppointment.appointment_date)} ) Status: ${updatedAppointment.status}`,
+      description: `Patient: ${updatedAppointment.first_name} ${updatedAppointment.surname}`
+    });
+
+
     res.status(200).json({
       updatedAppointment,
       message: "Appointment updated successfully",
@@ -93,9 +159,41 @@ export const updateAppointmentStatusController = async (req, res) => {
       status
     );
 
+
     if (!updatedAppointment) {
       return res.status(404).json({ error: "Appointment not found" });
     }
+
+    // notification
+    try {
+
+      // Jsonb data
+      const data = {
+        first_name: updatedAppointment.first_name,
+        surname: updatedAppointment.surname,
+        patient_id: updatedAppointment.patient_id,
+        priority: "normal",
+      }
+      const roles = ["superadmin", "doctor", "receptionist"];
+
+      const notificationInfo = roles.map(role => ({
+        recipient_role: role,
+        type: "APPOINTMENT",
+        title: "Appointment Updated",
+        message: `Appointment on ${formatDate(updatedAppointment.appointment_date)} has been updated to ${updatedAppointment.status}`,
+        data,
+      }));
+      await addNotification(notificationInfo);
+
+    } catch (error) {
+      console.error(error);
+    }
+
+    const io = req.app.get("socketio");
+    io.emit("notification", {
+      message: `(Updated Appointment on ${formatDate(updatedAppointment.appointment_date)} ) Status: ${updatedAppointment.status}`,
+      description: `Patient: ${updatedAppointment.first_name} ${updatedAppointment.surname}`
+    });
 
     res.status(200).json({
       updatedAppointment,

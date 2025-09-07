@@ -1,4 +1,4 @@
-import { pgTable, foreignKey, serial, integer, timestamp, varchar, text, numeric, unique, date, boolean, check, index, pgEnum } from "drizzle-orm/pg-core"
+import { pgTable, foreignKey, serial, integer, timestamp, varchar, text, numeric, unique, date, boolean, check, index, pgEnum, jsonb, uniqueIndex } from "drizzle-orm/pg-core"
 import { sql } from "drizzle-orm"
 // this is just a suddenc hange 
 export const genderEnum = pgEnum("gender_enum", ['Male', 'Female', 'Other'])
@@ -322,7 +322,7 @@ export const diagnoses = pgTable("diagnoses", {
 ]);
 
 
-  
+
 export const birthRecords = pgTable("birth_records", {
 	birth_id: serial("birth_id").primaryKey().notNull(),
 	child_name: varchar("child_name", { length: 150 }).notNull(),
@@ -506,3 +506,53 @@ export const discharge_summary = pgTable("discharge_summary", {
 	recorded_by: text("recorded_by").notNull(),
 	created_at: timestamp("created_at", { mode: "date" }).defaultNow().notNull(),
 });
+
+export const patientVisits = pgTable("patient_visits", {
+	id: serial("id").primaryKey(),
+
+	doctor_id: integer("doctor_id")
+		.notNull()
+		.references(() => users.id, { onDelete: "set null" }),
+
+	patient_id: integer("patient_id")
+		.notNull()
+		.references(() => patients.patient_id, { onDelete: "cascade" }),
+
+	recorded_by: text("recorded_by").notNull(),
+
+	purpose: text("purpose").notNull(),
+
+	created_at: timestamp("created_at", { withTimezone: true })
+		.defaultNow(),
+});
+
+
+
+export const notificationReads = pgTable("notification_reads", {
+	id: serial("id").primaryKey(),
+	notification_id: integer("notification_id")
+	.notNull()
+	.references(() => notifications.id, { onDelete: "cascade" }),
+	user_id: integer("user_id").notNull(),
+	read_at: timestamp("read_at").defaultNow(),
+}, (table) => ({
+	uniqNotificationUser: uniqueIndex("uniq_notification_user").on(
+		table.notification_id,
+		table.user_id
+    ),
+})
+);
+
+
+export const notifications = pgTable("notifications", {
+	id: serial("id").primaryKey(),
+	recipient_id: integer("recipient_id"),
+	recipient_role: varchar("recipient_role", { length: 50 }),
+	type: varchar("type", { length: 100 }).notNull(),
+	title: varchar("title", { length: 255 }),
+	message: text("message"),
+	data: jsonb("data"),
+	created_at: timestamp("created_at").defaultNow(),
+});
+
+

@@ -1,4 +1,6 @@
 import * as patientServices from "../services/patientServices.js";
+import { formatDate } from "../utils/formatDate.js";
+import { addNotification } from "../services/notificationServices.js";
 
 export const getPatients = async (req, res) => {
   try {
@@ -16,12 +18,52 @@ export const createPatients = async (req, res) => {
   try {
     const patientData = req.body;
     const newPatient = await patientServices.createPatient(patientData);
+
+    if (!newPatient) {
+      return res.status(400).json({
+        message: "Failed to create patient",
+      });
+    }
+
+    // notification 
+    try {
+
+      // Jsonb data
+      const data = {
+        first_name: newPatient.first_name,
+        surname: newPatient.surname,
+        patient_id: newPatient.patient_id,
+        priority: "normal",
+      }
+
+      const roles = ["superadmin", "doctor", "lab", "receptionist", "nurse"];
+
+      const notificationInfo = roles.map(role => ({
+        recipient_role: role,
+        type: "PATIENT",
+        title: "New Patient Added",
+        message: `New patient ${newPatient.first_name} ${newPatient.surname} has been added`,
+        data,
+      }));
+      await addNotification(notificationInfo);
+
+    } catch (error) {
+      console.error(error);
+    }
+
+    // emit notification
+    const io = req.app.get("socketio");
+    io.emit("notification", {
+      message: "New Patient Added",
+      description: `${newPatient.first_name} ${newPatient.surname}`
+    });
+
     res.status(200).json({ newPatient, message: "Submitted Successfully" });
   } catch (err) {
-    // Check if the error is related to duplicate hospital number
+
     if (err.code === "DUPLICATE_HOSPITAL_NUMBER") {
       return res.status(400).json({
-        message: err.message, // Send custom error message to the frontend
+        message: err.message,
       });
     }
 
@@ -53,6 +95,45 @@ export const updatePatient = async (req, res) => {
       patientId,
       patientData
     );
+
+    if (!updatedPatient) {
+      return res.status(400).json({
+        message: "Failed to update patient",
+      });
+    }
+
+    // notification
+    try {
+
+      // Jsonb data
+      const data = {
+        first_name: updatedPatient.first_name,
+        surname: updatedPatient.surname,
+        patient_id: updatedPatient.patient_id,
+        priority: "urgent",
+      }
+      const roles = ["superadmin", "doctor", "lab", "receptionist", "nurse"];
+
+      const notificationInfo = roles.map(role => ({
+        recipient_role: role,
+        type: "PATIENT",
+        title: "Patient Updated",
+        message: `Patient ${updatedPatient.first_name} ${updatedPatient.surname} has been updated`,
+        data,
+      }));
+      await addNotification(notificationInfo);
+
+    } catch (error) {
+      console.error(error);
+    }
+
+    // emit notification
+    const io = req.app.get("socketio");
+    io.emit("notification", {
+      message: "Patient Updated",
+      description: `${updatedPatient.first_name} ${updatedPatient.surname}`
+    });
+
     res.status(200).json({ updatedPatient, message: "Updated Successfully" });
   } catch (err) {
     console.error("this is za error", err.code);

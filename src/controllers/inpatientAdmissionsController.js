@@ -1,6 +1,8 @@
 
 
 import * as inpatientServices from "../services/inpatientAdmissionsServices.js";
+import { addNotification } from "../services/notificationServices.js";
+import { formatDate } from "../utils/formatDate.js";
 
 /**
  * GET /inpatients
@@ -39,6 +41,41 @@ export const createInpatientAdmission = async (req, res) => {
   try {
     const admissionData = req.body;
     const newAdmission = await inpatientServices.createInpatientAdmission(admissionData);
+    if (!newAdmission) {
+      return res.status(400).json({ message: "Failed to create inpatient admission" });
+    }
+
+    // notification to superadmin, doctor and receptionist
+    try {
+
+      // Jsonb data
+      const data = {
+        first_name: newAdmission.firstName,
+        surname: newAdmission.surname,
+        patient_id: newAdmission.patient_id,
+        priority: "normal",
+      }
+      const roles = ["superadmin", "doctor", "receptionist", "nurse"];
+
+      const notificationInfo = roles.map(role => ({
+        recipient_role: role,
+        type: "INPATIENT",
+        title: "Patient Admitted",
+        message: `Patient ${newAdmission.firstName} ${newAdmission.surname} has been admitted`,
+        data,
+      }));
+      await addNotification(notificationInfo);
+
+    } catch (error) {
+      console.error(error);
+    }
+
+    const io = req.app.get("socketio");
+    io.emit("notification", {
+      message: `Patient Admitted by ${newAdmission.doctorName}`,
+      description: `Patient: ${newAdmission.firstName} ${newAdmission.surname}`
+    });
+
     res.status(200).json({ newAdmission, message: "Admission created successfully" });
   } catch (err) {
     console.error("error creating inpatient admission:", err);
@@ -111,9 +148,42 @@ export const dischargeInpatientAdmission = async (req, res) => {
   try {
     const dischargeData = req.body;
     const discharged = await inpatientServices.dischargeInpatientAdmission(dischargeData);
+
     if (!discharged) {
       return res.status(404).json({ message: "Admission not found or already discharged" });
     }
+
+    // notification
+    try {
+
+      // Jsonb data
+      const data = {
+        first_name: discharged.first_name,
+        surname: discharged.surname,
+        patient_id: discharged.patient_id,
+        priority: "normal",
+      }
+      const roles = ["superadmin", "doctor", "lab", "receptionist", "nurse"];
+
+      const notificationInfo = roles.map(role => ({
+        recipient_role: role,
+        type: "INPATIENT_DISCHARGED",
+        title: "Patient Discharged",
+        message: `Patient ${discharged.first_name} ${discharged.surname} has been discharged`,
+        data,
+      }));
+      await addNotification(notificationInfo);
+
+    } catch (error) {
+      console.error(error);
+    }
+
+    const io = req.app.get("socketio");
+    io.emit("notification", {
+      message: `Patient Discharged by ${dischargeData.recorded_by}`,
+      description: `Patient: ${discharged.first_name} ${discharged.surname}`
+    });
+
     res.status(200).json({ discharged, message: "Admission discharged successfully" });
   } catch (err) {
     console.error("error discharging inpatient admission:", err);

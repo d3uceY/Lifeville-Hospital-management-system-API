@@ -33,6 +33,8 @@ import doctorNoteRoutes from './routes/doctorNoteRoutes.js'
 import nurseNoteRoutes from './routes/nurseNoteRoutes.js'
 import summaryRoutes from './routes/summaryRoutes.js'
 import statsRoutes from './routes/statsRoutes.js'
+import patientVisitsRoutes from './routes/patientVisitsRoutes.js'
+import notificationRoutes from './routes/notificationRoutes.js'
 
 import { specs, swaggerUiOptions as swaggerUi } from "./swagger/swagger.js";
 
@@ -47,9 +49,10 @@ app.use(cookieParser());
 const FRONTEND = process.env.FRONTEND || "http://localhost:5173";
 const allowedOrigins = [
   FRONTEND,
-  "http://localhost:5173", 
+  "http://localhost:5173",
+  "http://10.101.159.69:5173"
 ];
-  
+
 app.use(
   cors({
     origin: function (origin, callback) {
@@ -66,19 +69,19 @@ app.use(
   })
 );
 
-app.use(express.json()); // Create an HTTP server from Express app
+app.use(express.json()); // HTTP server from Express app
 
 const httpServer = createServer(app);
 
 // Initialize Socket.IO on that server
-const io = new IOServer(httpServer, { 
-  cors: { 
+const io = new IOServer(httpServer, {
+  cors: {
     origin: allowedOrigins,
-    credentials: true 
-  } 
+    credentials: true
+  }
 });
 
-// Store the io instance on your app for later retrieval
+// Stored io instance 
 app.set("socketio", io); // lets any controller do req.app.get("socketio")
 
 // routes
@@ -104,6 +107,17 @@ app.use("/api", doctorNoteRoutes);
 app.use("/api", nurseNoteRoutes);
 app.use("/api", summaryRoutes);
 app.use("/api", statsRoutes);
+app.use("/api", patientVisitsRoutes);
+app.use("/api", notificationRoutes);
+
+
+app.get("/api/server-time", (req, res) => {
+  res.json({
+    utc: new Date().toISOString(),
+    local: new Date().toString()
+  });
+});
+
 
 // Swagger UI
 app.use(
@@ -120,10 +134,10 @@ seedSuperAdmin().then(() => {
   httpServer.listen(port, '0.0.0.0', () =>
     console.log(`Server + Socket.IO running on port ${port}`)
   );
-})  .catch((err) => {
-    console.error("Error seeding superadmin:", err);
-    // process.exit(1);
-  });
+}).catch((err) => {
+  console.error("Error seeding superadmin:", err);
+  // process.exit(1);
+});
 
 app.get("/", (req, res) => {
   res.send("<h1>API dey run</h1>");

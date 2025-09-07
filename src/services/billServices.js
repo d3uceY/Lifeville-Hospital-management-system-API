@@ -5,28 +5,33 @@ export const getPaginatedBills = async (
     pageSize = 10,
     { billNumber, status, issuedBy, patientId } = {}
 ) => {
-    const offset = (page - 1) * pageSize;
+    const pageNumber = Number(page);
+    const pageSizeNumber = Number(pageSize);
+    const offset = (pageNumber - 1) * pageSizeNumber;
+
+    const normalize = (val) =>
+        typeof val === "string" && val.trim() !== "" && val !== "undefined" ? val.trim() : null;
 
     // Dynamic WHERE clause parts
     const whereClauses = [];
     const values = [];
     let paramIndex = 1;
 
-    if (billNumber) {
+    if (normalize(billNumber)) {
         whereClauses.push(`b.bill_number ILIKE $${paramIndex++}`);
-        values.push(`%${billNumber}%`);
+        values.push(`%${normalize(billNumber)}%`);
     }
-    if (status) {
+    if (normalize(status)) {
         whereClauses.push(`b.status ILIKE $${paramIndex++}`);
-        values.push(`%${status}%`);
+        values.push(`%${normalize(status)}%`);
     }
-    if (issuedBy) {
+    if (normalize(issuedBy)) {
         whereClauses.push(`b.issued_by ILIKE $${paramIndex++}`);
-        values.push(`%${issuedBy}%`);
+        values.push(`%${normalize(issuedBy)}%`);
     }
-    if (patientId) {
+    if (normalize(patientId)) {
         whereClauses.push(`b.patient_id = $${paramIndex++}`);
-        values.push(patientId);
+        values.push(normalize(patientId));
     }
 
     const whereSQL = whereClauses.length > 0 ? `WHERE ${whereClauses.join(" AND ")}` : "";
@@ -37,7 +42,7 @@ export const getPaginatedBills = async (
         values
     );
     const totalItems = parseInt(countResult.rows[0].total, 10);
-    const totalPages = Math.ceil(totalItems / pageSize);
+    const totalPages = Math.ceil(totalItems / pageSizeNumber);
 
     // 2️⃣ Get paginated bills with their items
     const { rows } = await query(
@@ -74,7 +79,7 @@ export const getPaginatedBills = async (
         ORDER BY b.bill_date DESC
         LIMIT $${paramIndex++} OFFSET $${paramIndex++}
         `,
-        [...values, pageSize, offset]
+        [...values, pageSizeNumber, offset]
     );
 
     // 3️⃣ Group rows into bills with items

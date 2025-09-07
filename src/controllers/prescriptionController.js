@@ -14,7 +14,7 @@ export const getPrescriptionsController = async (req, res) => {
         const prescriptions = await prescriptionServices.getPrescriptions(req.params.patient_id);
         res.json(prescriptions);
     } catch (error) {
-        console.log(error)
+        console.error(error)
         res.status(500).json({ error: error.message });
     }
 }
@@ -24,7 +24,7 @@ export const deletePrescriptionController = async (req, res) => {
         const prescription = await prescriptionServices.deletePrescription(req.params.id);
         res.json(prescription);
     } catch (error) {
-        console.log(error)
+        console.error(error)
         res.status(500).json({ error: error.message });
     }
 }
@@ -34,7 +34,7 @@ export const updatePrescriptionStatusController = async (req, res) => {
         const prescription = await prescriptionServices.updatePrescriptionStatus(req.params.id, req.body.status, req.body.updatedBy);
         res.json(prescription);
     } catch (error) {
-        console.log(error)
+        console.error(error)
         res.status(500).json({ error: error.message });
     }
 }
