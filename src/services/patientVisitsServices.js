@@ -5,7 +5,7 @@ import { eq, ilike, desc, asc, count, or, sql, and, between } from "drizzle-orm"
 export const createPatientVisit = async (patientVisitData) => {
     const { patientId, doctorId, recordedBy, purpose } = patientVisitData;
 
-    const rows = await db.insert(patientVisits).values({
+    const [rows] = await db.insert(patientVisits).values({
         patient_id: patientId,
         doctor_id: doctorId,
         recorded_by: recordedBy,
@@ -13,7 +13,16 @@ export const createPatientVisit = async (patientVisitData) => {
         created_at: new Date(),
     }).returning();
 
-    return rows[0];
+    const patientData = await db.select({
+        first_name: patients.first_name,
+        surname: patients.surname,
+    }).from(patients).where(eq(patients.patient_id, patientId));
+
+    return {
+        ...rows,
+        first_name: patientData[0].first_name,
+        surname: patientData[0].surname,
+    };
 };
 
 
