@@ -6,7 +6,7 @@ import env from "dotenv";
 env.config();
 
 const ACCESS_EXPIRES = process.env.ACCESS_EXPIRES;
-const REFRESH_EXPIRES = process.env.REFRESH_EXPIRES
+const REFRESH_EXPIRES = process.env.REFRESH_EXPIRES;
 const SALT_ROUNDS = Number(process.env.SALT_ROUNDS);
 
 
