@@ -23,6 +23,16 @@ export const getPaginatedLabTests = async (req, res) => {
     }
 }
 
+export const deleteLabTest = async (req, res) => {
+    try {
+        const labTest = await labTestServices.deleteLabTest(req.params.id);
+        res.json(labTest);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: "Failed to delete lab test" });
+    }
+}
+
 
 export const updateLabTest = async (req, res) => {
     try {
