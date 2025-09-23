@@ -71,6 +71,14 @@ export const updateLabTest = async (id, status, results) => {
 };
 
 
+export const deleteLabTest = async (id) => {
+  const [deleted] = await db.delete(labTests)
+    .where(eq(labTests.id, id))
+    .returning();
+
+  return deleted;
+};
+
 
 
 

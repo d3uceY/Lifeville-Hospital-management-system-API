@@ -16,6 +16,7 @@ router.get("/lab-tests/:id", labTestControllers.getLabTestById);
 router.get("/lab-tests/patient/:patientId", labTestControllers.getLabTestsByPatientId);
 router.get("/lab-tests/laboratory/paginated", labTestControllers.getPaginatedLabTests);
 router.put("/lab-tests/:id", labTestControllers.updateLabTest);
+router.delete("/lab-tests/:id/delete", labTestControllers.deleteLabTest);
 
 
 export default router;
