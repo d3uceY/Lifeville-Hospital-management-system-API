@@ -64,7 +64,7 @@ export const createPatient = async (patientData) => {
   const [lastPatient] = await db
     .select({ hospital_number: patients.hospital_number })
     .from(patients)
-    .orderBy(desc(patients.patient_id)) // safest to use primary key id
+    .orderBy(desc(patients.hospital_number))
     .limit(1);
 
   let newHospitalNumber = 1; // default starting number
