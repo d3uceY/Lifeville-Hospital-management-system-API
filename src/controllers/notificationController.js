@@ -4,7 +4,8 @@ export const getNotificationsByUserData = async (req, res) => {
     try {
         const userData = {
             id: req.userId,
-            role: req.userRole
+            role: req.userRole,
+            userCreatedAt: new Date(req.userCreatedAt)
         };
         const notifications = await notificationServices.getNotificationsByUserData(userData);
         res.status(200).json(notifications);
@@ -19,7 +20,8 @@ export const getPaginatedNotificationsByUserData = async (req, res) => {
         const { page, pageSize } = req.query;
         const notifications = await notificationServices.getPaginatedNotificationsByUserData({
             id: req.userId,
-            role: req.userRole
+            role: req.userRole,
+            userCreatedAt: new Date(req.userCreatedAt)
         }, Number(page), Number(pageSize));
         res.status(200).json(notifications);
     } catch (error) {
@@ -32,7 +34,8 @@ export const getUnreadNotifications = async (req, res) => {
     try {
         const userData = {
             id: req.userId,
-            role: req.userRole
+            role: req.userRole,
+            userCreatedAt: new Date(req.userCreatedAt)    
         };
         const notifications = await notificationServices.getUnreadNotifications(userData);
         res.status(200).json(notifications);

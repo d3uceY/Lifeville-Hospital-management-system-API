@@ -5,9 +5,9 @@ import bcrypt from "bcrypt";
 import env from "dotenv";
 env.config();
 
-const ACCESS_EXPIRES = process.env.ACCESS_EXPIRES;
-const REFRESH_EXPIRES = process.env.REFRESH_EXPIRES;
-const SALT_ROUNDS = Number(process.env.SALT_ROUNDS);
+const ACCESS_EXPIRES = process.env.ACCESS_EXPIRES;  //30m
+const REFRESH_EXPIRES = process.env.REFRESH_EXPIRES;  //30d
+const SALT_ROUNDS = Number(process.env.SALT_ROUNDS); //12
 
 
 export async function seedSuperAdmin() {
@@ -27,7 +27,7 @@ export const insertSeedSuperAdmin = async (email, hash) => {
 
 function signAccess(user) {
     return jwt.sign(
-        { sub: user.id, role: user.role },
+        { sub: user.id, role: user.role, createdAt: user.createdAt },
         process.env.JWT_ACCESS_KEY,
         { expiresIn: ACCESS_EXPIRES }
     );
@@ -42,7 +42,7 @@ function signRefresh(userId, jti) {
 }
 
 export async function login({ email, password }) {
-    const { rows } = await query(`SELECT name, id, password_hash, is_active, role FROM users WHERE email = $1`, [email.toLowerCase()]);
+    const { rows } = await query(`SELECT name, id, password_hash, created_at, is_active, role FROM users WHERE email = $1`, [email.toLowerCase()]);
     const u = rows[0];
     // check if user is enabled
     if (!u || !u.is_active) {
@@ -63,7 +63,7 @@ export async function login({ email, password }) {
     await query(`UPDATE users SET refresh_token = $1 WHERE id = $2`, [hashJti, u.id]);
 
     return {
-        accessToken: signAccess({ id: u.id, role: u.role }),
+        accessToken: signAccess({ id: u.id, role: u.role, createdAt: u.created_at }),
         refreshToken: rtoken,
         user: { id: u.id, name: u.name, email, role: u.role },
     };

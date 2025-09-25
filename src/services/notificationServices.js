@@ -1,12 +1,12 @@
 import { db } from "../../drizzle-db.js";
 import { users, notifications, notificationReads } from "../../drizzle/migrations/schema.js";
-import { eq, ilike, desc, asc, count, or, sql, and, isNull } from "drizzle-orm";
+import { eq, ilike, desc, asc, count, or, sql, and, isNull, gte } from "drizzle-orm";
 import { timeAgo } from "../utils/getTimeAgo.js";
 
 
 
 export const getNotificationsByUserData = async (userData) => {
-    const { role, id: userId } = userData;
+    const { role, id: userId, userCreatedAt } = userData;
 
     const notifications = await db.select(
         {
@@ -42,7 +42,7 @@ export const getNotificationsByUserData = async (userData) => {
 
 
 export const getUnreadNotifications = async (userData) => {
-    const { role, id: userId, created_at: userCreatedAt } = userData;
+    const { role, id: userId, userCreatedAt } = userData;
 
     const unreadNotifications = await db
         .select({
@@ -59,7 +59,7 @@ export const getUnreadNotifications = async (userData) => {
         )
         .where(
             and(
-                gte(notifications.created_at, userCreatedAt),  
+                gte(notifications.created_at, userCreatedAt),
                 or(
                     eq(notifications.recipient_id, userId),
                     eq(notifications.recipient_role, role)
@@ -81,7 +81,7 @@ export const getUnreadNotifications = async (userData) => {
         )
         .where(
             and(
-                gte(notifications.created_at, userCreatedAt),  
+                gte(notifications.created_at, userCreatedAt),
                 or(
                     eq(notifications.recipient_id, userId),
                     eq(notifications.recipient_role, role)
@@ -108,7 +108,7 @@ export const getPaginatedNotificationsByUserData = async (
     page = 1,
     pageSize = 10
 ) => {
-    const { role, id: userId } = userData;
+    const { role, id: userId, userCreatedAt } = userData;
     const pageNumber = Number(page);
     const pageSizeNumber = Number(pageSize);
     const offset = (pageNumber - 1) * pageSizeNumber;
@@ -135,7 +135,7 @@ export const getPaginatedNotificationsByUserData = async (
         )
         .where(
             and(
-                gte(notifications.created_at, userCreatedAt),  
+                gte(notifications.created_at, userCreatedAt),
                 or(
                     eq(notifications.recipient_id, userId),
                     eq(notifications.recipient_role, role)
@@ -151,7 +151,7 @@ export const getPaginatedNotificationsByUserData = async (
         .from(notifications)
         .where(
             and(
-                gte(notifications.created_at, userCreatedAt),  
+                gte(notifications.created_at, userCreatedAt),
                 or(
                     eq(notifications.recipient_id, userId),
                     eq(notifications.recipient_role, role)
