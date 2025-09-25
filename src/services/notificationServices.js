@@ -23,9 +23,12 @@ export const getNotificationsByUserData = async (userData) => {
             )
         )
         .where(
-            or(
-                eq(notifications.recipient_id, userId),
-                eq(notifications.recipient_role, role)
+            and(
+                gte(notifications.created_at, userCreatedAt),   // 👈 filter here too
+                or(
+                    eq(notifications.recipient_id, userId),
+                    eq(notifications.recipient_role, role)
+                )
             )
         )
         .orderBy(desc(notifications.created_at))
@@ -39,14 +42,13 @@ export const getNotificationsByUserData = async (userData) => {
 
 
 export const getUnreadNotifications = async (userData) => {
-    const { role, id: userId } = userData;
+    const { role, id: userId, created_at: userCreatedAt } = userData;
 
-    const unreadNotifications = await db.select(
-        {
+    const unreadNotifications = await db
+        .select({
             ...notifications,
             is_read: sql`CASE WHEN ${notificationReads.id} IS NULL THEN false ELSE true END`,
-        }
-    )
+        })
         .from(notifications)
         .leftJoin(
             notificationReads,
@@ -56,14 +58,16 @@ export const getUnreadNotifications = async (userData) => {
             )
         )
         .where(
-            or(
-                eq(notifications.recipient_id, userId),
-                eq(notifications.recipient_role, role)
+            and(
+                gte(notifications.created_at, userCreatedAt),  
+                or(
+                    eq(notifications.recipient_id, userId),
+                    eq(notifications.recipient_role, role)
+                )
             )
         )
         .orderBy(desc(notifications.created_at))
         .limit(5);
-
 
     const [totalUnread] = await db
         .select({ count: sql`count(*)` })
@@ -77,6 +81,7 @@ export const getUnreadNotifications = async (userData) => {
         )
         .where(
             and(
+                gte(notifications.created_at, userCreatedAt),  
                 or(
                     eq(notifications.recipient_id, userId),
                     eq(notifications.recipient_role, role)
@@ -85,15 +90,16 @@ export const getUnreadNotifications = async (userData) => {
             )
         );
 
-
     return {
-        unreadNotifications: unreadNotifications.filter(notification => !notification.is_read).map(notification => ({
-            ...notification,
-            time: timeAgo(notification.created_at),
-        })),
+        unreadNotifications: unreadNotifications
+            .filter(notification => !notification.is_read)
+            .map(notification => ({
+                ...notification,
+                time: timeAgo(notification.created_at),
+            })),
         totalUnread: Number(totalUnread.count),
     };
-}
+};
 
 
 
@@ -128,9 +134,12 @@ export const getPaginatedNotificationsByUserData = async (
             )
         )
         .where(
-            or(
-                eq(notifications.recipient_id, userId),
-                eq(notifications.recipient_role, role)
+            and(
+                gte(notifications.created_at, userCreatedAt),  
+                or(
+                    eq(notifications.recipient_id, userId),
+                    eq(notifications.recipient_role, role)
+                )
             )
         )
         .orderBy(desc(notifications.created_at))
@@ -141,9 +150,12 @@ export const getPaginatedNotificationsByUserData = async (
         .select({ count: sql`count(*)` })
         .from(notifications)
         .where(
-            or(
-                eq(notifications.recipient_id, userId),
-                eq(notifications.recipient_role, role)
+            and(
+                gte(notifications.created_at, userCreatedAt),  
+                or(
+                    eq(notifications.recipient_id, userId),
+                    eq(notifications.recipient_role, role)
+                )
             )
         );
 
