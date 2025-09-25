@@ -61,6 +61,7 @@ export const createPatients = async (req, res) => {
     res.status(200).json({ newPatient, message: "Submitted Successfully" });
   } catch (err) {
 
+
     if (err.code === "DUPLICATE_HOSPITAL_NUMBER") {
       return res.status(400).json({
         message: err.message,

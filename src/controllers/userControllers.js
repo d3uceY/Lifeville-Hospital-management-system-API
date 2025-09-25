@@ -113,3 +113,13 @@ export async function deleteUserController(req, res) {
         res.status(500).json({ error: err.message });
     }
 }
+
+export async function toggleUserController(req, res) {
+    try {
+        const disabledUser = await userService.toggleUser(req.params.id);
+        res.status(200).json(disabledUser);
+    } catch (err) {
+        console.error(err)
+        res.status(500).json({ error: err.message });
+    }
+}

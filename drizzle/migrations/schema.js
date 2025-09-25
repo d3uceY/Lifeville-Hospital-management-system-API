@@ -92,7 +92,7 @@ export const patients = pgTable("patients", {
 		}),
 
 	date: date().notNull(),
-	hospital_number: varchar("hospital_number", { length: 50 }).notNull(),
+	hospital_number: integer("hospital_number").notNull(),
 	first_name: varchar("first_name", { length: 255 }).notNull(),
 	other_names: varchar("other_names", { length: 255 }),
 
@@ -383,6 +383,7 @@ export const users = pgTable("users", {
 	created_by: integer("created_by"),
 	created_at: timestamp("created_at", { withTimezone: true, mode: 'string' }).defaultNow().notNull(),
 	name: varchar({ length: 255 }).default('Super Admin').notNull(),
+	is_active: boolean("is_active").default(true).notNull(),   // 👈 added here
 }, (table) => [
 	index("idx_users_role").using("btree", table.role.asc().nullsLast().op("text_ops")),
 	foreignKey({
@@ -531,15 +532,15 @@ export const patientVisits = pgTable("patient_visits", {
 export const notificationReads = pgTable("notification_reads", {
 	id: serial("id").primaryKey(),
 	notification_id: integer("notification_id")
-	.notNull()
-	.references(() => notifications.id, { onDelete: "cascade" }),
+		.notNull()
+		.references(() => notifications.id, { onDelete: "cascade" }),
 	user_id: integer("user_id").notNull(),
 	read_at: timestamp("read_at").defaultNow(),
 }, (table) => ({
 	uniqNotificationUser: uniqueIndex("uniq_notification_user").on(
 		table.notification_id,
 		table.user_id
-    ),
+	),
 })
 );
 

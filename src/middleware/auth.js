@@ -7,6 +7,7 @@ export async function authenticate(req, res, next) {
       const payload = jwt.verify(auth[1], process.env.JWT_ACCESS_KEY);
       req.userId = payload.sub;
       req.userRole = payload.role;
+      req.userCreatedAt = payload.createdAt;
       return next();
     } catch {
       return res.sendStatus(401);

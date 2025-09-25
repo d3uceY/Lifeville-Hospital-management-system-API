@@ -33,6 +33,7 @@ export const getPatientNameAndId = getPatientNameId;
 
 export const createPatient = async (patientData) => {
   const {
+    hospitalNumber,
     date,
     surname,
     firstName,
@@ -61,24 +62,28 @@ export const createPatient = async (patientData) => {
   } = patientData;
 
   // Get the last patient to determine the new hospital number
-  const [lastPatient] = await db
-    .select({ hospital_number: patients.hospital_number })
-    .from(patients)
-    .orderBy(desc(patients.patient_id)) // safest to use primary key id
-    .limit(1);
+  let newHospitalNumber; // default starting number
+  if (!hospitalNumber) {
+    const [lastPatient] = await db
+      .select({ hospital_number: patients.hospital_number })
+      .from(patients)
+      .orderBy(desc(patients.hospital_number))
+      .limit(1);
 
-  let newHospitalNumber = 1; // default starting number
-  if (lastPatient) {
-    // Ensure it's an integer before incrementing
-    newHospitalNumber = Number(lastPatient.hospital_number) + 1;
+    if (lastPatient) {
+      newHospitalNumber = 1;
+      // Ensure it's an integer before incrementing
+      newHospitalNumber = Number(lastPatient.hospital_number) + 1;
+    }
   }
 
-  // Insert new patient with the generated hospital number
+
+  // Insert new patient with the generated hospital number if hospitalNumber is not provided
   const [newPatient] = await db
     .insert(patients)
     .values({
       date,
-      hospital_number: newHospitalNumber, // auto-incremented
+      hospital_number: hospitalNumber || newHospitalNumber, // auto-incremented if hospitalNumber is not provided
       surname,
       first_name: firstName,
       other_names: otherNames,

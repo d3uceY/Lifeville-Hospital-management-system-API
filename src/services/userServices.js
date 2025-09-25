@@ -5,9 +5,9 @@ import bcrypt from "bcrypt";
 import env from "dotenv";
 env.config();
 
-const ACCESS_EXPIRES = process.env.ACCESS_EXPIRES;
-const REFRESH_EXPIRES = process.env.REFRESH_EXPIRES;
-const SALT_ROUNDS = Number(process.env.SALT_ROUNDS);
+const ACCESS_EXPIRES = process.env.ACCESS_EXPIRES;  //30m
+const REFRESH_EXPIRES = process.env.REFRESH_EXPIRES;  //30d
+const SALT_ROUNDS = Number(process.env.SALT_ROUNDS); //12
 
 
 export async function seedSuperAdmin() {
@@ -27,7 +27,7 @@ export const insertSeedSuperAdmin = async (email, hash) => {
 
 function signAccess(user) {
     return jwt.sign(
-        { sub: user.id, role: user.role },
+        { sub: user.id, role: user.role, createdAt: user.createdAt },
         process.env.JWT_ACCESS_KEY,
         { expiresIn: ACCESS_EXPIRES }
     );
@@ -42,8 +42,15 @@ function signRefresh(userId, jti) {
 }
 
 export async function login({ email, password }) {
-    const { rows } = await query(`SELECT name, id, password_hash, role FROM users WHERE email = $1`, [email.toLowerCase()]);
+    const { rows } = await query(`SELECT name, id, password_hash, created_at, is_active, role FROM users WHERE email = $1`, [email.toLowerCase()]);
     const u = rows[0];
+    // check if user is enabled
+    if (!u || !u.is_active) {
+        const err = new Error("Invalid credentials");
+        err.status = 401;
+        throw err;
+    }
+    // check if password is correct
     if (!u || !(await bcrypt.compare(password, u.password_hash))) {
         const err = new Error("Invalid credentials");
         err.status = 401;
@@ -56,7 +63,7 @@ export async function login({ email, password }) {
     await query(`UPDATE users SET refresh_token = $1 WHERE id = $2`, [hashJti, u.id]);
 
     return {
-        accessToken: signAccess({ id: u.id, role: u.role }),
+        accessToken: signAccess({ id: u.id, role: u.role, createdAt: u.created_at }),
         refreshToken: rtoken,
         user: { id: u.id, name: u.name, email, role: u.role },
     };
@@ -73,10 +80,18 @@ export async function refreshAccess(oldRefresh) {
     }
 
     const { rows } = await query(`SELECT refresh_token, role, email, name FROM users WHERE id = $1`, [payload.sub]);
+    const u = rows[0];
 
     if (!rows[0]) {
         const err = new Error('User not found');
         err.status = 404;
+        throw err;
+    }
+
+    // check if user is enabled
+    if (!u || !u.is_active) {
+        const err = new Error("Invalid credentials");
+        err.status = 401;
         throw err;
     }
 
@@ -114,18 +129,21 @@ export async function createStaff({ email, password, role, name }, creatorId) {
     return res.rows[0];
 }
 
-// Optionally, for Admin panel
 export async function listUsers() {
-    const { rows } = await query(`SELECT 
-  u.id,
-  u.name,
-  u.email,
-  u.role,
-  u.created_by,
-  cb.name AS created_by_name,
-  u.created_at
-FROM users u
-LEFT JOIN users cb ON u.created_by = cb.id;`);
+    const { rows } = await query(`
+      SELECT 
+        u.id,
+        u.name,
+        u.email,
+        u.role,
+        u.is_active,
+        u.created_by,
+        cb.name AS created_by_name,
+        u.created_at
+      FROM users u
+      LEFT JOIN users cb ON u.created_by = cb.id
+      ORDER BY u.id DESC;
+    `);
     return rows;
 }
 
@@ -138,7 +156,19 @@ export async function updateUser(userData, userId) {
 }
 
 
-export async function deleteUser (userId) {
+export async function deleteUser(userId) {
     const { rows } = await query(`DELETE FROM users WHERE id = $1 RETURNING *`, [userId]);
+    return rows[0];
+}
+
+export async function toggleUser(userId) {
+    const { rows } = await query(
+        `UPDATE users 
+       SET is_active = NOT is_active,
+        refresh_token = NULL
+       WHERE id = $1 
+       RETURNING *`,
+        [userId]
+    );
     return rows[0];
 }
