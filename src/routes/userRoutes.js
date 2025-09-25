@@ -15,5 +15,6 @@ router.post("/users", authenticate, authorize(["superadmin"]), userControllers.c
 router.get("/users", authenticate, authorize(["superadmin"]), userControllers.listUsersController);
 router.put("/users/:id", authenticate, authorize(["superadmin"]), userControllers.updateUserController);
 router.delete("/users/:id", authenticate, authorize(["superadmin"]), userControllers.deleteUserController);
+router.put("/users/:id/toggle", authenticate, authorize(["superadmin"]), userControllers.toggleUserController);
 
 export default router;

@@ -42,8 +42,15 @@ function signRefresh(userId, jti) {
 }
 
 export async function login({ email, password }) {
-    const { rows } = await query(`SELECT name, id, password_hash, role FROM users WHERE email = $1`, [email.toLowerCase()]);
+    const { rows } = await query(`SELECT name, id, password_hash, is_active, role FROM users WHERE email = $1`, [email.toLowerCase()]);
     const u = rows[0];
+    // check if user is enabled
+    if (!u || !u.is_active) {
+        const err = new Error("Invalid credentials");
+        err.status = 401;
+        throw err;
+    }
+    // check if password is correct
     if (!u || !(await bcrypt.compare(password, u.password_hash))) {
         const err = new Error("Invalid credentials");
         err.status = 401;
@@ -73,10 +80,18 @@ export async function refreshAccess(oldRefresh) {
     }
 
     const { rows } = await query(`SELECT refresh_token, role, email, name FROM users WHERE id = $1`, [payload.sub]);
+    const u = rows[0];
 
     if (!rows[0]) {
         const err = new Error('User not found');
         err.status = 404;
+        throw err;
+    }
+
+    // check if user is enabled
+    if (!u || !u.is_active) {
+        const err = new Error("Invalid credentials");
+        err.status = 401;
         throw err;
     }
 
@@ -114,18 +129,21 @@ export async function createStaff({ email, password, role, name }, creatorId) {
     return res.rows[0];
 }
 
-// Optionally, for Admin panel
 export async function listUsers() {
-    const { rows } = await query(`SELECT 
-  u.id,
-  u.name,
-  u.email,
-  u.role,
-  u.created_by,
-  cb.name AS created_by_name,
-  u.created_at
-FROM users u
-LEFT JOIN users cb ON u.created_by = cb.id;`);
+    const { rows } = await query(`
+      SELECT 
+        u.id,
+        u.name,
+        u.email,
+        u.role,
+        u.is_active,
+        u.created_by,
+        cb.name AS created_by_name,
+        u.created_at
+      FROM users u
+      LEFT JOIN users cb ON u.created_by = cb.id
+      ORDER BY u.id DESC;
+    `);
     return rows;
 }
 
@@ -138,7 +156,19 @@ export async function updateUser(userData, userId) {
 }
 
 
-export async function deleteUser (userId) {
+export async function deleteUser(userId) {
     const { rows } = await query(`DELETE FROM users WHERE id = $1 RETURNING *`, [userId]);
+    return rows[0];
+}
+
+export async function toggleUser(userId) {
+    const { rows } = await query(
+        `UPDATE users 
+       SET is_active = NOT is_active,
+        refresh_token = NULL
+       WHERE id = $1 
+       RETURNING *`,
+        [userId]
+    );
     return rows[0];
 }
