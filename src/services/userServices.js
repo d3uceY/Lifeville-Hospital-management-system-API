@@ -5,9 +5,9 @@ import bcrypt from "bcrypt";
 import env from "dotenv";
 env.config();
 
-const ACCESS_EXPIRES = process.env.ACCESS_EXPIRES;  //30m
-const REFRESH_EXPIRES = process.env.REFRESH_EXPIRES;  //30d
-const SALT_ROUNDS = Number(process.env.SALT_ROUNDS); //12
+const ACCESS_EXPIRES = "30m";  //30m
+const REFRESH_EXPIRES = "30d";  //30d
+const SALT_ROUNDS = 12 //12
 
 
 export async function seedSuperAdmin() {
@@ -79,10 +79,11 @@ export async function refreshAccess(oldRefresh) {
         throw err;
     }
 
-    const { rows } = await query(`SELECT refresh_token, role, email, name FROM users WHERE id = $1`, [payload.sub]);
+    const { rows } = await query(`SELECT refresh_token, is_active, role, email, name FROM users WHERE id = $1`, [payload.sub]);
     const u = rows[0];
 
-    if (!rows[0]) {
+
+    if (!u) {
         const err = new Error('User not found');
         err.status = 404;
         throw err;
