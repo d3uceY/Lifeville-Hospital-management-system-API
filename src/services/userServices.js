@@ -79,7 +79,7 @@ export async function refreshAccess(oldRefresh) {
         throw err;
     }
 
-    const { rows } = await query(`SELECT refresh_token, is_active, role, email, name FROM users WHERE id = $1`, [payload.sub]);
+    const { rows } = await query(`SELECT refresh_token, created_at, is_active, role, email, name FROM users WHERE id = $1`, [payload.sub]);
     const u = rows[0];
 
 
@@ -109,7 +109,7 @@ export async function refreshAccess(oldRefresh) {
     await query(`UPDATE users SET refresh_token = $1 WHERE id = $2`, [newHash, payload.sub]);
 
     return {
-        accessToken: signAccess({ id: payload.sub, role: rows[0].role }),
+        accessToken: signAccess({ id: payload.sub, role: rows[0].role, createdAt: rows[0].created_at }),
         refreshToken: newRefresh,
         user: { id: payload.sub, name: rows[0].name, email: rows[0].email, role: rows[0].role },
     };
