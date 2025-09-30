@@ -24,7 +24,7 @@ export const getNotificationsByUserData = async (userData) => {
         )
         .where(
             and(
-                gte(notifications.created_at, userCreatedAt),   // 👈 filter here too
+                gte(notifications.created_at, userCreatedAt),   
                 or(
                     eq(notifications.recipient_id, userId),
                     eq(notifications.recipient_role, role)
