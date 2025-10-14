@@ -137,10 +137,10 @@ export const updatePatient = async (patientId, patientData) => {
     throw err;
   }
 
-  // Destructure + map camelCase → snake_case
+
   const {
     date,
-    // hospitalNumber,
+    hospitalNumber,
     surname,
     firstName,
     otherNames,
@@ -169,7 +169,7 @@ export const updatePatient = async (patientId, patientData) => {
 
   const updateData = {
     ...(date !== undefined && { date }),
-    // ...(hospitalNumber !== undefined && { hospital_number: hospitalNumber }),
+    ...(hospitalNumber !== undefined && { hospital_number: hospitalNumber }),
     ...(surname !== undefined && { surname }),
     ...(firstName !== undefined && { first_name: firstName }),
     ...(otherNames !== undefined && { other_names: otherNames }),
